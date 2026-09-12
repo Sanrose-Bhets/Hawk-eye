@@ -161,7 +161,7 @@ export default function StudentOverview() {
       {/* 1. Main Header */}
       <header className="border-b border-gray-200 pb-6 space-y-1">
         <h1 className="text-2xl font-semibold text-gray-900 leading-tight">
-          {greeting}, {studentName}.
+          {greeting}, <span className="text-primary">{studentName}</span>.
         </h1>
         <p className="text-sm text-gray-500 font-sans">
           Welcome to the Student portal. Access your enrolled modules,
