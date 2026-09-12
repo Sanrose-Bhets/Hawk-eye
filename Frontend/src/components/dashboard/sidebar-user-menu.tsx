@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  ChevronsUpDown,
   UserPen,
   LogOut,
   CheckCircle2,
@@ -98,7 +97,6 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
       : user?.role === 'STUDENT_SERVICE'
         ? 'Student Service'
         : 'User');
-  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <div className="relative" ref={menuRef}>
@@ -111,8 +109,8 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
           isOpen ? 'bg-gray-100' : 'hover:bg-gray-50',
         )}
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white font-bold text-xs shadow-2xs">
-          {initials}
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-100 border border-gray-200 text-gray-400">
+          <UserIcon size={18} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold text-gray-900 truncate leading-tight">
@@ -122,10 +120,6 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
             {roleDisplay}
           </div>
         </div>
-        <ChevronsUpDown
-          size={16}
-          className="text-gray-400 shrink-0 transition-transform"
-        />
       </button>
 
       {/* Upward Dropdown Menu */}
