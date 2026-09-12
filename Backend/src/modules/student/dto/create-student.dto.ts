@@ -25,12 +25,12 @@ export class CreateStudentDto {
   @IsNotEmpty()
   email!: string;
 
-  @ApiProperty({ example: 'student123', minLength: 6, maxLength: 128 })
+  @ApiPropertyOptional({ example: 'student123', minLength: 6, maxLength: 128 })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(6)
   @MaxLength(128)
-  password!: string;
+  password?: string;
 
   @ApiProperty({ example: 'Kathmandu, Nepal' })
   @Trim()
@@ -52,8 +52,8 @@ export class CreateStudentDto {
   @IsNotEmpty()
   parentEmail!: string;
 
-  @ApiPropertyOptional({ example: 'uuid-of-faculty' })
+  @ApiProperty({ example: 'uuid-of-faculty' })
   @IsString()
-  @IsOptional()
-  facultyId?: string;
+  @IsNotEmpty()
+  facultyId!: string;
 }

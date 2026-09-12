@@ -63,3 +63,33 @@ export interface DummyStudent {
   name: string;
   email: string;
 }
+
+export interface Student {
+  id: string;
+  name: string;
+  email: string;
+  address: string;
+  contact: string;
+  parentEmail: string;
+  image: string | null;
+  role: string;
+  facultyId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface Faculty {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

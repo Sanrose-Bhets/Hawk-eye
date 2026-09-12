@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { SeatPlanModule } from './modules/seat-plan/seat-plan.module.js';
 import { StudentModule } from './modules/student/student.module.js';
 import { FacultyModule } from './modules/faculty/faculty.module.js';
+import { ModuleModule } from './modules/module/module.module.js';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FacultyModule } from './modules/faculty/faculty.module.js';
     SeatPlanModule,
     StudentModule,
     FacultyModule,
+    ModuleModule,
   ],
 })
 export class AppModule {}

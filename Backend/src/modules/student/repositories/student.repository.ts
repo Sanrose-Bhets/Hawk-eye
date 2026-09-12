@@ -16,6 +16,8 @@ export class StudentRepository implements IStudentRepository {
     address: string;
     contact: string;
     parentEmail: string;
+    facultyId: string;
+    role: 'STUDENT' | 'STUDENT_SERVICE' | 'RTE';
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<StudentModel> {
@@ -40,6 +42,14 @@ export class StudentRepository implements IStudentRepository {
     return this.prisma.orm.public.Student.where({
       email,
     }).first() as Promise<StudentModel | null>;
+  }
+
+  async count(): Promise<number> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const results = await (
+      this.prisma.orm.public.Student.where({}) as any
+    ).all();
+    return results.length;
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

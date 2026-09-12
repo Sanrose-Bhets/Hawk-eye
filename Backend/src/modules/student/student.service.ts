@@ -5,13 +5,16 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
+import { Temporal } from 'temporal-polyfill';
 import bcrypt from 'bcrypt';
 import sharp from 'sharp';
 import { randomUUID } from 'crypto';
 import { STUDENT_REPOSITORY } from './constants/student.constants.js';
 import { FILE_STORAGE } from '../../common/file-storage/file-storage.constants.js';
+import { FACULTY_REPOSITORY } from '../faculty/constants/faculty.constants.js';
 import type { IStudentRepository } from './interfaces/student.repository.interface.js';
 import type { IFileStorage } from '../../common/file-storage/file-storage.interface.js';
+import type { IFacultyRepository } from '../faculty/interfaces/faculty.repository.interface.js';
 import { CreateStudentDto } from './dto/create-student.dto.js';
 import { UpdateStudentDto } from './dto/update-student.dto.js';
 import { StudentEntity } from './entities/student.entity.js';
@@ -20,6 +23,10 @@ import { toStudent } from './factories/student.factory.js';
 const DEFAULT_PASSWORD = 'student123';
 const SALT_ROUNDS = 10;
 
+function now() {
+  return Temporal.Instant.fromEpochMilliseconds(Date.now());
+}
+
 @Injectable()
 export class StudentService {
   constructor(
@@ -27,6 +34,8 @@ export class StudentService {
     private readonly studentRepo: IStudentRepository,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: IFileStorage,
+    @Inject(FACULTY_REPOSITORY)
+    private readonly facultyRepo: IFacultyRepository,
   ) {}
 
   async create(dto: CreateStudentDto): Promise<StudentEntity> {
@@ -35,10 +44,23 @@ export class StudentService {
       throw new ConflictException('Student with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    const now = new Date();
+    const hashedPassword = await bcrypt.hash(
+      dto.password || DEFAULT_PASSWORD,
+      SALT_ROUNDS,
+    );
 
-    const model = await this.studentRepo.create({
+    const data: {
+      name: string;
+      email: string;
+      password: string;
+      address: string;
+      contact: string;
+      parentEmail: string;
+      facultyId: string;
+      role: 'STUDENT';
+      createdAt: Temporal.Instant;
+      updatedAt: Temporal.Instant;
+    } = {
       name: dto.name,
       email: dto.email,
       password: hashedPassword,
@@ -46,16 +68,64 @@ export class StudentService {
       contact: dto.contact,
       parentEmail: dto.parentEmail,
       facultyId: dto.facultyId,
-      createdAt: now,
-      updatedAt: now,
-    });
+      role: 'STUDENT',
+      createdAt: now(),
+      updatedAt: now(),
+    };
+
+    const model = await this.studentRepo.create(data);
 
     return toStudent(model);
   }
 
-  async findAll(): Promise<StudentEntity[]> {
-    const models = await this.studentRepo.findAll();
-    return models.map(toStudent);
+  async findAll(filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    faculty?: string;
+  }): Promise<{
+    data: StudentEntity[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+
+    let all = await this.studentRepo.findAll();
+
+    if (filters.faculty) {
+      const faculty = await this.facultyRepo.findByName(filters.faculty);
+      if (faculty) {
+        all = all.filter((s) => s.facultyId === faculty.id);
+      } else {
+        return { data: [], total: 0, page, limit, totalPages: 0 };
+      }
+    }
+
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      all = all.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.email.toLowerCase().includes(q) ||
+          s.contact.toLowerCase().includes(q),
+      );
+    }
+
+    const total = all.length;
+    const totalPages = Math.ceil(total / limit);
+    const offset = (page - 1) * limit;
+    const paged = all.slice(offset, offset + limit);
+
+    return {
+      data: paged.map(toStudent),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 
   async findById(id: string): Promise<StudentEntity> {
@@ -72,7 +142,7 @@ export class StudentService {
       throw new NotFoundException('Student not found');
     }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: now() };
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.email !== undefined) {
@@ -123,9 +193,20 @@ export class StudentService {
           dto.password || DEFAULT_PASSWORD,
           SALT_ROUNDS,
         );
-        const now = new Date();
+        const ts = now();
 
-        await this.studentRepo.create({
+        const data: {
+          name: string;
+          email: string;
+          password: string;
+          address: string;
+          contact: string;
+          parentEmail: string;
+          facultyId: string;
+          role: 'STUDENT';
+          createdAt: Temporal.Instant;
+          updatedAt: Temporal.Instant;
+        } = {
           name: dto.name,
           email: dto.email,
           password: hashedPassword,
@@ -133,9 +214,12 @@ export class StudentService {
           contact: dto.contact,
           parentEmail: dto.parentEmail,
           facultyId: dto.facultyId,
-          createdAt: now,
-          updatedAt: now,
-        });
+          role: 'STUDENT',
+          createdAt: ts,
+          updatedAt: ts,
+        };
+
+        await this.studentRepo.create(data);
 
         created++;
       } catch (err) {
@@ -197,7 +281,7 @@ export class StudentService {
 
     await this.studentRepo.update(id, {
       image: uploadedKey,
-      updatedAt: new Date(),
+      updatedAt: now(),
     });
 
     return this.findById(id);
