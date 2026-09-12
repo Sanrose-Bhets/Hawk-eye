@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { LayoutGrid, GraduationCap, Award, LogOut } from 'lucide-react';
+import { LayoutGrid, GraduationCap, Award, LogOut, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 import { clearCredentials } from '@/redux/userSlice';
@@ -40,8 +40,8 @@ export function Sidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
       <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm shadow-sm">
-          RTE
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
+          <Shield size={20} />
         </div>
         <div>
           <span className="text-base font-semibold text-gray-900 block leading-tight">
