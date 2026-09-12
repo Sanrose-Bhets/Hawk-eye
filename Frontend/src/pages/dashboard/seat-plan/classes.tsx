@@ -57,30 +57,35 @@ export default function ClassesPage() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Classes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+            Classes
+          </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Manage class seat assignments
+            Manage class seat assignments and student rosters
           </p>
         </div>
-        <Button onClick={() => navigate(`${basePath}/classes/new`)}>
-          <Plus size={18} className="mr-2" />
+        <Button
+          onClick={() => navigate(`${basePath}/classes/new`)}
+          className="shrink-0 gap-2"
+        >
+          <Plus size={18} />
           New Class
         </Button>
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative">
         <Search
           size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
         />
         <Input
           placeholder="Search by class or student name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
+          className="pl-10 h-11 bg-white"
         />
       </div>
 
@@ -105,63 +110,78 @@ export default function ClassesPage() {
                 : 'Create a class to start assigning seats'}
             </p>
             {!searchQuery && (
-              <Button onClick={() => navigate(`${basePath}/classes/new`)}>
-                <Plus size={18} className="mr-2" />
+              <Button
+                onClick={() => navigate(`${basePath}/classes/new`)}
+                className="gap-2"
+              >
+                <Plus size={18} />
                 New Class
               </Button>
             )}
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredClasses.map((cls) => (
-            <Card key={cls.id} className="hover:shadow-md transition-shadow">
-              <CardContent>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{cls.name}</h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {cls.assignments.length} student
-                      {cls.assignments.length !== 1 ? 's' : ''} assigned
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => navigate(`${basePath}/classes/${cls.id}`)}
-                    >
-                      <Eye size={16} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setClassToDelete(cls)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-                </div>
-                {cls.assignments.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {cls.assignments.slice(0, 5).map((a, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center rounded-lg bg-gray-100 px-2 py-1 text-xs text-gray-600"
+            <Card
+              key={cls.id}
+              className="group relative overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-2xs hover:shadow-md hover:border-gray-300 transition-all duration-200 flex flex-col justify-between"
+            >
+              <CardContent className="p-5 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-gray-900 text-lg font-title truncate group-hover:text-primary transition-colors">
+                        {cls.name}
+                      </h3>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full bg-primary-light px-2.5 py-0.5 text-xs font-semibold text-primary">
+                          {cls.assignments.length} student
+                          {cls.assignments.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          navigate(`${basePath}/classes/${cls.id}`)
+                        }
+                        className="h-8 w-8 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+                        title="View Class"
                       >
-                        <span className="font-medium">
+                        <Eye size={15} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setClassToDelete(cls)}
+                        className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                        title="Delete Class"
+                      >
+                        <Trash2 size={15} />
+                      </Button>
+                    </div>
+                  </div>
+                  {cls.assignments.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-1.5">
+                      {cls.assignments.slice(0, 5).map((a, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex h-7 items-center rounded-lg bg-gray-50 border border-gray-200/70 px-2 text-xs font-medium text-gray-700"
+                        >
                           {a.studentName.split(' ')[0]}
                         </span>
-                      </span>
-                    ))}
-                    {cls.assignments.length > 5 && (
-                      <span className="inline-flex items-center px-2 text-xs text-gray-400">
-                        +{cls.assignments.length - 5} more
-                      </span>
-                    )}
-                  </div>
-                )}
+                      ))}
+                      {cls.assignments.length > 5 && (
+                        <span className="inline-flex h-7 items-center px-2 text-xs font-medium text-gray-400 bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
+                          +{cls.assignments.length - 5} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

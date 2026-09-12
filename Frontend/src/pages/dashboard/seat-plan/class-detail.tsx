@@ -177,7 +177,7 @@ export default function ClassDetailPage() {
 
   if (loading || !cls || !plan) {
     return (
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         <Card>
           <CardContent className="flex items-center justify-center py-16">
             <p className="text-sm text-gray-500">Loading...</p>
@@ -188,35 +188,40 @@ export default function ClassDetailPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <button
-        type="button"
-        onClick={() => navigate(`${basePath}/classes`)}
-        className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
-      >
-        <ArrowLeft size={16} />
-        Back to Classes
-      </button>
+    <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/classes`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Classes
+        </button>
 
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{cls.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {cls.assignments.length} / {plan.seats.length} seats assigned
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowStudentList(!showStudentList)}
-          >
-            <Users size={16} className="mr-2" />
-            {showStudentList ? 'Hide' : 'Show'} Students
-          </Button>
-          <Button onClick={handleExport}>
-            <Download size={16} className="mr-2" />
-            Export PNG
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+              {cls.name}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {cls.assignments.length} / {plan.seats.length} seats assigned
+            </p>
+          </div>
+          <div className="flex gap-2.5">
+            <Button
+              variant="outline"
+              onClick={() => setShowStudentList(!showStudentList)}
+              className="gap-2"
+            >
+              <Users size={16} />
+              {showStudentList ? 'Hide' : 'Show'} Students
+            </Button>
+            <Button onClick={handleExport} className="gap-2">
+              <Download size={16} />
+              Export PNG
+            </Button>
+          </div>
         </div>
       </div>
 

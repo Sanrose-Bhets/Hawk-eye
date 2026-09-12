@@ -59,7 +59,7 @@ export default function EditFloorPlanPage() {
 
   if (loading) {
     return (
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-5xl mx-auto">
         <Card>
           <CardContent className="flex items-center justify-center py-16">
             <p className="text-sm text-gray-500">Loading...</p>
@@ -70,17 +70,24 @@ export default function EditFloorPlanPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <button
-        type="button"
-        onClick={() => navigate(`${basePath}/floor-plans`)}
-        className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
-      >
-        <ArrowLeft size={16} />
-        Back to Floor Plans
-      </button>
+    <div className="w-full max-w-5xl mx-auto space-y-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/floor-plans`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Floor Plans
+        </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Floor Plan</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+          Edit Floor Plan
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Modify seating arrangement and layout properties
+        </p>
+      </div>
 
       <Card className="mb-6">
         <CardHeader>
