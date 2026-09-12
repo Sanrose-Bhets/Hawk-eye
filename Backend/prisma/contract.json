@@ -8,8 +8,16 @@
       "model": "Class",
       "namespace": "public"
     },
+    "faculty": {
+      "model": "Faculty",
+      "namespace": "public"
+    },
     "floorPlan": {
       "model": "FloorPlan",
+      "namespace": "public"
+    },
+    "module": {
+      "model": "Module",
       "namespace": "public"
     },
     "rTE": {
@@ -119,6 +127,98 @@
               "table": "class"
             }
           },
+          "Faculty": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "modules": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facultyId"
+                  ]
+                },
+                "to": {
+                  "model": "Module",
+                  "namespace": "public"
+                }
+              },
+              "students": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facultyId"
+                  ]
+                },
+                "to": {
+                  "model": "Student",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "faculty"
+            }
+          },
           "FloorPlan": {
             "fields": {
               "createdAt": {
@@ -188,6 +288,103 @@
               },
               "namespaceId": "public",
               "table": "floorPlan"
+            }
+          },
+          "Module": {
+            "fields": {
+              "code": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "facultyId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "moduleLeader": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "faculty": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "facultyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Faculty",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "code": {
+                  "column": "code"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "facultyId": {
+                  "column": "facultyId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "moduleLeader": {
+                  "column": "moduleLeader"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "module"
             }
           },
           "RTE": {
@@ -297,8 +494,22 @@
                   "kind": "scalar"
                 }
               },
+              "facultyId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "image": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -346,7 +557,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "faculty": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "facultyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Faculty",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "address": {
@@ -361,8 +588,14 @@
                 "email": {
                   "column": "email"
                 },
+                "facultyId": {
+                  "column": "facultyId"
+                },
                 "id": {
                   "column": "id"
+                },
+                "image": {
+                  "column": "image"
                 },
                 "name": {
                   "column": "name"
@@ -520,6 +753,53 @@
               },
               "uniques": []
             },
+            "faculty": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "name"
+                  ]
+                }
+              ]
+            },
             "floorPlan": {
               "columns": {
                 "createdAt": {
@@ -571,6 +851,83 @@
                   ]
                 }
               ]
+            },
+            "module": {
+              "columns": {
+                "code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "facultyId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "moduleLeader": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "facultyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "module"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "faculty"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "facultyId"
+                  ],
+                  "name": "module_facultyId_idx_ff3b8c32",
+                  "prefix": "module_facultyId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             },
             "rTE": {
               "checks": [
@@ -674,10 +1031,20 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "facultyId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "image": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "name": {
                   "codecId": "pg/text@1",
@@ -715,8 +1082,34 @@
                   "nullable": false
                 }
               },
-              "foreignKeys": [],
-              "indexes": [],
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "facultyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "student"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "faculty"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "facultyId"
+                  ],
+                  "name": "student_facultyId_idx_ff3b8c32",
+                  "prefix": "student_facultyId_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -815,10 +1208,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "87457827796b1dbfe475e4f1d6d721d33327b88f2519155e45fe25c957110f7b"
+    "storageHash": "b5885c2b7c7b6e6fef384e4a8479abddf2c8299059fd904ab55051098405edec"
   },
   "execution": {
-    "executionHash": "d24d82f5a4ee3dca380e9463d99aa5516151a632c6533fbf38b133554fe4bd0c",
+    "executionHash": "845f17e5ae6c36da154b8d38d5ee9960de052bf710f795ae9b66bc630f452fef",
     "mutations": {
       "defaults": [
         {
@@ -840,7 +1233,29 @@
           "ref": {
             "column": "id",
             "namespace": "public",
+            "table": "faculty"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
             "table": "floorPlan"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "module"
           }
         },
         {

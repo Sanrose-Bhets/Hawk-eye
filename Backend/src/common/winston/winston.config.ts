@@ -4,11 +4,13 @@ import 'winston-daily-rotate-file';
 
 const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 
-const consoleFormat = printf(({ level, message, timestamp, context, stack }) => {
-  const ctx = context ? `[${context}]` : '';
-  const err = stack ? `\n${stack}` : '';
-  return `${timestamp} ${level} ${ctx} ${message}${err}`;
-});
+const consoleFormat = printf(
+  ({ level, message, timestamp, context, stack }) => {
+    const ctx = context ? `[${context}]` : '';
+    const err = stack ? `\n${stack}` : '';
+    return `${timestamp} ${level} ${ctx} ${message}${err}`;
+  },
+);
 
 export const winstonConfig: WinstonModuleOptions = {
   level: process.env.LOG_LEVEL || 'info',

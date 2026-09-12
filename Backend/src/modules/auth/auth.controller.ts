@@ -13,7 +13,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login with email and password' })
-  @ApiResponse({ status: 200, description: 'Login successful', type: TokenResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful',
+    type: TokenResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   login(@Body() dto: LoginAuthDto): Promise<TokenResponseDto> {
     return this.authService.login(dto);
@@ -22,7 +26,11 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
-  @ApiResponse({ status: 200, description: 'Tokens refreshed', type: TokenResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens refreshed',
+    type: TokenResponseDto,
+  })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   refresh(@Body() dto: RefreshAuthDto): Promise<TokenResponseDto> {
     return this.authService.refresh(dto.refreshToken);

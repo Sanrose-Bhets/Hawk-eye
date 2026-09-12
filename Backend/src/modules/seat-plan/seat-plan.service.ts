@@ -9,7 +9,10 @@ import type { IFloorPlanRepository } from './interfaces/floor-plan.repository.in
 import type { IClassRepository } from './interfaces/class.repository.interface.js';
 import { toFloorPlan } from './factories/floor-plan.factory.js';
 import { toClass } from './factories/class.factory.js';
-import { FLOOR_PLAN_REPOSITORY, CLASS_REPOSITORY } from './constants/seat-plan.constants.js';
+import {
+  FLOOR_PLAN_REPOSITORY,
+  CLASS_REPOSITORY,
+} from './constants/seat-plan.constants.js';
 import type { FloorPlanEntity } from './entities/seat-plan.entity.js';
 import type { ClassEntity } from './entities/seat-plan.entity.js';
 
@@ -20,7 +23,8 @@ function now() {
 @Injectable()
 export class SeatPlanService {
   constructor(
-    @Inject(FLOOR_PLAN_REPOSITORY) private readonly floorPlanRepo: IFloorPlanRepository,
+    @Inject(FLOOR_PLAN_REPOSITORY)
+    private readonly floorPlanRepo: IFloorPlanRepository,
     @Inject(CLASS_REPOSITORY) private readonly classRepo: IClassRepository,
   ) {}
 
@@ -46,13 +50,17 @@ export class SeatPlanService {
     return toFloorPlan(model);
   }
 
-  async updateFloorPlan(id: string, dto: UpdateFloorPlanDto): Promise<FloorPlanEntity> {
+  async updateFloorPlan(
+    id: string,
+    dto: UpdateFloorPlanDto,
+  ): Promise<FloorPlanEntity> {
     const existing = await this.floorPlanRepo.findById(id);
     if (!existing) throw new NotFoundException('Floor plan not found');
 
     const updateData: Record<string, unknown> = { updatedAt: now() };
     if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.seats !== undefined) updateData.seats = dto.seats as unknown as JsonValue;
+    if (dto.seats !== undefined)
+      updateData.seats = dto.seats as unknown as JsonValue;
 
     await this.floorPlanRepo.update(id, updateData);
     return this.getFloorPlan(id);
@@ -96,7 +104,8 @@ export class SeatPlanService {
     const updateData: Record<string, unknown> = { updatedAt: now() };
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.floorPlanId !== undefined) updateData.floorPlanId = dto.floorPlanId;
-    if (dto.assignments !== undefined) updateData.assignments = dto.assignments as unknown as JsonValue;
+    if (dto.assignments !== undefined)
+      updateData.assignments = dto.assignments as unknown as JsonValue;
 
     await this.classRepo.update(id, updateData);
     return this.getClass(id);

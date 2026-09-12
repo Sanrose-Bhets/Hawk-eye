@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import type { IClassRepository, ClassModel } from '../interfaces/class.repository.interface.js';
+import type {
+  IClassRepository,
+  ClassModel,
+} from '../interfaces/class.repository.interface.js';
 import type { JsonValue } from '@prisma/orm-postgres/target/codec-types';
 
 @Injectable()
 export class ClassRepository implements IClassRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: { name: string; floorPlanId: string; assignments: JsonValue; createdAt: unknown; updatedAt: unknown }): Promise<ClassModel> {
+  async create(data: {
+    name: string;
+    floorPlanId: string;
+    assignments: JsonValue;
+    createdAt: unknown;
+    updatedAt: unknown;
+  }): Promise<ClassModel> {
     return this.prisma.orm.public.Class.create(data) as Promise<ClassModel>;
   }
 
@@ -18,7 +27,9 @@ export class ClassRepository implements IClassRepository {
   }
 
   async findById(id: string): Promise<ClassModel | null> {
-    return this.prisma.orm.public.Class.where({ id }).first() as Promise<ClassModel | null>;
+    return this.prisma.orm.public.Class.where({
+      id,
+    }).first() as Promise<ClassModel | null>;
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

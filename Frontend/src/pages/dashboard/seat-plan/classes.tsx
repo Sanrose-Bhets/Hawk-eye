@@ -1,40 +1,74 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Plus, Eye, Trash2, GraduationCap } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { classApi } from "@/lib/api/seat-plan"
-import type { ClassData } from "@/lib/types"
+import { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Eye, Trash2, GraduationCap, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { classApi } from '@/lib/api/seat-plan';
+import type { ClassData } from '@/lib/types';
 
 export default function ClassesPage() {
-  const navigate = useNavigate()
-  const [classes, setClasses] = useState<ClassData[]>([])
-  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
+  const [classes, setClasses] = useState<ClassData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    classApi.list().then((r) => {
-      setClasses(r.data)
-      setLoading(false)
-    }).catch(() => setLoading(false))
-  }, [])
+    classApi
+      .list()
+      .then((r) => {
+        setClasses(r.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const filteredClasses = useMemo(() => {
+    if (!searchQuery.trim()) return classes;
+    const q = searchQuery.toLowerCase();
+    return classes.filter(
+      (cls) =>
+        cls.name.toLowerCase().includes(q) ||
+        cls.assignments.some(
+          (a) =>
+            a.studentName.toLowerCase().includes(q) ||
+            a.studentEmail.toLowerCase().includes(q),
+        ),
+    );
+  }, [classes, searchQuery]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this class?")) return
-    await classApi.delete(id)
-    setClasses(classes.filter((c) => c.id !== id))
-  }
+    if (!confirm('Delete this class?')) return;
+    await classApi.delete(id);
+    setClasses(classes.filter((c) => c.id !== id));
+  };
 
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Classes</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage class seat assignments</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage class seat assignments
+          </p>
         </div>
-        <Button onClick={() => navigate("/dashboard/rte/classes/new")}>
+        <Button onClick={() => navigate('/dashboard/rte/classes/new')}>
           <Plus size={18} className="mr-2" />
           New Class
         </Button>
+      </div>
+
+      <div className="relative mb-6">
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+        <Input
+          placeholder="Search by class or student name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
+        />
       </div>
 
       {loading ? (
@@ -43,37 +77,48 @@ export default function ClassesPage() {
             <p className="text-sm text-gray-500">Loading...</p>
           </CardContent>
         </Card>
-      ) : classes.length === 0 ? (
+      ) : filteredClasses.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 mb-4">
               <GraduationCap size={32} className="text-gray-400" />
             </div>
-            <p className="text-base font-medium text-gray-900 mb-1">No classes yet</p>
-            <p className="text-sm text-gray-500 mb-5">Create a class to start assigning seats</p>
-            <Button onClick={() => navigate("/dashboard/rte/classes/new")}>
-              <Plus size={18} className="mr-2" />
-              New Class
-            </Button>
+            <p className="text-base font-medium text-gray-900 mb-1">
+              {searchQuery ? 'No matching classes' : 'No classes yet'}
+            </p>
+            <p className="text-sm text-gray-500 mb-5">
+              {searchQuery
+                ? 'Try a different search term'
+                : 'Create a class to start assigning seats'}
+            </p>
+            {!searchQuery && (
+              <Button onClick={() => navigate('/dashboard/rte/classes/new')}>
+                <Plus size={18} className="mr-2" />
+                New Class
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {classes.map((cls) => (
+          {filteredClasses.map((cls) => (
             <Card key={cls.id} className="hover:shadow-md transition-shadow">
               <CardContent>
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900">{cls.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {cls.assignments.length} student{cls.assignments.length !== 1 ? "s" : ""} assigned
+                      {cls.assignments.length} student
+                      {cls.assignments.length !== 1 ? 's' : ''} assigned
                     </p>
                   </div>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => navigate(`/dashboard/rte/classes/${cls.id}`)}
+                      onClick={() =>
+                        navigate(`/dashboard/rte/classes/${cls.id}`)
+                      }
                     >
                       <Eye size={16} />
                     </Button>
@@ -94,7 +139,9 @@ export default function ClassesPage() {
                         key={i}
                         className="inline-flex items-center rounded-lg bg-gray-100 px-2 py-1 text-xs text-gray-600"
                       >
-                        <span className="font-medium">{a.studentName.split(" ")[0]}</span>
+                        <span className="font-medium">
+                          {a.studentName.split(' ')[0]}
+                        </span>
                       </span>
                     ))}
                     {cls.assignments.length > 5 && (
@@ -110,5 +157,5 @@ export default function ClassesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

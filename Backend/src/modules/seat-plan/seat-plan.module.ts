@@ -4,7 +4,10 @@ import { SeatPlanService } from './seat-plan.service.js';
 import { FloorPlanRepository } from './repositories/floor-plan.repository.js';
 import { ClassRepository } from './repositories/class.repository.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
-import { FLOOR_PLAN_REPOSITORY, CLASS_REPOSITORY } from './constants/seat-plan.constants.js';
+import {
+  FLOOR_PLAN_REPOSITORY,
+  CLASS_REPOSITORY,
+} from './constants/seat-plan.constants.js';
 
 @Module({
   imports: [PrismaModule],
