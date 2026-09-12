@@ -162,7 +162,7 @@ export default function FloorPlansPage() {
               size="sm"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-gray-900 hover:bg-gray-800 text-white shadow-xs cursor-pointer"
+              className="bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
