@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Search, RotateCcw, Users } from 'lucide-react';
+import { ArrowLeft, Download, Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -18,7 +18,6 @@ export default function ClassDetailPage() {
   const [allClasses, setAllClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [saving, setSaving] = useState(false);
   const [showStudentList, setShowStudentList] = useState(false);
   const planRef = useRef<HTMLDivElement>(null);
 
@@ -51,45 +50,6 @@ export default function ClassDetailPage() {
     });
     return emails;
   }, [allClasses]);
-
-  const handleAutoAssign = useCallback(async () => {
-    if (!cls || !plan) return;
-    setSaving(true);
-    try {
-      // Exclude students already in THIS class (for merge) AND all other classes
-      const thisClassEmails = new Set(
-        cls.assignments.map((a) => a.studentEmail),
-      );
-      const otherClassEmails = new Set(
-        allClasses
-          .filter((c) => c.id !== cls.id)
-          .flatMap((c) => c.assignments.map((a) => a.studentEmail)),
-      );
-      const remaining = plan.seats.length - cls.assignments.length;
-      if (remaining <= 0) {
-        setSaving(false);
-        return;
-      }
-      const available = DUMMY_STUDENTS.filter(
-        (s) => !thisClassEmails.has(s.email) && !otherClassEmails.has(s.email),
-      );
-      const newStudents = [...available]
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, remaining);
-      const newAssignments = newStudents.map((student, i) => ({
-        seatIndex: cls.assignments.length + i,
-        studentName: student.name,
-        studentEmail: student.email,
-      }));
-      const merged = [...cls.assignments, ...newAssignments];
-      await classApi.update(cls.id, { assignments: merged });
-      setCls({ ...cls, assignments: merged });
-    } catch {
-      // ignore
-    } finally {
-      setSaving(false);
-    }
-  }, [cls, plan, allClasses]);
 
   const handleExport = useCallback(() => {
     if (!plan) return;
@@ -243,14 +203,6 @@ export default function ClassDetailPage() {
           >
             <Users size={16} className="mr-2" />
             {showStudentList ? 'Hide' : 'Show'} Students
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleAutoAssign}
-            disabled={saving}
-          >
-            <RotateCcw size={16} className="mr-2" />
-            {saving ? 'Assigning...' : 'Auto-Assign'}
           </Button>
           <Button onClick={handleExport}>
             <Download size={16} className="mr-2" />
