@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SeatCanvas } from '@/components/seat-plan/seat-canvas';
 import { classApi, floorPlanApi, DUMMY_STUDENTS } from '@/lib/api/seat-plan';
+import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { ClassData, FloorPlan } from '@/lib/types';
 
 export default function ClassDetailPage() {
   const navigate = useNavigate();
+  const basePath = useDashboardBase();
   const { id } = useParams<{ id: string }>();
   const [cls, setCls] = useState<ClassData | null>(null);
   const [plan, setPlan] = useState<FloorPlan | null>(null);
@@ -34,8 +36,8 @@ export default function ClassDetailPage() {
         setAllClasses(allRes.data);
         setLoading(false);
       })
-      .catch(() => navigate('/dashboard/rte/classes'));
-  }, [id, navigate]);
+      .catch(() => navigate(`${basePath}/classes`));
+  }, [id, navigate, basePath]);
 
   // Global taken emails — students assigned in ANY class
   const globalTakenEmails = useMemo(() => {
@@ -221,7 +223,7 @@ export default function ClassDetailPage() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate('/dashboard/rte/classes')}
+        onClick={() => navigate(`${basePath}/classes`)}
         className="mb-4 text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft size={16} className="mr-1" />

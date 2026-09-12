@@ -4,10 +4,12 @@ import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { floorPlanApi } from '@/lib/api/seat-plan';
+import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { FloorPlan } from '@/lib/types';
 
 export default function FloorPlansPage() {
   const navigate = useNavigate();
+  const basePath = useDashboardBase();
   const [plans, setPlans] = useState<FloorPlan[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +38,7 @@ export default function FloorPlansPage() {
             Create and manage reusable seat layouts
           </p>
         </div>
-        <Button onClick={() => navigate('/dashboard/rte/floor-plans/new')}>
+        <Button onClick={() => navigate(`${basePath}/floor-plans/new`)}>
           <Plus size={18} className="mr-2" />
           New Floor Plan
         </Button>
@@ -60,7 +62,7 @@ export default function FloorPlansPage() {
             <p className="text-sm text-gray-500 mb-5">
               Create a floor plan to start designing seat layouts
             </p>
-            <Button onClick={() => navigate('/dashboard/rte/floor-plans/new')}>
+            <Button onClick={() => navigate(`${basePath}/floor-plans/new`)}>
               <Plus size={18} className="mr-2" />
               New Floor Plan
             </Button>
@@ -84,7 +86,7 @@ export default function FloorPlansPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() =>
-                        navigate(`/dashboard/rte/floor-plans/${plan.id}/edit`)
+                        navigate(`${basePath}/floor-plans/${plan.id}/edit`)
                       }
                     >
                       <Pencil size={16} />

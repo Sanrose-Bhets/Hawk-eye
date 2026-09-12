@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { classApi, floorPlanApi, DUMMY_STUDENTS } from '@/lib/api/seat-plan';
+import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { FloorPlan, ClassData } from '@/lib/types';
 
 export default function CreateClassPage() {
   const navigate = useNavigate();
+  const basePath = useDashboardBase();
   const [name, setName] = useState('');
   const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
   const [existingClasses, setExistingClasses] = useState<ClassData[]>([]);
@@ -71,7 +73,7 @@ export default function CreateClassPage() {
         floorPlanId: selectedPlanId,
         assignments,
       });
-      navigate('/dashboard/rte/classes');
+      navigate(`${basePath}/classes`);
     } catch {
       setError('Failed to create class');
     } finally {
@@ -84,7 +86,7 @@ export default function CreateClassPage() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate('/dashboard/rte/classes')}
+        onClick={() => navigate(`${basePath}/classes`)}
         className="mb-4 text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft size={16} className="mr-1" />
@@ -120,7 +122,7 @@ export default function CreateClassPage() {
               <p className="text-sm text-gray-500">
                 No floor plans available.{' '}
                 <button
-                  onClick={() => navigate('/dashboard/rte/floor-plans/new')}
+                  onClick={() => navigate(`${basePath}/floor-plans/new`)}
                   className="text-primary hover:underline cursor-pointer font-medium"
                 >
                   Create one first
@@ -256,7 +258,7 @@ export default function CreateClassPage() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/dashboard/rte/classes')}
+          onClick={() => navigate(`${basePath}/classes`)}
         >
           Cancel
         </Button>

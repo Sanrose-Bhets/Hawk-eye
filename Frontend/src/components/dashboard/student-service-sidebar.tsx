@@ -1,29 +1,61 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { LayoutGrid, GraduationCap, LogOut, User } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  Award,
+  Mail,
+  GraduationCap,
+  LogOut,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
-import { clearCredentials, selectCurrentUser } from '@/redux/userSlice';
+import { clearCredentials } from '@/redux/userSlice';
 
 const links = [
   {
-    to: '/dashboard/rte/floor-plans',
-    label: 'Floor Plans',
-    description: 'Design and manage room seating layouts',
-    icon: LayoutGrid,
+    to: '/dashboard/student-service',
+    label: 'Dashboard',
+    description: 'Overview and quick metrics',
+    icon: LayoutDashboard,
+    end: true,
   },
   {
-    to: '/dashboard/rte/classes',
+    to: '/dashboard/student-service/students',
+    label: 'Students',
+    description: 'Enrolled students directory',
+    icon: Users,
+  },
+  {
+    to: '/dashboard/student-service/modules',
+    label: 'Module Management',
+    description: 'Courses, credits & curriculum',
+    icon: BookOpen,
+  },
+  {
+    to: '/dashboard/student-service/results',
+    label: 'Results',
+    description: 'Exam grades & evaluations',
+    icon: Award,
+  },
+  {
+    to: '/dashboard/student-service/mail',
+    label: 'Mail Management',
+    description: 'Broadcasts & notifications',
+    icon: Mail,
+  },
+  {
+    to: '/dashboard/student-service/classes',
     label: 'Classes',
-    description: 'Manage class lists and seat allocations',
+    description: 'Class seat allocations',
     icon: GraduationCap,
   },
 ];
 
-export function Sidebar() {
+export function StudentServiceSidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(selectCurrentUser);
 
   const handleLogout = () => {
     dispatch(clearCredentials());
@@ -34,20 +66,22 @@ export function Sidebar() {
 
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
+      {/* Header */}
       <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm shadow-sm">
-          RTE
+          SS
         </div>
         <div>
           <span className="text-base font-semibold text-gray-900 block leading-tight">
-            RTE Dashboard
+            Student Service
           </span>
           <span className="text-xs text-gray-500 font-medium">Portal</span>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {links.map(({ to, label, description, icon: Icon }) => (
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {links.map(({ to, label, description, icon: Icon, end }) => (
           <Tooltip
             key={to}
             content={description}
@@ -56,6 +90,7 @@ export function Sidebar() {
           >
             <NavLink
               to={to}
+              end={end}
               className={({ isActive }) =>
                 cn(
                   'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
@@ -72,19 +107,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-gray-200 p-3 space-y-1">
-        {user?.email && (
-          <Tooltip
-            content={`Signed in as ${user.email}`}
-            side="right"
-            wrapperClassName="w-full"
-          >
-            <div className="flex w-full items-center gap-3 px-4 py-2.5 rounded-xl bg-gray-50 text-xs text-gray-600">
-              <User size={16} className="text-gray-400 shrink-0" />
-              <span className="truncate font-medium">{user.email}</span>
-            </div>
-          </Tooltip>
-        )}
+      {/* Logout */}
+      <div className="border-t border-gray-200 p-3">
         <Tooltip
           content="Sign out of your account"
           side="right"
@@ -102,5 +126,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
-export const RteSidebar = Sidebar;

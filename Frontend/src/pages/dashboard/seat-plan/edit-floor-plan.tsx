@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SeatCanvas } from '@/components/seat-plan/seat-canvas';
 import { floorPlanApi } from '@/lib/api/seat-plan';
+import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { SeatPosition } from '@/lib/types';
 
 export default function EditFloorPlanPage() {
   const navigate = useNavigate();
+  const basePath = useDashboardBase();
   const { id } = useParams<{ id: string }>();
   const [name, setName] = useState('');
   const [seats, setSeats] = useState<SeatPosition[]>([]);
@@ -28,9 +30,9 @@ export default function EditFloorPlanPage() {
         setLoading(false);
       })
       .catch(() => {
-        navigate('/dashboard/rte/floor-plans');
+        navigate(`${basePath}/floor-plans`);
       });
-  }, [id, navigate]);
+  }, [id, navigate, basePath]);
 
   const handleSave = async () => {
     if (!id) return;
@@ -47,7 +49,7 @@ export default function EditFloorPlanPage() {
     setError('');
     try {
       await floorPlanApi.update(id, { name: name.trim(), seats });
-      navigate('/dashboard/rte/floor-plans');
+      navigate(`${basePath}/floor-plans`);
     } catch {
       setError('Failed to save floor plan');
     } finally {
@@ -72,7 +74,7 @@ export default function EditFloorPlanPage() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate('/dashboard/rte/floor-plans')}
+        onClick={() => navigate(`${basePath}/floor-plans`)}
         className="mb-4 text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft size={16} className="mr-1" />
@@ -130,7 +132,7 @@ export default function EditFloorPlanPage() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/dashboard/rte/floor-plans')}
+          onClick={() => navigate(`${basePath}/floor-plans`)}
         >
           Cancel
         </Button>

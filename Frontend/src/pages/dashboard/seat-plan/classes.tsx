@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { classApi } from '@/lib/api/seat-plan';
+import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { ClassData } from '@/lib/types';
 
 export default function ClassesPage() {
   const navigate = useNavigate();
+  const basePath = useDashboardBase();
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,7 +54,7 @@ export default function ClassesPage() {
             Manage class seat assignments
           </p>
         </div>
-        <Button onClick={() => navigate('/dashboard/rte/classes/new')}>
+        <Button onClick={() => navigate(`${basePath}/classes/new`)}>
           <Plus size={18} className="mr-2" />
           New Class
         </Button>
@@ -92,7 +94,7 @@ export default function ClassesPage() {
                 : 'Create a class to start assigning seats'}
             </p>
             {!searchQuery && (
-              <Button onClick={() => navigate('/dashboard/rte/classes/new')}>
+              <Button onClick={() => navigate(`${basePath}/classes/new`)}>
                 <Plus size={18} className="mr-2" />
                 New Class
               </Button>
@@ -116,9 +118,7 @@ export default function ClassesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() =>
-                        navigate(`/dashboard/rte/classes/${cls.id}`)
-                      }
+                      onClick={() => navigate(`${basePath}/classes/${cls.id}`)}
                     >
                       <Eye size={16} />
                     </Button>
