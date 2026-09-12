@@ -93,3 +93,51 @@ export interface Faculty {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Module {
+  id: string;
+  name: string;
+  code: string | null;
+  moduleLeader: string;
+  facultyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResultItem {
+  id: string;
+  moduleId: string;
+  moduleName: string;
+  moduleCode: string | null;
+  score: number;
+  grade: string;
+  createdAt: string;
+}
+
+export interface Result {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  published: boolean;
+  items: ResultItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailLog {
+  id: string;
+  to: string;
+  subject: string;
+  body: string;
+  studentId: string | null;
+  status: string;
+  error: string | null;
+  createdAt: string;
+}
+
+export interface MailStats {
+  totalSent: number;
+  totalQueued: number;
+  totalFailed: number;
+}

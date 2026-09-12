@@ -18,6 +18,7 @@ model Student {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
   faculty     Faculty?  @relation(fields: [facultyId], references: [id])
+  results     Result[]
 }
 
 model StudentService {
@@ -57,6 +58,28 @@ model Module {
   createdAt     DateTime @default(now())
   updatedAt     DateTime
   faculty       Faculty  @relation(fields: [facultyId], references: [id])
+  resultItems   ResultItem[]
+}
+
+model Result {
+  id        String       @id @default(uuid())
+  studentId String
+  published Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime
+  student   Student      @relation(fields: [studentId], references: [id])
+  items     ResultItem[]
+}
+
+model ResultItem {
+  id        String   @id @default(uuid())
+  resultId  String
+  moduleId  String
+  score     Float
+  grade     String
+  createdAt DateTime @default(now())
+  result    Result   @relation(fields: [resultId], references: [id])
+  module    Module   @relation(fields: [moduleId], references: [id])
 }
 
 model FloorPlan {
@@ -75,4 +98,15 @@ model Class {
   assignments Json     @default("[]")
   createdAt   DateTime @default(now())
   updatedAt   DateTime
+}
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  to        String
+  subject   String
+  body      String
+  studentId String?
+  status    String   @default("queued")
+  error     String?
+  createdAt DateTime @default(now())
 }
