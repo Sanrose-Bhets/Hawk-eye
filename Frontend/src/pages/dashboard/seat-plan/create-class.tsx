@@ -23,13 +23,14 @@ export default function CreateClassPage() {
 
   useEffect(() => {
     Promise.all([
-      floorPlanApi.list(),
-      classApi.list(),
-      studentApi.list({ limit: 500 }),
+      floorPlanApi.list().catch(() => ({ data: [] })),
+      classApi.list().catch(() => ({ data: [] })),
+      studentApi.list({ limit: 500 }).catch(() => ({ data: { data: [] } })),
     ]).then(([fpRes, clRes, stRes]) => {
-      setFloorPlans(fpRes.data);
-      setExistingClasses(clRes.data);
-      setAllStudents(stRes.data?.data || []);
+      setFloorPlans(fpRes.data || []);
+      setExistingClasses(clRes.data || []);
+      const fetched = stRes.data?.data || stRes.data || [];
+      setAllStudents(Array.isArray(fetched) ? fetched : []);
     });
   }, []);
 
