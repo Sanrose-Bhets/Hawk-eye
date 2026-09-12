@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,7 +132,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center pt-1">
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
@@ -142,12 +142,6 @@ export function LoginForm() {
           />
           <span className="text-sm text-gray-600">Remember Me</span>
         </label>
-        <Link
-          to="/forgot-password"
-          className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
-        >
-          Forgot Password?
-        </Link>
       </div>
 
       <Button

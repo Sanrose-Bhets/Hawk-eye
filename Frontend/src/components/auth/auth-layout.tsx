@@ -18,7 +18,7 @@ export function AuthLayout({
   return (
     <div className="relative flex min-h-screen w-full items-center justify-end overflow-hidden bg-[#FCFBFA]">
       <img
-        src="/common/login.jpg"
+        src="/common/Login.jpg"
         alt="Login background"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
