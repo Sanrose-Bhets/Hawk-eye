@@ -267,7 +267,7 @@ export default function StudentProfilePage() {
               {/* Identity Info */}
               <div className="space-y-1.5 min-w-0">
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
+                  <h2 className="text-xl md:text-2xl font-bold text-primary tracking-tight">
                     {loading ? 'Loading...' : student?.name}
                   </h2>
                 </div>
