@@ -9,6 +9,7 @@ interface JwtPayload {
   email: string;
   role: string;
   facultyId?: string | null;
+  semester?: number | null;
   type: 'access' | 'refresh';
 }
 
@@ -31,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: payload.email,
       role: payload.role,
       facultyId: payload.facultyId ?? null,
+      semester: payload.semester ?? null,
     };
   }
 }

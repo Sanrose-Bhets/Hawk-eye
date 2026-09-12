@@ -29,6 +29,9 @@ export class StudentResponseDto {
   facultyId!: string | null;
 
   @ApiProperty()
+  semester!: number;
+
+  @ApiProperty()
   createdAt!: Date;
 
   @ApiProperty()

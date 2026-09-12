@@ -19,6 +19,7 @@ interface JwtPayload {
   email: string;
   role: string;
   facultyId?: string | null;
+  semester?: number | null;
   type: 'access' | 'refresh';
 }
 
@@ -44,7 +45,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = this.generateTokens(user.id, user.email, user.role);
+    const tokens = this.generateTokens(user.id, user.email, user.role, user.facultyId, user.semester);
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
     return tokens;
@@ -83,6 +84,7 @@ export class AuthService {
       user.email,
       user.role,
       user.facultyId,
+      user.semester,
     );
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
@@ -105,12 +107,14 @@ export class AuthService {
     email: string,
     role: string,
     facultyId?: string | null,
+    semester?: number | null,
   ): TokenResponseDto {
     const accessPayload: JwtPayload = {
       sub: id,
       email,
       role,
       facultyId,
+      semester,
       type: 'access',
     };
     const refreshPayload: JwtPayload = {
@@ -118,6 +122,7 @@ export class AuthService {
       email,
       role,
       facultyId,
+      semester,
       type: 'refresh',
     };
 
@@ -132,7 +137,7 @@ export class AuthService {
     });
 
     return {
-      user: toUser({ id, email, role, facultyId }),
+      user: toUser({ id, email, role, facultyId, semester }),
       accessToken,
       refreshToken,
     };

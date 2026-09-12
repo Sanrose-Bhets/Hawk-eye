@@ -15,6 +15,7 @@ model Student {
   image       String?
   role        Role      @default(STUDENT)
   facultyId   String?
+  semester    Int       @default(1)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
   faculty     Faculty?  @relation(fields: [facultyId], references: [id])
@@ -59,6 +60,16 @@ model Module {
   updatedAt     DateTime
   faculty       Faculty  @relation(fields: [facultyId], references: [id])
   resultItems   ResultItem[]
+  semesters     ModuleSemester[]
+}
+
+model ModuleSemester {
+  id       String @id @default(uuid())
+  moduleId String
+  semester Int
+  module   Module @relation(fields: [moduleId], references: [id])
+
+  @@unique([moduleId, semester])
 }
 
 model Result {

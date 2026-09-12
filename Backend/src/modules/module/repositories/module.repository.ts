@@ -14,32 +14,94 @@ export class ModuleRepository implements IModuleRepository {
     code?: string;
     moduleLeader: string;
     facultyId: string;
+    semesters: number[];
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<ModuleModel> {
-    return this.prisma.orm.public.Module.create(data) as Promise<ModuleModel>;
+    const { semesters, ...moduleData } = data;
+    const model = (await this.prisma.orm.public.Module.create(
+      moduleData,
+    )) as ModuleModel;
+
+    // Create semester entries
+    for (const semester of semesters) {
+      await this.prisma.orm.public.ModuleSemester.create({
+        moduleId: model.id,
+        semester,
+      });
+    }
+
+    return { ...model, semesters };
   }
 
   async findAll(): Promise<ModuleModel[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const results = await (
+    const results = (await (
       this.prisma.orm.public.Module.where({}) as any
-    ).all();
-    return results as ModuleModel[];
+    ).all()) as ModuleModel[];
+
+    // Fetch semesters for all modules
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allSemesters = (await (
+      this.prisma.orm.public.ModuleSemester.where({}) as any
+    ).all()) as { moduleId: string; semester: number }[];
+
+    const semesterMap = new Map<string, number[]>();
+    for (const ms of allSemesters) {
+      const existing = semesterMap.get(ms.moduleId) || [];
+      existing.push(ms.semester);
+      semesterMap.set(ms.moduleId, existing);
+    }
+
+    return results.map((m) => ({
+      ...m,
+      semesters: semesterMap.get(m.id) || [],
+    }));
   }
 
   async findById(id: string): Promise<ModuleModel | null> {
-    return this.prisma.orm.public.Module.where({
+    const model = (await this.prisma.orm.public.Module.where({
       id,
-    }).first() as Promise<ModuleModel | null>;
+    }).first()) as ModuleModel | null;
+    if (!model) return null;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const semesters = (await (
+      this.prisma.orm.public.ModuleSemester.where({ moduleId: id }) as any
+    ).all()) as { semester: number }[];
+
+    return {
+      ...model,
+      semesters: semesters.map((s) => s.semester),
+    };
   }
 
   async findByFacultyId(facultyId: string): Promise<ModuleModel[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const results = await (
+    const results = (await (
       this.prisma.orm.public.Module.where({ facultyId }) as any
-    ).all();
-    return results as ModuleModel[];
+    ).all()) as ModuleModel[];
+
+    // Fetch semesters for these modules
+    const moduleIds = results.map((m) => m.id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allSemesters = (await (
+      this.prisma.orm.public.ModuleSemester.where({}) as any
+    ).all()) as { moduleId: string; semester: number }[];
+
+    const semesterMap = new Map<string, number[]>();
+    for (const ms of allSemesters) {
+      if (moduleIds.includes(ms.moduleId)) {
+        const existing = semesterMap.get(ms.moduleId) || [];
+        existing.push(ms.semester);
+        semesterMap.set(ms.moduleId, existing);
+      }
+    }
+
+    return results.map((m) => ({
+      ...m,
+      semesters: semesterMap.get(m.id) || [],
+    }));
   }
 
   async count(): Promise<number> {
@@ -54,7 +116,28 @@ export class ModuleRepository implements IModuleRepository {
     await this.prisma.orm.public.Module.where({ id }).update(data);
   }
 
+  async setSemesters(moduleId: string, semesters: number[]): Promise<void> {
+    // Delete existing semesters
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (
+      this.prisma.orm.public.ModuleSemester.where({ moduleId }) as any
+    ).delete();
+
+    // Create new semesters
+    for (const semester of semesters) {
+      await this.prisma.orm.public.ModuleSemester.create({
+        moduleId,
+        semester,
+      });
+    }
+  }
+
   async delete(id: string): Promise<void> {
+    // Delete semesters first
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (
+      this.prisma.orm.public.ModuleSemester.where({ moduleId: id }) as any
+    ).delete();
     await this.prisma.orm.public.Module.where({ id }).delete();
   }
 }

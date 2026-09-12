@@ -6,6 +6,7 @@ export interface ListStudentsParams {
   limit?: number;
   search?: string;
   faculty?: string;
+  semester?: number;
 }
 
 export interface CreateStudentData {
@@ -15,6 +16,7 @@ export interface CreateStudentData {
   contact: string;
   parentEmail: string;
   facultyId?: string;
+  semester?: number;
 }
 
 export type UpdateStudentData = Partial<

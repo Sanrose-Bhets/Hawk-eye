@@ -9,6 +9,7 @@ export interface StudentModel {
   image: string | null;
   role: string;
   facultyId: string | null;
+  semester: number;
   createdAt: unknown;
   updatedAt: unknown;
 }
@@ -22,6 +23,7 @@ export interface IStudentRepository {
     contact: string;
     parentEmail: string;
     facultyId: string;
+    semester: number;
     role: 'STUDENT' | 'STUDENT_SERVICE' | 'RTE';
     createdAt: unknown;
     updatedAt: unknown;

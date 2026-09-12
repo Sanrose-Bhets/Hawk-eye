@@ -4,6 +4,7 @@ export interface ModuleModel {
   code: string | null;
   moduleLeader: string;
   facultyId: string;
+  semesters: number[];
   createdAt: unknown;
   updatedAt: unknown;
 }
@@ -14,6 +15,7 @@ export interface IModuleRepository {
     code?: string;
     moduleLeader: string;
     facultyId: string;
+    semesters: number[];
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<ModuleModel>;
@@ -22,5 +24,6 @@ export interface IModuleRepository {
   findByFacultyId(facultyId: string): Promise<ModuleModel[]>;
   count(): Promise<number>;
   update(id: string, data: Record<string, unknown>): Promise<void>;
+  setSemesters(moduleId: string, semesters: number[]): Promise<void>;
   delete(id: string): Promise<void>;
 }

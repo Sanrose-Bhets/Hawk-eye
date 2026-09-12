@@ -29,11 +29,13 @@ export class ModuleService {
     }
 
     const ts = now();
+    const semesters = dto.semesters?.length ? dto.semesters : [1];
     const model = await this.moduleRepo.create({
       name: dto.name,
       code: dto.code,
       moduleLeader: dto.moduleLeader,
       facultyId: dto.facultyId,
+      semesters,
       createdAt: ts,
       updatedAt: ts,
     });
@@ -48,6 +50,7 @@ export class ModuleService {
     faculty?: string;
     role?: string;
     userFacultyId?: string | null;
+    userSemester?: number | null;
   }): Promise<{
     data: ModuleEntity[];
     total: number;
@@ -60,9 +63,12 @@ export class ModuleService {
 
     let all = await this.moduleRepo.findAll();
 
-    // Server-side scoping: STUDENT can only see their faculty's modules
+    // Server-side scoping: STUDENT can only see their faculty's modules for their semester
     if (filters.role === 'STUDENT' && filters.userFacultyId) {
       all = all.filter((m) => m.facultyId === filters.userFacultyId);
+      if (filters.userSemester) {
+        all = all.filter((m) => m.semesters.includes(filters.userSemester!));
+      }
     } else if (filters.faculty) {
       const faculty = await this.facultyRepo.findByName(filters.faculty);
       if (faculty) {
@@ -100,17 +106,25 @@ export class ModuleService {
     id: string,
     role?: string,
     userFacultyId?: string | null,
+    userSemester?: number | null,
   ): Promise<ModuleEntity> {
     const model = await this.moduleRepo.findById(id);
     if (!model) {
       throw new NotFoundException('Module not found');
     }
 
-    // Server-side scoping: STUDENT can only view modules in their faculty
+    // Server-side scoping: STUDENT can only view modules in their faculty and semester
     if (
       role === 'STUDENT' &&
       userFacultyId &&
       model.facultyId !== userFacultyId
+    ) {
+      throw new NotFoundException('Module not found');
+    }
+    if (
+      role === 'STUDENT' &&
+      userSemester &&
+      !model.semesters.includes(userSemester)
     ) {
       throw new NotFoundException('Module not found');
     }
@@ -139,6 +153,12 @@ export class ModuleService {
     }
 
     await this.moduleRepo.update(id, updateData);
+
+    // Update semesters if provided
+    if (dto.semesters !== undefined) {
+      await this.moduleRepo.setSemesters(id, dto.semesters);
+    }
+
     return this.findById(id);
   }
 

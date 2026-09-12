@@ -96,6 +96,7 @@ export default function ModulesPage() {
   const [modCode, setModCode] = useState('');
   const [modLeader, setModLeader] = useState('');
   const [modFacultyId, setModFacultyId] = useState('');
+  const [modSemesters, setModSemesters] = useState<number[]>([1]);
   const [modFormErrors, setModFormErrors] = useState<ModuleFormErrors>({});
   const [modFormError, setModFormError] = useState('');
 
@@ -235,6 +236,7 @@ export default function ModulesPage() {
     setModCode('');
     setModLeader('');
     setModFacultyId('');
+    setModSemesters([1]);
     setModFormErrors({});
     setModFormError('');
   };
@@ -250,6 +252,7 @@ export default function ModulesPage() {
     setModCode(mod.code ?? '');
     setModLeader(mod.moduleLeader);
     setModFacultyId(mod.facultyId);
+    setModSemesters(mod.semesters?.length ? mod.semesters : [1]);
     setModFormErrors({});
     setModFormError('');
     setIsModuleEditOpen(true);
@@ -281,6 +284,7 @@ export default function ModulesPage() {
         name: modName.trim(),
         moduleLeader: modLeader.trim(),
         facultyId: modFacultyId,
+        semesters: modSemesters,
       };
       if (modCode.trim()) data.code = modCode.trim();
       await moduleApi.create(data);
@@ -313,6 +317,7 @@ export default function ModulesPage() {
         name: modName.trim(),
         moduleLeader: modLeader.trim(),
         facultyId: modFacultyId,
+        semesters: modSemesters,
       };
       if (modCode.trim()) data.code = modCode.trim();
       else data.code = '';
@@ -623,6 +628,19 @@ export default function ModulesPage() {
                           {mod.name}
                         </h3>
 
+                        {mod.semesters?.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {mod.semesters.map((s) => (
+                              <span
+                                key={s}
+                                className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-purple-700"
+                              >
+                                SEM {s}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
                         <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5 text-xs text-gray-600">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-500">Leader</span>
@@ -917,6 +935,35 @@ export default function ModulesPage() {
               <p className="text-xs text-red-500">{modFormErrors.facultyId}</p>
             )}
           </div>
+          <div className="space-y-2">
+            <Label>Semesters</Label>
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5, 6].map((s) => (
+                <label
+                  key={s}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
+                    modSemesters.includes(s)
+                      ? 'border-primary bg-primary-light text-primary'
+                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={modSemesters.includes(s)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setModSemesters([...modSemesters, s].sort());
+                      } else {
+                        setModSemesters(modSemesters.filter((x) => x !== s));
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  Sem {s}
+                </label>
+              ))}
+            </div>
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
@@ -1025,6 +1072,35 @@ export default function ModulesPage() {
               <p className="text-xs text-red-500">{modFormErrors.facultyId}</p>
             )}
           </div>
+          <div className="space-y-2">
+            <Label>Semesters</Label>
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5, 6].map((s) => (
+                <label
+                  key={s}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium cursor-pointer transition-colors ${
+                    modSemesters.includes(s)
+                      ? 'border-primary bg-primary-light text-primary'
+                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={modSemesters.includes(s)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setModSemesters([...modSemesters, s].sort());
+                      } else {
+                        setModSemesters(modSemesters.filter((x) => x !== s));
+                      }
+                    }}
+                    className="sr-only"
+                  />
+                  Sem {s}
+                </label>
+              ))}
+            </div>
+          </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button
               type="button"
@@ -1071,6 +1147,14 @@ export default function ModulesPage() {
                 <p className="text-gray-500 text-xs mb-1">Faculty</p>
                 <p className="font-semibold text-gray-900">
                   {getFacultyName(selectedModule.facultyId)}
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-500 text-xs mb-1">Semesters</p>
+                <p className="font-semibold text-gray-900">
+                  {selectedModule.semesters?.length
+                    ? selectedModule.semesters.map((s) => `Sem ${s}`).join(', ')
+                    : '—'}
                 </p>
               </div>
               <div>

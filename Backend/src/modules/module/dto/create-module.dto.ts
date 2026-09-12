@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, MinLength, IsArray, IsInt, Min, Max } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Trim } from '../../../common/transformers/index.js';
 
@@ -26,4 +26,12 @@ export class CreateModuleDto {
   @IsString()
   @IsNotEmpty()
   facultyId!: string;
+
+  @ApiPropertyOptional({ example: [1, 2], default: [1] })
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(6, { each: true })
+  @IsOptional()
+  semesters?: number[];
 }

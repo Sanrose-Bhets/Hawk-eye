@@ -7,5 +7,6 @@ export interface IUserRepository {
     password: string;
     role: Role;
     facultyId?: string | null;
+    semester?: number | null;
   } | null>;
 }

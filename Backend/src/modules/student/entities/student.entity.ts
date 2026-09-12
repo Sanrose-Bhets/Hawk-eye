@@ -29,6 +29,9 @@ export class StudentEntity {
   facultyId!: string | null;
 
   @ApiProperty()
+  semester!: number;
+
+  @ApiProperty()
   createdAt!: Date;
 
   @ApiProperty()

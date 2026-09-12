@@ -94,6 +94,7 @@ export default function StudentProfilePage() {
             image: null,
             role: 'STUDENT',
             facultyId: 'fac-computing',
+            semester: 1,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };

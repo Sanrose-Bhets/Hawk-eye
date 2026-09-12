@@ -135,6 +135,7 @@ export default function StudentsPage() {
   const [formFacultyId, setFormFacultyId] = useState('');
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState('');
+  const [formSemester, setFormSemester] = useState('1');
 
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvPreview, setCsvPreview] = useState<CreateStudentData[]>([]);
@@ -201,6 +202,7 @@ export default function StudentsPage() {
     setFormFacultyId('');
     setFormErrors({});
     setFormError('');
+    setFormSemester('1');
   };
 
   const handleOpenCreate = () => {
@@ -216,6 +218,7 @@ export default function StudentsPage() {
     setFormContact(student.contact);
     setFormParentEmail(student.parentEmail);
     setFormFacultyId(student.facultyId || '');
+    setFormSemester(String(student.semester || 1));
     setFormErrors({});
     setFormError('');
     setIsEditOpen(true);
@@ -244,6 +247,7 @@ export default function StudentsPage() {
         contact: formContact.trim(),
         parentEmail: formParentEmail.trim(),
         facultyId: formFacultyId || undefined,
+        semester: Number(formSemester) || 1,
       });
       setIsCreateOpen(false);
       fetchStudents();
@@ -280,6 +284,7 @@ export default function StudentsPage() {
       if (formContact.trim()) data.contact = formContact.trim();
       if (formParentEmail.trim()) data.parentEmail = formParentEmail.trim();
       data.facultyId = formFacultyId || undefined;
+      data.semester = Number(formSemester) || 1;
 
       await studentApi.update(selectedStudent.id, data);
       setIsEditOpen(false);
@@ -538,6 +543,9 @@ export default function StudentsPage() {
                           <Phone size={12} />
                           {student.contact}
                         </span>
+                        <span className="inline-flex items-center rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-mono font-semibold text-purple-700">
+                          SEM {student.semester || 1}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -754,6 +762,32 @@ export default function StudentsPage() {
             )}
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="formSemester" required>
+              Semester
+            </Label>
+            <select
+              id="formSemester"
+              value={formSemester}
+              onChange={(e) => setFormSemester(e.target.value)}
+              className="flex h-11 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary-ring focus:outline-none appearance-none cursor-pointer"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.25em 1.25em',
+                paddingRight: '2.5rem',
+              }}
+              required
+            >
+              {[1, 2, 3, 4, 5, 6].map((s) => (
+                <option key={s} value={s}>
+                  Semester {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
             <Button
               type="button"
@@ -880,6 +914,29 @@ export default function StudentsPage() {
               {faculties.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="formSemesterEdit">Semester</Label>
+            <select
+              id="formSemesterEdit"
+              value={formSemester}
+              onChange={(e) => setFormSemester(e.target.value)}
+              className="flex h-11 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary-ring focus:outline-none appearance-none cursor-pointer"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.75rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.25em 1.25em',
+                paddingRight: '2.5rem',
+              }}
+            >
+              {[1, 2, 3, 4, 5, 6].map((s) => (
+                <option key={s} value={s}>
+                  Semester {s}
                 </option>
               ))}
             </select>

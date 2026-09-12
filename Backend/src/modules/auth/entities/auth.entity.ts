@@ -12,4 +12,7 @@ export class User {
 
   @ApiProperty({ required: false, nullable: true })
   facultyId?: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  semester?: number | null;
 }
