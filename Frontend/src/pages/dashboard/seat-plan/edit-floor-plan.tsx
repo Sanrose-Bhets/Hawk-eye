@@ -71,15 +71,14 @@ export default function EditFloorPlanPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <Button
-        variant="ghost"
-        size="sm"
+      <button
+        type="button"
         onClick={() => navigate(`${basePath}/floor-plans`)}
-        className="-ml-4 mb-4 text-gray-500 hover:text-gray-900"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
       >
-        <ArrowLeft size={16} className="mr-2" />
+        <ArrowLeft size={16} />
         Back to Floor Plans
-      </Button>
+      </button>
 
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Floor Plan</h1>
 
