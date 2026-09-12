@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { TrendingUp, GraduationCap, BookCheck, Filter } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -15,10 +14,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { selectCurrentUser } from '@/redux/userSlice';
 import { resultApi } from '@/lib/api/results';
-import { moduleApi } from '@/lib/api/modules';
-import type { Result, Module } from '@/lib/types';
 
 ChartJS.register(
   CategoryScale,
@@ -52,7 +48,6 @@ interface SemesterHistory {
 }
 
 export default function StudentAnalyticsPage() {
-  const user = useSelector(selectCurrentUser);
   const [loading, setLoading] = useState(true);
   const [selectedSemester, setSelectedSemester] = useState<string>('ALL');
   const [history, setHistory] = useState<SemesterHistory[]>([]);
@@ -61,310 +56,18 @@ export default function StudentAnalyticsPage() {
     async function loadAnalyticsData() {
       try {
         setLoading(true);
-        const studentEmail = user?.email?.toLowerCase() || '';
-
-        const [resultsRes, modulesRes] = await Promise.allSettled([
-          resultApi.list({ limit: 20 }),
-          moduleApi.list({ limit: 50 }),
-        ]);
-
-        const allResults: Result[] =
-          resultsRes.status === 'fulfilled' && resultsRes.value.data?.data
-            ? resultsRes.value.data.data
-            : [];
-        const allModules: Module[] =
-          modulesRes.status === 'fulfilled' && modulesRes.value.data?.data
-            ? modulesRes.value.data.data
-            : [];
-
-        // Find student results
-        const studentResults = allResults.filter(
-          (r) =>
-            r.studentEmail?.toLowerCase() === studentEmail ||
-            (user?.email &&
-              r.studentName &&
-              user.email
-                .toLowerCase()
-                .includes(r.studentName.toLowerCase().replace(/\s+/g, ''))),
-        );
-
-        // Build live/seeded semester history
-        const defaultHistory: SemesterHistory[] = [
-          {
-            semester: 'Semester 1',
-            year: 'Year 1 (Autumn 2024)',
-            gpa: 3.55,
-            averageScore: 78.4,
-            creditsEarned: 60,
-            totalCredits: 60,
-            standing: 'First Class Track',
-            modules: [
-              {
-                code: 'CS4001',
-                name: 'Introduction to Programming',
-                credits: 15,
-                score: 82,
-                grade: 'A',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4002',
-                name: 'Computer Systems & Architecture',
-                credits: 15,
-                score: 74,
-                grade: 'A-',
-                gradePoint: 3.7,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4003',
-                name: 'Mathematics for Computing',
-                credits: 15,
-                score: 86,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4004',
-                name: 'Academic & Professional Skills',
-                credits: 15,
-                score: 71,
-                grade: 'B+',
-                gradePoint: 3.3,
-                status: 'PASS',
-              },
-            ],
-          },
-          {
-            semester: 'Semester 2',
-            year: 'Year 1 (Spring 2025)',
-            gpa: 3.65,
-            averageScore: 81.2,
-            creditsEarned: 60,
-            totalCredits: 60,
-            standing: 'First Class Track',
-            modules: [
-              {
-                code: 'CS4005',
-                name: 'Data Structures & Algorithms',
-                credits: 15,
-                score: 88,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4006',
-                name: 'Relational Database Systems',
-                credits: 15,
-                score: 79,
-                grade: 'A',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4007',
-                name: 'Object-Oriented Design & Java',
-                credits: 15,
-                score: 83,
-                grade: 'A',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS4008',
-                name: 'Networks & Communications',
-                credits: 15,
-                score: 75,
-                grade: 'A-',
-                gradePoint: 3.7,
-                status: 'DISTINCTION',
-              },
-            ],
-          },
-          {
-            semester: 'Semester 3',
-            year: 'Year 2 (Autumn 2025)',
-            gpa: 3.72,
-            averageScore: 83.5,
-            creditsEarned: 60,
-            totalCredits: 60,
-            standing: 'First Class Track',
-            modules: [
-              {
-                code: 'CS5001',
-                name: 'Web Application Development',
-                credits: 15,
-                score: 89,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS5002',
-                name: 'Software Engineering Methodologies',
-                credits: 15,
-                score: 81,
-                grade: 'A',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS5003',
-                name: 'Information Security & Cryptography',
-                credits: 15,
-                score: 78,
-                grade: 'A',
-                gradePoint: 3.7,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS5004',
-                name: 'Operating Systems & Concurrency',
-                credits: 15,
-                score: 86,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-            ],
-          },
-        ];
-
-        // If active results exist from database, inject as Current Semester (Semester 4)
-        if (studentResults.length > 0 && studentResults[0].items) {
-          const currentItems = studentResults[0].items;
-          const currentModules = currentItems.map((item, idx) => {
-            const matchedMod = allModules.find(
-              (m) =>
-                m.id === item.moduleId ||
-                m.name?.toLowerCase() === item.moduleName?.toLowerCase(),
-            );
-            const score = item.score || 75;
-            let grade = 'B';
-            let gp = 3.0;
-            let status: 'PASS' | 'DISTINCTION' | 'RESIT' = 'PASS';
-
-            if (score >= 80) {
-              grade = 'A+';
-              gp = 4.0;
-              status = 'DISTINCTION';
-            } else if (score >= 70) {
-              grade = 'A';
-              gp = 3.7;
-              status = 'DISTINCTION';
-            } else if (score >= 60) {
-              grade = 'B+';
-              gp = 3.3;
-              status = 'PASS';
-            } else if (score >= 50) {
-              grade = 'B';
-              gp = 3.0;
-              status = 'PASS';
-            } else if (score >= 40) {
-              grade = 'C';
-              gp = 2.0;
-              status = 'PASS';
-            } else {
-              grade = 'F';
-              gp = 0.0;
-              status = 'RESIT';
-            }
-
-            return {
-              code: matchedMod?.code || item.moduleCode || `CS600${idx + 1}`,
-              name:
-                matchedMod?.name ||
-                item.moduleName ||
-                `Academic Module ${idx + 1}`,
-              credits: 15,
-              score,
-              grade,
-              gradePoint: gp,
-              status,
-            };
-          });
-
-          const semAvg =
-            currentModules.reduce((acc, m) => acc + m.score, 0) /
-            currentModules.length;
-          const semGpa =
-            currentModules.reduce((acc, m) => acc + m.gradePoint, 0) /
-            currentModules.length;
-
-          defaultHistory.push({
-            semester: 'Semester 4',
-            year: 'Year 2 (Current • Spring 2026)',
-            gpa: Number(semGpa.toFixed(2)),
-            averageScore: Number(semAvg.toFixed(1)),
-            creditsEarned: currentModules.length * 15,
-            totalCredits: currentModules.length * 15,
-            standing: semAvg >= 70 ? 'First Class Track' : 'Upper Second Track',
-            modules: currentModules,
-          });
-        } else {
-          // Add default 4th semester if no custom result entered yet
-          defaultHistory.push({
-            semester: 'Semester 4',
-            year: 'Year 2 (Current • Spring 2026)',
-            gpa: 3.82,
-            averageScore: 85.5,
-            creditsEarned: 60,
-            totalCredits: 60,
-            standing: 'First Class Track',
-            modules: [
-              {
-                code: 'CS6001',
-                name: 'Advanced Software Engineering',
-                credits: 15,
-                score: 87,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS6002',
-                name: 'Artificial Intelligence & ML',
-                credits: 15,
-                score: 91,
-                grade: 'A+',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS6003',
-                name: 'Cloud Computing & Distributed Systems',
-                credits: 15,
-                score: 82,
-                grade: 'A',
-                gradePoint: 4.0,
-                status: 'DISTINCTION',
-              },
-              {
-                code: 'CS6004',
-                name: 'Enterprise Architecture & DevOps',
-                credits: 15,
-                score: 82,
-                grade: 'A',
-                gradePoint: 3.7,
-                status: 'DISTINCTION',
-              },
-            ],
-          });
-        }
-
-        setHistory(defaultHistory);
+        const res = await resultApi.analytics();
+        setHistory(res.data ?? []);
       } catch (err) {
         console.error('Failed to load performance analytics data:', err);
+        setHistory([]);
       } finally {
         setLoading(false);
       }
     }
 
     loadAnalyticsData();
-  }, [user]);
+  }, []);
 
   // Calculations across all completed semesters
   const totalCreditsCompleted = history.reduce(
@@ -416,11 +119,13 @@ export default function StudentAnalyticsPage() {
         pointBackgroundColor: filteredModulesForChart.map((m) =>
           m.score >= 70
             ? '#16a34a'
-            : m.score >= 60
+            : m.score >= 55
               ? '#0284c7'
               : m.score >= 40
-                ? '#d97706'
-                : '#dc2626',
+                ? '#8b5cf6'
+                : m.score >= 28
+                  ? '#d97706'
+                  : '#dc2626',
         ),
         pointBorderColor: '#ffffff',
         pointBorderWidth: 2,
@@ -468,34 +173,20 @@ export default function StudentAnalyticsPage() {
     },
   };
 
-  // 3. Doughnut Data: Grade Distribution
+  // 3. Doughnut Data: Grade Distribution — 70→A, 55→B, 40→C, 28→D, <28→F
   const gradeCounts = {
-    Distinction: allModulesList.filter((m) => m.score >= 70).length,
-    UpperSecond: allModulesList.filter((m) => m.score >= 60 && m.score < 70)
-      .length,
-    LowerSecond: allModulesList.filter((m) => m.score >= 50 && m.score < 60)
-      .length,
-    Pass: allModulesList.filter((m) => m.score >= 40 && m.score < 50).length,
-    Resit: allModulesList.filter((m) => m.score < 40).length,
+    A: allModulesList.filter((m) => m.score >= 70).length,
+    B: allModulesList.filter((m) => m.score >= 55 && m.score < 70).length,
+    C: allModulesList.filter((m) => m.score >= 40 && m.score < 55).length,
+    D: allModulesList.filter((m) => m.score >= 28 && m.score < 40).length,
+    F: allModulesList.filter((m) => m.score < 28).length,
   };
 
   const doughnutData = {
-    labels: [
-      'First Class (70%+)',
-      'Upper Second (60-69%)',
-      'Lower Second (50-59%)',
-      'Third / Pass (40-49%)',
-      'Resit / Fail (<40%)',
-    ],
+    labels: ['A (70-100)', 'B (55-69)', 'C (40-54)', 'D (28-39)', 'F (0-27)'],
     datasets: [
       {
-        data: [
-          gradeCounts.Distinction,
-          gradeCounts.UpperSecond,
-          gradeCounts.LowerSecond,
-          gradeCounts.Pass,
-          gradeCounts.Resit,
-        ],
+        data: [gradeCounts.A, gradeCounts.B, gradeCounts.C, gradeCounts.D, gradeCounts.F],
         backgroundColor: [
           '#16a34a',
           '#0284c7',
@@ -626,8 +317,7 @@ export default function StudentAnalyticsPage() {
                   Module Scores vs Distinction
                 </h3>
                 <p className="text-xs text-gray-500 font-sans mt-0.5">
-                  Green ≥ 70% (1st Class) • Blue 60-69% (2:1) • Amber 40-59%
-                  (Pass)
+                  A 70–100 • B 55–69 • C 40–54 • D 28–39 • F 0–27
                 </p>
               </div>
 
@@ -676,10 +366,10 @@ export default function StudentAnalyticsPage() {
               <Doughnut data={doughnutData} options={doughnutOptions} />
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-mono font-bold text-gray-900 leading-none">
-                  {gradeCounts.Distinction}
+                  {gradeCounts.A}
                 </span>
                 <span className="text-[10px] font-mono uppercase text-gray-400 tracking-wider mt-1">
-                  1st Class (A)
+                  Grade A
                 </span>
               </div>
             </div>
@@ -688,30 +378,37 @@ export default function StudentAnalyticsPage() {
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-primary" />
-                  First Class (70%+)
+                  A (70–100)
                 </span>
-                <span className="font-bold">{gradeCounts.Distinction}</span>
+                <span className="font-bold">{gradeCounts.A}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-sky-600" />
-                  Upper Second (60–69%)
+                  B (55–69)
                 </span>
-                <span className="font-bold">{gradeCounts.UpperSecond}</span>
+                <span className="font-bold">{gradeCounts.B}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-purple-500" />
-                  Lower Second (50–59%)
+                  C (40–54)
                 </span>
-                <span className="font-bold">{gradeCounts.LowerSecond}</span>
+                <span className="font-bold">{gradeCounts.C}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  Third / Pass (40–49%)
+                  D (28–39)
                 </span>
-                <span className="font-bold">{gradeCounts.Pass}</span>
+                <span className="font-bold">{gradeCounts.D}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-700">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  F (0–27)
+                </span>
+                <span className="font-bold">{gradeCounts.F}</span>
               </div>
             </div>
           </div>
@@ -807,11 +504,13 @@ export default function StudentAnalyticsPage() {
                           className={`text-xs font-mono font-bold px-2 py-0.5 border ${
                             mod.score >= 70
                               ? 'bg-primary-light text-primary border-primary/30'
-                              : mod.score >= 60
+                              : mod.score >= 55
                                 ? 'bg-sky-50 text-sky-700 border-sky-200'
                                 : mod.score >= 40
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                  : 'bg-red-50 text-red-700 border-red-200'
+                                  ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                  : mod.score >= 28
+                                    ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                    : 'bg-red-50 text-red-700 border-red-200'
                           }`}
                         >
                           {mod.grade}

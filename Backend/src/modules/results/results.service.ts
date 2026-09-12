@@ -39,6 +39,54 @@ function calculateGrade(score: number): string {
   return 'F';
 }
 
+function gradeToPoint(grade: string): number {
+  switch (grade) {
+    case 'A':
+      return 4.0;
+    case 'B':
+      return 3.0;
+    case 'C':
+      return 2.0;
+    case 'D':
+      return 1.0;
+    default:
+      return 0.0;
+  }
+}
+
+function gradeToStatus(grade: string): 'PASS' | 'DISTINCTION' | 'RESIT' {
+  if (grade === 'A') return 'DISTINCTION';
+  if (grade === 'F') return 'RESIT';
+  return 'PASS';
+}
+
+function semesterYearLabel(sem: number): string {
+  switch (sem) {
+    case 1:
+      return 'Year 1 (Autumn 2024)';
+    case 2:
+      return 'Year 1 (Spring 2025)';
+    case 3:
+      return 'Year 2 (Autumn 2025)';
+    case 4:
+      return 'Year 2 (Spring 2026)';
+    case 5:
+      return 'Year 3 (Autumn 2026)';
+    case 6:
+      return 'Year 3 (Spring 2027)';
+    default:
+      return `Semester ${sem}`;
+  }
+}
+
+function standingFromScore(avg: number): string {
+  if (avg >= 70) return 'First Class Track';
+  if (avg >= 55) return 'Upper Second Track';
+  if (avg >= 40) return 'Lower Second Track';
+  if (avg >= 28) return 'Third Class Track';
+  return 'Fail Track';
+}
+
 @Injectable()
 export class ResultsService {
   private readonly logger = new Logger(ResultsService.name);
@@ -472,5 +520,89 @@ export class ResultsService {
       `Publish all: ${published} results published, ${emailed} emails queued`,
     );
     return { published, emailed };
+  }
+
+  async getStudentAnalytics(userEmail: string): Promise<
+    {
+      semester: string;
+      year: string;
+      gpa: number;
+      averageScore: number;
+      creditsEarned: number;
+      totalCredits: number;
+      standing: string;
+      modules: {
+        code: string;
+        name: string;
+        credits: number;
+        score: number;
+        grade: string;
+        gradePoint: number;
+        status: 'PASS' | 'DISTINCTION' | 'RESIT';
+      }[];
+    }[]
+  > {
+    const student = await this.studentRepo.findByEmail(userEmail);
+    if (!student) return [];
+
+    const result = await this.resultRepo.findByStudentId(student.id);
+    if (!result) return [];
+
+    const items = await this.resultRepo.findItemsByResultId(result.id);
+    if (items.length === 0) return [];
+
+    let allModules = await this.cache.get<any[]>(MODULES_CACHE_KEY);
+    if (!allModules) {
+      allModules = await this.moduleRepo.findAll();
+      await this.cache.set(MODULES_CACHE_KEY, allModules, MODULES_CACHE_TTL);
+    }
+    const moduleMap = new Map(allModules.map((m) => [m.id, m]));
+
+    // Group items by semester (from Module.semesters[0], fallback 1)
+    const grouped = new Map<number, typeof items>();
+    for (const item of items) {
+      const mod = moduleMap.get(item.moduleId) as any;
+      const sem: number =
+        mod?.semesters?.[0] ?? mod?.semesters?.[0] ?? 1;
+      const key = typeof sem === 'number' ? sem : 1;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(item);
+    }
+
+    const sortedSemesters = [...grouped.keys()].sort((a, b) => a - b);
+
+    return sortedSemesters.map((sem) => {
+      const semItems = grouped.get(sem)!;
+      const modules = semItems.map((item) => {
+        const mod = moduleMap.get(item.moduleId) as any;
+        const grade = item.grade;
+        return {
+          code: mod?.code ?? `MOD-${item.moduleId.slice(0, 6)}`,
+          name: mod?.name ?? 'Unknown Module',
+          credits: 15,
+          score: item.score,
+          grade,
+          gradePoint: gradeToPoint(grade),
+          status: gradeToStatus(grade),
+        };
+      });
+
+      const avgScore =
+        modules.reduce((a, m) => a + m.score, 0) / modules.length;
+      const avgGpa =
+        modules.reduce((a, m) => a + m.gradePoint, 0) / modules.length;
+      const passed = modules.filter((m) => m.status !== 'RESIT').length;
+
+      return {
+        semester: `Semester ${sem}`,
+        year: semesterYearLabel(sem),
+        gpa: Number(avgGpa.toFixed(2)),
+        averageScore: Number(avgScore.toFixed(1)),
+        creditsEarned: passed * 15,
+        totalCredits: modules.length * 15,
+        standing: standingFromScore(avgScore),
+        modules,
+      };
+    });
   }
 }

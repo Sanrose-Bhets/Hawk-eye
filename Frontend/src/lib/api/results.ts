@@ -40,9 +40,31 @@ export interface ImportResponse {
   errors: ImportError[];
 }
 
+export interface AnalyticsSemester {
+  semester: string;
+  year: string;
+  gpa: number;
+  averageScore: number;
+  creditsEarned: number;
+  totalCredits: number;
+  standing: string;
+  modules: {
+    code: string;
+    name: string;
+    credits: number;
+    score: number;
+    grade: string;
+    gradePoint: number;
+    status: 'PASS' | 'DISTINCTION' | 'RESIT';
+  }[];
+}
+
 export const resultApi = {
   list: (params: ListResultsParams = {}) =>
     apiClient.get<PaginatedResponse<Result>>('/results', { params }),
+
+  analytics: () =>
+    apiClient.get<AnalyticsSemester[]>('/results/analytics'),
 
   get: (id: string) => apiClient.get<Result>(`/results/${id}`),
 
