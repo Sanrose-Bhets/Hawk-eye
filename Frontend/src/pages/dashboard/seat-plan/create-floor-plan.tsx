@@ -87,8 +87,8 @@ export default function CreateFloorPlanPage() {
             <h2 className="text-base font-semibold text-gray-900">
               Seat Layout
             </h2>
-            <span className="text-sm text-gray-500">
-              {seats.length} seat{seats.length !== 1 ? 's' : ''}
+            <span className="text-xs text-gray-500 font-medium">
+              Drag seats to arrange layout
             </span>
           </div>
         </CardHeader>

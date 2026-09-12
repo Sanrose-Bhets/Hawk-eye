@@ -9,7 +9,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { SeatPosition } from '@/lib/types';
-import { GripVertical, X } from 'lucide-react';
+import { GripVertical, X, Plus, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DraggableSeatProps {
@@ -73,38 +73,39 @@ function DraggableSeat({
         ...style,
       }}
       className={cn(
-        'flex flex-col items-center gap-1 select-none',
-        highlight && 'ring-4 ring-primary ring-offset-2 rounded-2xl',
+        'flex flex-col items-center gap-1 select-none z-10',
+        readonly ? 'cursor-default' : 'cursor-move',
       )}
     >
       <div
         className={cn(
-          'group relative flex h-16 w-20 flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all',
+          'group relative flex h-[72px] w-24 flex-col items-center justify-center rounded-2xl border transition-all duration-150 p-1.5',
           highlight
-            ? 'border-primary bg-primary-light'
-            : 'border-gray-300 bg-white hover:border-primary hover:bg-gray-50',
-          readonly && 'cursor-default',
+            ? 'border-primary ring-4 ring-primary/25 bg-primary-light shadow-md scale-105'
+            : 'border-gray-200 bg-white shadow-2xs hover:border-primary/60 hover:shadow-md',
         )}
       >
         {!readonly && (
           <button
+            type="button"
             {...listeners}
             {...attributes}
-            className="absolute -top-2 -right-2 hidden cursor-grab rounded-full bg-gray-200 p-0.5 group-hover:block hover:bg-gray-300"
+            className="absolute -top-2 -right-2 hidden h-6 w-6 cursor-grab items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 shadow-sm group-hover:flex hover:bg-gray-100 hover:text-gray-900 transition-colors"
           >
-            <GripVertical size={14} />
+            <GripVertical size={13} />
           </button>
         )}
 
         {!readonly && (
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onRemove(index);
             }}
-            className="absolute -top-2 -left-2 hidden rounded-full bg-red-100 p-0.5 text-red-500 group-hover:block hover:bg-red-200"
+            className="absolute -top-2 -left-2 hidden h-6 w-6 items-center justify-center rounded-full bg-white border border-red-200 text-red-500 shadow-sm group-hover:flex hover:bg-red-50 hover:text-red-700 transition-colors cursor-pointer"
           >
-            <X size={14} />
+            <X size={13} />
           </button>
         )}
 
@@ -115,22 +116,26 @@ function DraggableSeat({
             onChange={(e) => setLabel(e.target.value)}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className="w-14 text-center text-sm font-semibold bg-transparent border-b border-primary outline-none"
+            className="w-16 text-center text-sm font-bold text-gray-900 bg-transparent border-b-2 border-primary outline-none"
           />
         ) : (
           <span
             onDoubleClick={handleDoubleClick}
-            className="text-sm font-semibold text-gray-700 cursor-pointer"
+            className="text-sm font-bold text-gray-900 tracking-wide cursor-pointer"
           >
             {seat.label}
           </span>
         )}
 
-        {studentName && (
-          <span className="mt-0.5 max-w-[72px] truncate text-[10px] text-gray-500 px-1">
+        {studentName ? (
+          <div className="mt-1 w-full truncate rounded-md bg-gray-100/90 px-1.5 py-0.5 text-center text-[10px] font-medium text-gray-700 border border-gray-200/50">
             {studentName}
+          </div>
+        ) : !readonly ? (
+          <span className="text-[10px] text-gray-400 mt-0.5 font-medium">
+            Empty
           </span>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -142,7 +147,6 @@ interface SeatCanvasProps {
   assignments?: { seatIndex: number; studentName: string }[];
   highlightStudent?: string;
   readonly?: boolean;
-  showSeatCount?: boolean;
 }
 
 export function SeatCanvas({
@@ -151,7 +155,6 @@ export function SeatCanvas({
   assignments,
   highlightStudent,
   readonly,
-  showSeatCount = true,
 }: SeatCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const nextLabel = useRef(seats.length + 1);
@@ -170,8 +173,8 @@ export function SeatCanvas({
     const col = seats.length % 5;
     const newSeat: SeatPosition = {
       label: `${String.fromCharCode(65 + row)}${col + 1}`,
-      x: 40 + col * 120,
-      y: 40 + row * 100,
+      x: 40 + col * 130,
+      y: 60 + row * 105,
     };
     onChange([...seats, newSeat]);
   }, [seats, onChange]);
@@ -185,8 +188,8 @@ export function SeatCanvas({
       const updated = [...seats];
       updated[index] = {
         ...updated[index],
-        x: updated[index].x + delta.x,
-        y: updated[index].y + delta.y,
+        x: Math.max(20, updated[index].x + delta.x),
+        y: Math.max(50, updated[index].y + delta.y),
       };
       onChange(updated);
     },
@@ -225,18 +228,18 @@ export function SeatCanvas({
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      {showSeatCount && (
-        <div className="flex items-center gap-3 mb-4">
-          {!readonly && (
-            <button
-              onClick={addSeat}
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover transition-colors cursor-pointer"
-            >
-              + Add Seat
-            </button>
-          )}
-          <span className="text-sm text-gray-500">
-            {seats.length} seat{seats.length !== 1 ? 's' : ''}
+      {!readonly && (
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={addSeat}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-primary-hover active:scale-[0.98] transition-all cursor-pointer"
+          >
+            <Plus size={16} />
+            Add Seat
+          </button>
+          <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200/60">
+            {seats.length} seat{seats.length !== 1 ? 's' : ''} configured
           </span>
         </div>
       )}
@@ -247,13 +250,32 @@ export function SeatCanvas({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (canvasRef as any).current = node;
         }}
-        className="relative w-full min-h-[500px] rounded-2xl border-2 border-dashed border-gray-300 bg-white overflow-visible"
+        className="relative w-full min-h-[520px] rounded-2xl border-2 border-dashed border-gray-300/80 bg-gray-50/40 transition-colors overflow-hidden"
+        style={{
+          backgroundImage:
+            'radial-gradient(#d1d5db 1.25px, transparent 1.25px)',
+          backgroundSize: '24px 24px',
+        }}
       >
+        {/* Front / Board indicator */}
+        <div className="absolute top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-xs px-4 py-1 text-[11px] font-semibold tracking-wider text-gray-500 uppercase shadow-2xs border border-gray-200/80 select-none z-0">
+          <span className="h-2 w-2 rounded-full bg-primary" />
+          Front / Blackboard
+        </div>
+
         {seats.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-            {readonly
-              ? 'No seats in this plan'
-              : "Click 'Add Seat' to start building your floor plan"}
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-2xs mb-3 text-gray-400">
+              <LayoutGrid size={26} />
+            </div>
+            <p className="text-sm font-semibold text-gray-800 mb-1">
+              {readonly ? 'No seats in this floor plan' : 'No seats placed yet'}
+            </p>
+            <p className="text-xs text-gray-400 max-w-xs">
+              {readonly
+                ? 'This classroom layout currently has no seats configured.'
+                : 'Click "+ Add Seat" above to start placing student desks onto the room canvas.'}
+            </p>
           </div>
         )}
 
