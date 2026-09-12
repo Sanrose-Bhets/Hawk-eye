@@ -270,10 +270,6 @@ export default function StudentProfilePage() {
                   <h2 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
                     {loading ? 'Loading...' : student?.name}
                   </h2>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    Verified Student
-                  </span>
                 </div>
                 <p className="text-xs text-gray-500 font-mono">
                   {loading ? '—' : student?.email}
