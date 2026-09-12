@@ -29,7 +29,7 @@ export function Sidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-6 py-5">
-        <h1 className="text-[32px] font-bold text-gray-900 leading-tight">
+        <h1 className="text-[24px] font-bold text-gray-900 leading-tight">
           RTE Dashboard
         </h1>
       </div>
