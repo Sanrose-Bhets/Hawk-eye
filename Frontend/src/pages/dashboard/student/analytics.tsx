@@ -438,12 +438,12 @@ export default function StudentAnalyticsPage() {
       tooltip: {
         backgroundColor: '#111827',
         callbacks: {
-          afterTitle: (items) => {
+          afterTitle: (items: { dataIndex: number }[]) => {
             const idx = items[0].dataIndex;
             return filteredModulesForChart[idx]?.name || '';
           },
-          label: (context) =>
-            ` Score: ${context.parsed.y}% • Grade: ${filteredModulesForChart[context.dataIndex]?.grade}`,
+          label: (context: { parsed: { y: number | null }; dataIndex: number }) =>
+            ` Score: ${context.parsed.y ?? 0}% • Grade: ${filteredModulesForChart[context.dataIndex]?.grade}`,
         },
       },
     },
@@ -461,7 +461,7 @@ export default function StudentAnalyticsPage() {
         ticks: {
           stepSize: 20,
           font: { family: 'Space Grotesk, sans-serif', size: 11 },
-          callback: (val) => `${val}%`,
+          callback: (val: string | number) => `${val}%`,
         },
         grid: { color: '#f3f4f6' },
       },

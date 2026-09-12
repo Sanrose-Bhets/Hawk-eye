@@ -159,6 +159,8 @@ export interface ExamRoutine {
   duration: string;
   facultyId: string;
   moduleId: string;
+  moduleName?: string;
+  facultyName?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { examRoutineApi } from '@/lib/api/exam-routines';
-import { moduleApi } from '@/lib/api/modules';
-import type { ExamRoutine, Module } from '@/lib/types';
+import type { ExamRoutine } from '@/lib/types';
 
 interface ScheduledExam {
   id: string;
@@ -48,28 +47,20 @@ export default function UpcomingExamsPage() {
     async function loadExams() {
       try {
         setLoading(true);
-        const [routinesRes, modulesRes] = await Promise.all([
-          examRoutineApi.studentList(),
-          moduleApi.list({ limit: 50 }),
-        ]);
+        const routinesRes = await examRoutineApi.studentList();
 
         const routines: ExamRoutine[] = routinesRes.data || [];
-        const modules: Module[] = modulesRes.data?.data || [];
-        const moduleMap = new Map(modules.map((m) => [m.id, m]));
 
         const mapped: ScheduledExam[] = routines
           .filter((r) => isFuture(r.date))
-          .map((r) => {
-            const mod = moduleMap.get(r.moduleId);
-            return {
-              id: r.id,
-              moduleCode: mod?.code || '—',
-              moduleName: mod?.name || 'Unknown Module',
-              date: formatDate(r.date),
-              time: `${r.startTime} – ${r.endTime}`,
-              duration: r.duration,
-            };
-          });
+          .map((r) => ({
+            id: r.id,
+            moduleCode: '—',
+            moduleName: r.moduleName || 'Unknown Module',
+            date: formatDate(r.date),
+            time: `${r.startTime} – ${r.endTime}`,
+            duration: r.duration,
+          }));
 
         setExams(mapped);
       } catch (err) {
