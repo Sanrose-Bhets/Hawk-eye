@@ -11,7 +11,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-[#FAFAFA] text-neutral-900 font-sans antialiased">
+    <div className="flex h-screen bg-white text-neutral-900 font-sans antialiased">
       <StudentSidebar />
       <main className="flex-1 overflow-y-auto p-6 sm:p-10">
         <Outlet />

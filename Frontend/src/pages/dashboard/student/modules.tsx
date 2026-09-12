@@ -78,7 +78,7 @@ export default function StudentModulesPage() {
         </div>
       ) : (
         <div className="border border-gray-200 divide-y divide-gray-200 bg-white">
-          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-white border-b border-gray-200 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
             <div className="col-span-2">CODE</div>
             <div className="col-span-6">MODULE TITLE</div>
             <div className="col-span-3">MODULE LEADER</div>
