@@ -247,14 +247,7 @@ export function SeatCanvas({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (canvasRef as any).current = node;
         }}
-        className="relative rounded-2xl border-2 border-dashed border-gray-300 bg-white"
-        style={{
-          width: '100%',
-          maxWidth: 700,
-          minHeight: 500,
-          minWidth: 700,
-          overflow: 'visible',
-        }}
+        className="relative w-full min-h-[500px] rounded-2xl border-2 border-dashed border-gray-300 bg-white overflow-visible"
       >
         {seats.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-gray-400">
