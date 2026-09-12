@@ -1,14 +1,17 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { loginRequest } from "@/lib/api/auth"
+import { setCredentials } from "@/redux/userSlice"
 
 export function LoginForm() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -24,9 +27,16 @@ export function LoginForm() {
     try {
       const data = await loginRequest({ email, password })
 
+      dispatch(
+        setCredentials({
+          user: data.user,
+          accessToken: data.accessToken,
+          refreshToken: data.refreshToken,
+        })
+      )
+
       localStorage.setItem("accessToken", data.accessToken)
       localStorage.setItem("refreshToken", data.refreshToken)
-      localStorage.setItem("user", JSON.stringify(data.user))
 
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email)

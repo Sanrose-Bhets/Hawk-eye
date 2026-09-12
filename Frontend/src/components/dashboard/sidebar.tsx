@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom"
+import { useDispatch } from "react-redux"
 import { LayoutGrid, GraduationCap, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { clearCredentials } from "@/redux/userSlice"
 
 const links = [
   { to: "/dashboard/rte/floor-plans", label: "Floor Plans", icon: LayoutGrid },
@@ -9,11 +11,12 @@ const links = [
 
 export function Sidebar() {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleLogout = () => {
+    dispatch(clearCredentials())
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
     navigate("/")
   }
 

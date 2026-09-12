@@ -1,8 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom"
+import { useSelector } from "react-redux"
 import { Sidebar } from "@/components/dashboard/sidebar"
+import { selectCurrentUser } from "@/redux/userSlice"
 
 export default function RteDashboard() {
-  const user = JSON.parse(localStorage.getItem("user") || "null")
+  const user = useSelector(selectCurrentUser)
 
   if (!user || user.role !== "RTE") {
     return <Navigate to="/" replace />
