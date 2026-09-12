@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'785d93fca1c3b5e9979729574ed20b6c7816bd8a1ef439f9fcc1cfd78cd71263'>;
+  StorageHashBase<'6e814e1a4a025c21afb9d70dfe3f5f5a4ef068e586b5d8eb994c77cf9caa0cad'>;
 export type ExecutionHash =
   ExecutionHashBase<'fc97f28a50a17f884627d33197f1e4fffec6b267ec265bb256bbf7a3bd4b5a58'>;
 export type ProfileHash =
@@ -272,8 +272,7 @@ export type FieldOutputTypes = {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly rteId: CodecTypes['pg/text@1']['output'];
       readonly date: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly startTime: CodecTypes['pg/text@1']['output'];
-      readonly endTime: CodecTypes['pg/text@1']['output'];
+      readonly time: CodecTypes['pg/text@1']['output'];
       readonly duration: CodecTypes['pg/text@1']['output'];
       readonly facultyId: CodecTypes['pg/text@1']['output'];
       readonly moduleId: CodecTypes['pg/text@1']['output'];
@@ -384,8 +383,7 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly rteId: CodecTypes['pg/text@1']['input'];
       readonly date: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly startTime: CodecTypes['pg/text@1']['input'];
-      readonly endTime: CodecTypes['pg/text@1']['input'];
+      readonly time: CodecTypes['pg/text@1']['input'];
       readonly duration: CodecTypes['pg/text@1']['input'];
       readonly facultyId: CodecTypes['pg/text@1']['input'];
       readonly moduleId: CodecTypes['pg/text@1']['input'];
@@ -496,12 +494,11 @@ export type StorageColumnTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly date: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly duration: CodecTypes['pg/text@1']['output'];
-      readonly endTime: CodecTypes['pg/text@1']['output'];
       readonly facultyId: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly moduleId: CodecTypes['pg/text@1']['output'];
       readonly rteId: CodecTypes['pg/text@1']['output'];
-      readonly startTime: CodecTypes['pg/text@1']['output'];
+      readonly time: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
     readonly faculty: {
@@ -608,12 +605,11 @@ export type StorageColumnInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly date: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly duration: CodecTypes['pg/text@1']['input'];
-      readonly endTime: CodecTypes['pg/text@1']['input'];
       readonly facultyId: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
       readonly moduleId: CodecTypes['pg/text@1']['input'];
       readonly rteId: CodecTypes['pg/text@1']['input'];
-      readonly startTime: CodecTypes['pg/text@1']['input'];
+      readonly time: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly faculty: {
@@ -862,12 +858,7 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                 };
-                readonly startTime: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly endTime: {
+                readonly time: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
@@ -1574,11 +1565,7 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
-              readonly startTime: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly endTime: {
+              readonly time: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
@@ -1617,8 +1604,7 @@ type ContractBase = Omit<
                 readonly id: { readonly column: 'id' };
                 readonly rteId: { readonly column: 'rteId' };
                 readonly date: { readonly column: 'date' };
-                readonly startTime: { readonly column: 'startTime' };
-                readonly endTime: { readonly column: 'endTime' };
+                readonly time: { readonly column: 'time' };
                 readonly duration: { readonly column: 'duration' };
                 readonly facultyId: { readonly column: 'facultyId' };
                 readonly moduleId: { readonly column: 'moduleId' };

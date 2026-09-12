@@ -17,7 +17,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
 import { calendarApi } from '@/lib/api/calendar';
-import type { CalendarNote } from '@/lib/types';
+import { examRoutineApi } from '@/lib/api/exam-routines';
+import { facultyApi } from '@/lib/api/faculties';
+import { moduleApi } from '@/lib/api/modules';
+import type { CalendarNote, ExamRoutine, Faculty, Module } from '@/lib/types';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -64,6 +67,9 @@ export default function CalendarPage() {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [notes, setNotes] = useState<CalendarNote[]>([]);
+  const [routines, setRoutines] = useState<ExamRoutine[]>([]);
+  const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [allModules, setAllModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -79,25 +85,49 @@ export default function CalendarPage() {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [formError, setFormError] = useState('');
 
-  const fetchNotes = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await calendarApi.list({
-        month: currentMonth + 1,
-        year: currentYear,
-      });
-      setNotes(res.data);
+      const [notesRes, routinesRes] = await Promise.all([
+        calendarApi.list({
+          month: currentMonth + 1,
+          year: currentYear,
+        }),
+        examRoutineApi.list({
+          month: currentMonth + 1,
+          year: currentYear,
+        }),
+      ]);
+      setNotes(notesRes.data);
+      setRoutines(routinesRes.data);
     } catch {
-      setError('Failed to load calendar notes.');
+      setError('Failed to load calendar data.');
     } finally {
       setLoading(false);
     }
   }, [currentMonth, currentYear]);
 
+  const fetchLookups = useCallback(async () => {
+    try {
+      const [facRes, modRes] = await Promise.all([
+        facultyApi.list({ limit: 100 }),
+        moduleApi.list({ limit: 1000 }),
+      ]);
+      setFaculties(facRes.data.data);
+      setAllModules(modRes.data.data);
+    } catch {
+      // silent
+    }
+  }, []);
+
   useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchLookups();
+  }, [fetchLookups]);
 
   const notesByDate = new Map<string, CalendarNote[]>();
   for (const note of notes) {
@@ -106,8 +136,18 @@ export default function CalendarPage() {
     notesByDate.get(key)!.push(note);
   }
 
+  const routinesByDate = new Map<string, ExamRoutine[]>();
+  for (const routine of routines) {
+    const key = routine.date.split('T')[0];
+    if (!routinesByDate.has(key)) routinesByDate.set(key, []);
+    routinesByDate.get(key)!.push(routine);
+  }
+
   const selectedNotes = selectedDate
     ? (notesByDate.get(selectedDate) ?? [])
+    : [];
+  const selectedRoutines = selectedDate
+    ? (routinesByDate.get(selectedDate) ?? [])
     : [];
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
@@ -192,7 +232,7 @@ export default function CalendarPage() {
         content: noteContent.trim() || undefined,
       });
       setIsCreateOpen(false);
-      fetchNotes();
+      fetchData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create note';
       setFormError(msg);
@@ -219,7 +259,7 @@ export default function CalendarPage() {
         content: noteContent.trim() || undefined,
       });
       setIsEditOpen(false);
-      fetchNotes();
+      fetchData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to update note';
       setFormError(msg);
@@ -237,7 +277,7 @@ export default function CalendarPage() {
       if (selectedDate) {
         setSelectedDate(null);
       }
-      fetchNotes();
+      fetchData();
     } catch {
       setError('Failed to delete note.');
     } finally {
@@ -255,10 +295,22 @@ export default function CalendarPage() {
             Manage your schedule and notes
           </p>
         </div>
-        <Button onClick={() => handleOpenCreate()} className="cursor-pointer">
-          <Plus size={18} className="mr-2" />
-          Add Note
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              Notes
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-orange-500" />
+              Exams
+            </span>
+          </div>
+          <Button onClick={() => handleOpenCreate()} className="cursor-pointer">
+            <Plus size={18} className="mr-2" />
+            Add Note
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -328,6 +380,7 @@ export default function CalendarPage() {
 
                   const dateKey = formatDateKey(currentYear, currentMonth, day);
                   const dayNotes = notesByDate.get(dateKey) ?? [];
+                  const dayRoutines = routinesByDate.get(dateKey) ?? [];
                   const isSelected = selectedDate === dateKey;
                   const todayClass = isToday(day);
 
@@ -343,8 +396,17 @@ export default function CalendarPage() {
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
-                      {dayNotes.length > 0 && (
+                      {dayNotes.length > 0 && dayRoutines.length > 0 && (
+                        <>
+                          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
+                          <span className="absolute top-1.5 right-4 h-2 w-2 rounded-full bg-orange-500" />
+                        </>
+                      )}
+                      {dayNotes.length > 0 && dayRoutines.length === 0 && (
                         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
+                      )}
+                      {dayRoutines.length > 0 && dayNotes.length === 0 && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-orange-500" />
                       )}
                       <span
                         className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
@@ -398,17 +460,18 @@ export default function CalendarPage() {
                     className="mx-auto mb-2 text-gray-300"
                   />
                   <p className="text-xs text-gray-500">
-                    Click a day to view notes
+                    Click a day to view notes &amp; routines
                   </p>
                 </div>
-              ) : selectedNotes.length === 0 ? (
+              ) : selectedNotes.length === 0 &&
+                selectedRoutines.length === 0 ? (
                 <div className="py-10 text-center">
                   <StickyNote
                     size={32}
                     className="mx-auto mb-2 text-gray-300"
                   />
                   <p className="text-xs text-gray-500 mb-2">
-                    No notes for this day
+                    Nothing scheduled for this day
                   </p>
                   <Button
                     variant="outline"
@@ -421,40 +484,81 @@ export default function CalendarPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {selectedNotes.map((note) => (
-                    <div
-                      key={note.id}
-                      className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {note.title}
-                          </p>
-                          {note.content && (
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                              {note.content}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-1 shrink-0">
-                          <button
-                            onClick={() => handleOpenEdit(note)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors cursor-pointer"
-                          >
-                            <Pencil size={12} />
-                          </button>
-                          <button
-                            onClick={() => handleOpenDelete(note)}
-                            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors cursor-pointer"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {selectedRoutines.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-orange-600 uppercase tracking-wider mb-1.5">
+                        Exam Routines
+                      </p>
+                      <div className="space-y-1.5">
+                        {selectedRoutines.map((routine) => {
+                          const facName =
+                            faculties.find((f) => f.id === routine.facultyId)
+                              ?.name ?? '';
+                          const modName =
+                            allModules.find((m) => m.id === routine.moduleId)
+                              ?.name ?? '';
+                          return (
+                            <div
+                              key={routine.id}
+                              className="rounded-lg border border-orange-200 bg-orange-50 p-2.5"
+                            >
+                              <p className="text-xs font-medium text-orange-900">
+                                {routine.startTime} – {routine.endTime} (
+                                {routine.duration})
+                              </p>
+                              <p className="text-[10px] text-orange-600 mt-0.5">
+                                {modName}
+                                {facName ? ` • ${facName}` : ''}
+                              </p>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
-                  ))}
+                  )}
+                  {selectedNotes.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                        Notes
+                      </p>
+                      <div className="space-y-1.5">
+                        {selectedNotes.map((note) => (
+                          <div
+                            key={note.id}
+                            className="rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {note.title}
+                                </p>
+                                {note.content && (
+                                  <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                                    {note.content}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex gap-1 shrink-0">
+                                <button
+                                  onClick={() => handleOpenEdit(note)}
+                                  className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors cursor-pointer"
+                                >
+                                  <Pencil size={12} />
+                                </button>
+                                <button
+                                  onClick={() => handleOpenDelete(note)}
+                                  className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors cursor-pointer"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

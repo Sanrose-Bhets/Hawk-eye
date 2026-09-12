@@ -14,6 +14,7 @@ import { ModuleModule } from './modules/module/module.module.js';
 import { ResultsModule } from './modules/results/results.module.js';
 import { MailModule } from './modules/mail/mail.module.js';
 import { CalendarModule } from './modules/calendar/calendar.module.js';
+import { ExamRoutineModule } from './modules/exam-routine/exam-routine.module.js';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CalendarModule } from './modules/calendar/calendar.module.js';
     ResultsModule,
     MailModule,
     CalendarModule,
+    ExamRoutineModule,
   ],
 })
 export class AppModule {}

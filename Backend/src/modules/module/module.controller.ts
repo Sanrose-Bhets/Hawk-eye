@@ -54,6 +54,7 @@ export class ModuleController {
   }
 
   @Get()
+  @Roles('STUDENT_SERVICE', 'RTE')
   @ApiOperation({ summary: 'List all modules with pagination and search' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -74,6 +75,7 @@ export class ModuleController {
   }
 
   @Get(':id')
+  @Roles('STUDENT_SERVICE', 'RTE')
   @ApiOperation({ summary: 'Get a module by ID' })
   @ApiResponse({
     status: 200,

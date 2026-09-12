@@ -151,3 +151,16 @@ export interface CalendarNote {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ExamRoutine {
+  id: string;
+  rteId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  duration: string;
+  facultyId: string;
+  moduleId: string;
+  createdAt: string;
+  updatedAt: string;
+}
