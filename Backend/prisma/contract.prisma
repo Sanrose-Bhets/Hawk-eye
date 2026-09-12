@@ -1,0 +1,36 @@
+enum Role {
+  STUDENT
+  STUDENT_SERVICE
+  RTE
+}
+
+model Student {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  address     String
+  contact     String
+  parentEmail String
+  role        Role      @default(STUDENT)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+}
+
+model StudentService {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  role      Role      @default(STUDENT_SERVICE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+}
+
+model RTE {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  role      Role      @default(RTE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+}
