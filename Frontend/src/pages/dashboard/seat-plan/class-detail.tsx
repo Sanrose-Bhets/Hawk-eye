@@ -223,7 +223,7 @@ export default function ClassDetailPage() {
       <button
         type="button"
         onClick={() => navigate(`${basePath}/classes`)}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
+        className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-3 transition-colors cursor-pointer"
       >
         <ArrowLeft size={16} />
         Back to Classes
