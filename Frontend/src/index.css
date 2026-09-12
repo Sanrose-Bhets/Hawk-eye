@@ -1,14 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme inline {
-  --color-primary: #79C24B;
+  --color-primary: #79c24b;
   --color-primary-hover: #6aad3f;
   --color-primary-light: rgba(121, 194, 75, 0.1);
   --color-primary-ring: rgba(121, 194, 75, 0.3);
-  --font-sans: "Outfit", system-ui, sans-serif;
-  --font-title: "Space Grotesk", sans-serif;
-  --font-space-grotesk: "Space Grotesk", sans-serif;
-  --font-vollkorn: "Vollkorn", serif;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  --font-title: 'Space Grotesk', sans-serif;
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
+  --font-vollkorn: 'Vollkorn', serif;
 }
 
 @layer base {
@@ -17,14 +17,36 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-title {
+    font-family: var(--font-title);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
