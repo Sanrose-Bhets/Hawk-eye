@@ -1,28 +1,22 @@
 import { Link } from 'react-router-dom';
-import { Shield, GraduationCap, Headphones, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const roles = [
   {
     title: 'RTE Portal',
     description: 'Right to Education administration and seating management',
-    icon: Shield,
     path: '/login/rte',
-    badge: 'Exam Admin',
   },
   {
     title: 'Student Service',
     description:
       'Student services, module coordination, and support management',
-    icon: Headphones,
     path: '/login/student-service',
-    badge: 'Staff & Ops',
   },
   {
     title: 'Student Portal',
     description: 'Access exam seat allocations, results, and study resources',
-    icon: GraduationCap,
     path: '/login/student',
-    badge: 'Student Access',
   },
 ];
 
@@ -49,19 +43,10 @@ export default function Home() {
             className="group relative flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-7 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-xl cursor-pointer"
           >
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-primary-light text-primary transition-transform duration-300 group-hover:scale-105">
-                  <role.icon size={26} />
-                </div>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 transition-colors group-hover:bg-primary-light group-hover:text-primary">
-                  {role.badge}
-                </span>
-              </div>
-
               <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-primary">
                 {role.title}
               </h3>
-              <p className="mt-2.5 text-sm text-gray-500 leading-relaxed">
+              <p className="mt-3 text-sm text-gray-500 leading-relaxed">
                 {role.description}
               </p>
             </div>
