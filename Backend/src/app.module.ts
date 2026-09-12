@@ -20,6 +20,7 @@ import { CalendarModule } from './modules/calendar/calendar.module.js';
 import { ExamRoutineModule } from './modules/exam-routine/exam-routine.module.js';
 import { BackupModule } from './modules/backup/backup.module.js';
 import { AdmitCardModule } from './modules/admit-card/admit-card.module.js';
+import { ClassBookingModule } from './modules/class-booking/class-booking.module.js';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { AdmitCardModule } from './modules/admit-card/admit-card.module.js';
     ExamRoutineModule,
     BackupModule,
     AdmitCardModule,
+    ClassBookingModule,
   ],
   providers: [
     {

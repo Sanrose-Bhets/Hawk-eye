@@ -23,5 +23,6 @@ import {
       useClass: ClassRepository,
     },
   ],
+  exports: [CLASS_REPOSITORY],
 })
 export class SeatPlanModule {}

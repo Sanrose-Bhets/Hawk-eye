@@ -185,3 +185,17 @@ export interface AdmitCard {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ClassBooking {
+  id: string;
+  classId: string;
+  className?: string;
+  bookedBy: string;
+  bookedByName?: string;
+  purpose: string;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
