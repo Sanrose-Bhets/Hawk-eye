@@ -1,5 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -7,12 +6,11 @@ import {
   Award,
   Mail,
   GraduationCap,
-  LogOut,
   Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
-import { clearCredentials } from '@/redux/userSlice';
+import { SidebarUserMenu } from '@/components/dashboard/sidebar-user-menu';
 
 const links = [
   {
@@ -55,16 +53,6 @@ const links = [
 ];
 
 export function StudentServiceSidebar() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/');
-  };
-
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
       {/* Header */}
@@ -108,21 +96,9 @@ export function StudentServiceSidebar() {
         ))}
       </nav>
 
-      {/* Logout */}
+      {/* User Dropdown */}
       <div className="border-t border-gray-200 p-3">
-        <Tooltip
-          content="Sign out of your account"
-          side="right"
-          wrapperClassName="w-full"
-        >
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
-        </Tooltip>
+        <SidebarUserMenu roleTitle="Student Service" />
       </div>
     </aside>
   );
