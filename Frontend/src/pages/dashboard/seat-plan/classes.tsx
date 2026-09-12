@@ -1,13 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Plus,
-  Eye,
-  Trash2,
-  GraduationCap,
-  Search,
-  AlertTriangle,
-} from 'lucide-react';
+import { Plus, Eye, Trash2, GraduationCap, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -180,18 +173,16 @@ export default function ClassesPage() {
         isOpen={!!classToDelete}
         onClose={() => !isDeleting && setClassToDelete(null)}
         title="Delete Class"
-        description="Are you sure you want to delete this class? This action cannot be undone."
       >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-200/80 p-3 text-amber-800 text-xs font-medium">
-            <AlertTriangle size={18} className="shrink-0 text-amber-600" />
-            <span>
-              Deleting{' '}
-              <strong className="font-semibold">{classToDelete?.name}</strong>{' '}
-              will remove all seat allocations for this class.
-            </span>
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
+        <div className="space-y-5">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Are you sure you want to delete{' '}
+            <strong className="font-semibold text-gray-900">
+              {classToDelete?.name}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-2.5 pt-1">
             <Button
               type="button"
               variant="outline"
@@ -206,9 +197,9 @@ export default function ClassesPage() {
               size="sm"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer"
+              className="bg-gray-900 hover:bg-gray-800 text-white shadow-xs cursor-pointer"
             >
-              {isDeleting ? 'Deleting...' : 'Delete Class'}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
         </div>

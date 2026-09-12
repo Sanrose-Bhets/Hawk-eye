@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash2, LayoutGrid, AlertTriangle } from 'lucide-react';
+import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
@@ -138,18 +138,16 @@ export default function FloorPlansPage() {
         isOpen={!!planToDelete}
         onClose={() => !isDeleting && setPlanToDelete(null)}
         title="Delete Floor Plan"
-        description="Are you sure you want to delete this floor plan? This action cannot be undone."
       >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-200/80 p-3 text-amber-800 text-xs font-medium">
-            <AlertTriangle size={18} className="shrink-0 text-amber-600" />
-            <span>
-              Deleting{' '}
-              <strong className="font-semibold">{planToDelete?.name}</strong>{' '}
-              will permanently remove this layout template.
-            </span>
-          </div>
-          <div className="flex justify-end gap-3 pt-2">
+        <div className="space-y-5">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Are you sure you want to delete{' '}
+            <strong className="font-semibold text-gray-900">
+              {planToDelete?.name}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-2.5 pt-1">
             <Button
               type="button"
               variant="outline"
@@ -164,9 +162,9 @@ export default function FloorPlansPage() {
               size="sm"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer"
+              className="bg-gray-900 hover:bg-gray-800 text-white shadow-xs cursor-pointer"
             >
-              {isDeleting ? 'Deleting...' : 'Delete Floor Plan'}
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
         </div>
