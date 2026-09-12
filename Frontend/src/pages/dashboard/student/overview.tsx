@@ -191,7 +191,11 @@ export default function StudentOverview() {
               </div>
 
               <div>
-                <p className="text-3xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-gray-900 leading-none">
+                <p
+                  className={`text-3xl sm:text-3xl lg:text-[34px] font-bold tracking-tight leading-none ${
+                    stat.highlight ? 'text-primary' : 'text-gray-900'
+                  }`}
+                >
                   {stat.value}
                 </p>
                 <p className="text-xs text-gray-500 mt-2 font-sans font-normal">
