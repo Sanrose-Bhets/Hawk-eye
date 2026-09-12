@@ -6,7 +6,6 @@ import {
   Award,
   Mail,
   GraduationCap,
-  Headphones,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -56,16 +55,10 @@ export function StudentServiceSidebar() {
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-xs">
-          <Headphones size={20} />
-        </div>
-        <div>
-          <span className="text-base font-semibold text-gray-900 block leading-tight">
-            Student Service
-          </span>
-          <span className="text-xs text-gray-500 font-medium">Portal</span>
-        </div>
+      <div className="border-b border-gray-200 px-6 py-5">
+        <h1 className="text-[32px] font-bold text-gray-900 leading-tight">
+          Student Service
+        </h1>
       </div>
 
       {/* Navigation */}
