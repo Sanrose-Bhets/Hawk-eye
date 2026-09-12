@@ -12,9 +12,12 @@ model Student {
   address     String
   contact     String
   parentEmail String
+  image       String?
   role        Role      @default(STUDENT)
+  facultyId   String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
+  faculty     Faculty?  @relation(fields: [facultyId], references: [id])
 }
 
 model StudentService {
@@ -33,6 +36,27 @@ model RTE {
   role      Role      @default(RTE)
   createdAt DateTime  @default(now())
   updatedAt DateTime
+}
+
+model Faculty {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  students    Student[]
+  modules     Module[]
+}
+
+model Module {
+  id            String   @id @default(uuid())
+  name          String
+  code          String?
+  moduleLeader  String
+  facultyId     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  faculty       Faculty  @relation(fields: [facultyId], references: [id])
 }
 
 model FloorPlan {
