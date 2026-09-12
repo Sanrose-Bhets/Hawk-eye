@@ -164,3 +164,24 @@ export interface ExamRoutine {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface AdmitCard {
+  id: string;
+  studentId: string;
+  examRoutineId: string;
+  seatNumber?: string;
+  roomName?: string;
+  pdfKey?: string;
+  generatedBy: string;
+  studentName?: string;
+  studentEmail?: string;
+  moduleName?: string;
+  moduleCode?: string;
+  facultyName?: string;
+  examDate?: string;
+  startTime?: string;
+  endTime?: string;
+  duration?: string;
+  createdAt: string;
+  updatedAt: string;
+}

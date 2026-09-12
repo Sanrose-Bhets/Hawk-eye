@@ -18,8 +18,9 @@ model Student {
   semester    Int       @default(1)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
-  faculty     Faculty?  @relation(fields: [facultyId], references: [id])
+  faculty     Faculty?     @relation(fields: [facultyId], references: [id])
   results     Result[]
+  admitCards  AdmitCard[]
 }
 
 model StudentService {
@@ -133,14 +134,31 @@ model CalendarNote {
 }
 
 model ExamRoutine {
-  id        String   @id @default(uuid())
-  rteId     String
-  date      DateTime
-  startTime String
-  endTime   String
-  duration  String
-  facultyId String
-  moduleId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id          String       @id @default(uuid())
+  rteId      String
+  date       DateTime
+  startTime  String
+  endTime    String
+  duration   String
+  facultyId  String
+  moduleId   String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime
+  admitCards AdmitCard[]
+}
+
+model AdmitCard {
+  id            String   @id @default(uuid())
+  studentId     String
+  examRoutineId String
+  seatNumber    String?
+  roomName      String?
+  pdfKey        String?
+  generatedBy   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  student       Student     @relation(fields: [studentId], references: [id])
+  examRoutine   ExamRoutine @relation(fields: [examRoutineId], references: [id])
+
+  @@unique([studentId, examRoutineId])
 }

@@ -5,6 +5,7 @@ import {
   Award,
   CalendarDays,
   ClipboardList,
+  FileText,
   Database,
   PanelLeftClose,
   PanelLeftOpen,
@@ -44,6 +45,12 @@ const links = [
     label: 'Exam Routines',
     description: 'Manage examination schedules',
     icon: ClipboardList,
+  },
+  {
+    to: '/dashboard/rte/admit-cards',
+    label: 'Admit Cards',
+    description: 'Generate and manage admit cards',
+    icon: FileText,
   },
   {
     to: '/dashboard/rte/backup',

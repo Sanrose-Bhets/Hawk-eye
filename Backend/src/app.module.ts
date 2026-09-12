@@ -19,6 +19,7 @@ import { MailModule } from './modules/mail/mail.module.js';
 import { CalendarModule } from './modules/calendar/calendar.module.js';
 import { ExamRoutineModule } from './modules/exam-routine/exam-routine.module.js';
 import { BackupModule } from './modules/backup/backup.module.js';
+import { AdmitCardModule } from './modules/admit-card/admit-card.module.js';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { BackupModule } from './modules/backup/backup.module.js';
     CalendarModule,
     ExamRoutineModule,
     BackupModule,
+    AdmitCardModule,
   ],
   providers: [
     {

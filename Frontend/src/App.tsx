@@ -71,9 +71,13 @@ const StudentProfilePage = lazy(
 const StudentAnalyticsPage = lazy(
   () => import('@/pages/dashboard/student/analytics'),
 );
+const StudentAdmitCardPage = lazy(
+  () => import('@/pages/dashboard/student/admit-card'),
+);
 
 const CalendarPage = lazy(() => import('@/pages/dashboard/calendar'));
 const ExamRoutinesPage = lazy(() => import('@/pages/dashboard/exam-routines'));
+const AdmitCardsPage = lazy(() => import('@/pages/dashboard/admit-cards'));
 const BackupPage = lazy(() => import('@/pages/dashboard/backup'));
 
 function Spinner() {
@@ -112,6 +116,7 @@ function App() {
             <Route path="results" element={<ResultsPage />} />
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="exam-routines" element={<ExamRoutinesPage />} />
+            <Route path="admit-cards" element={<AdmitCardsPage />} />
             <Route path="backup" element={<BackupPage />} />
           </Route>
 
@@ -147,6 +152,10 @@ function App() {
             <Route
               path="examination/upcoming"
               element={<UpcomingExamsPage />}
+            />
+            <Route
+              path="examination/admit-card"
+              element={<StudentAdmitCardPage />}
             />
           </Route>
         </Routes>

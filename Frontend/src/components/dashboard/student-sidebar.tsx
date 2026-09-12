@@ -10,6 +10,7 @@ import {
   Clock,
   Armchair,
   CalendarDays,
+  FileText,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -128,6 +129,12 @@ export function StudentSidebar() {
           label: 'Upcoming Exam',
           description: 'Semester examination routine & timetable',
           icon: CalendarDays,
+        },
+        {
+          to: '/dashboard/student/examination/admit-card',
+          label: 'Admit Card',
+          description: 'View and download your admit card',
+          icon: FileText,
         },
       ],
     },

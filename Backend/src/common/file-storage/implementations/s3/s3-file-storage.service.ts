@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { S3Client } from '@aws-sdk/client-s3';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { HeadBucketCommand } from '@aws-sdk/client-s3';
 import { CreateBucketCommand } from '@aws-sdk/client-s3';
@@ -63,7 +63,7 @@ export class S3FileStorageService implements IFileStorage, OnModuleInit {
   }
 
   async getUrl(key: string): Promise<string> {
-    const command = new PutObjectCommand({
+    const command = new GetObjectCommand({
       Bucket: this.config.bucket,
       Key: key,
     });
