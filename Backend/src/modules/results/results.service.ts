@@ -18,6 +18,14 @@ import { UpdateResultDto } from './dto/update-result.dto.js';
 import { ImportResultItemDto } from './dto/import-results.dto.js';
 import { ResultEntity, ResultItemEntity } from './entities/result.entity.js';
 import { toResult, toResultItem } from './factories/result.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
+
+const RESULTS_CACHE_KEY = 'results:all';
+const RESULTS_CACHE_TTL = 300; // 5 minutes
+const STUDENTS_CACHE_KEY = 'students:all';
+const STUDENTS_CACHE_TTL = 300;
+const MODULES_CACHE_KEY = 'modules:all';
+const MODULES_CACHE_TTL = 300;
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -43,6 +51,7 @@ export class ResultsService {
     @Inject(MODULE_REPOSITORY)
     private readonly moduleRepo: IModuleRepository,
     private readonly mailService: MailService,
+    private readonly cache: CacheService,
   ) {}
 
   async create(dto: CreateResultDto): Promise<ResultEntity> {
@@ -92,6 +101,7 @@ export class ResultsService {
     }
 
     await this.resultRepo.update(result.id, { updatedAt: ts });
+    await this.cache.invalidatePattern('results:*');
 
     return this.findById(result.id);
   }
@@ -114,9 +124,23 @@ export class ResultsService {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    const allResults = await this.resultRepo.findAll();
-    const allStudents = await this.studentRepo.findAll();
-    const allModules = await this.moduleRepo.findAll();
+    let allResults = await this.cache.get<any[]>(RESULTS_CACHE_KEY);
+    if (!allResults) {
+      allResults = await this.resultRepo.findAll();
+      await this.cache.set(RESULTS_CACHE_KEY, allResults, RESULTS_CACHE_TTL);
+    }
+
+    let allStudents = await this.cache.get<any[]>(STUDENTS_CACHE_KEY);
+    if (!allStudents) {
+      allStudents = await this.studentRepo.findAll();
+      await this.cache.set(STUDENTS_CACHE_KEY, allStudents, STUDENTS_CACHE_TTL);
+    }
+
+    let allModules = await this.cache.get<any[]>(MODULES_CACHE_KEY);
+    if (!allModules) {
+      allModules = await this.moduleRepo.findAll();
+      await this.cache.set(MODULES_CACHE_KEY, allModules, MODULES_CACHE_TTL);
+    }
 
     const studentMap = new Map(allStudents.map((s) => [s.id, s]));
     const moduleMap = new Map(allModules.map((m) => [m.id, m]));
@@ -202,7 +226,12 @@ export class ResultsService {
     }
 
     const items = await this.resultRepo.findItemsByResultId(result.id);
-    const allModules = await this.moduleRepo.findAll();
+
+    let allModules = await this.cache.get<any[]>(MODULES_CACHE_KEY);
+    if (!allModules) {
+      allModules = await this.moduleRepo.findAll();
+      await this.cache.set(MODULES_CACHE_KEY, allModules, MODULES_CACHE_TTL);
+    }
     const moduleMap = new Map(allModules.map((m) => [m.id, m]));
 
     const enrichedItems = items.map((item) => {
@@ -243,6 +272,7 @@ export class ResultsService {
     }
 
     await this.resultRepo.update(id, { updatedAt: ts });
+    await this.cache.invalidatePattern('results:*');
 
     return this.findById(id);
   }
@@ -254,6 +284,7 @@ export class ResultsService {
     }
     await this.resultRepo.deleteItemsByResultId(id);
     await this.resultRepo.delete(id);
+    await this.cache.invalidatePattern('results:*');
   }
 
   async importResults(items: ImportResultItemDto[]): Promise<{
@@ -267,8 +298,17 @@ export class ResultsService {
     }[] = [];
     let created = 0;
 
-    const allStudents = await this.studentRepo.findAll();
-    const allModules = await this.moduleRepo.findAll();
+    let allStudents = await this.cache.get<any[]>(STUDENTS_CACHE_KEY);
+    if (!allStudents) {
+      allStudents = await this.studentRepo.findAll();
+      await this.cache.set(STUDENTS_CACHE_KEY, allStudents, STUDENTS_CACHE_TTL);
+    }
+
+    let allModules = await this.cache.get<any[]>(MODULES_CACHE_KEY);
+    if (!allModules) {
+      allModules = await this.moduleRepo.findAll();
+      await this.cache.set(MODULES_CACHE_KEY, allModules, MODULES_CACHE_TTL);
+    }
 
     const studentByEmail = new Map(
       allStudents.map((s) => [s.email.toLowerCase(), s]),
@@ -347,6 +387,10 @@ export class ResultsService {
       await this.resultRepo.update(result.id, { updatedAt: ts });
     }
 
+    if (created > 0) {
+      await this.cache.invalidatePattern('results:*');
+    }
+
     return { created, errors };
   }
 
@@ -361,6 +405,7 @@ export class ResultsService {
       updatedAt: now(),
     });
 
+    await this.cache.invalidatePattern('results:*');
     const result = await this.findById(id, 'RTE');
 
     if (published) {
@@ -385,7 +430,11 @@ export class ResultsService {
   }
 
   async publishAll(): Promise<{ published: number; emailed: number }> {
-    const allResults = await this.resultRepo.findAll();
+    let allResults = await this.cache.get<any[]>(RESULTS_CACHE_KEY);
+    if (!allResults) {
+      allResults = await this.resultRepo.findAll();
+      await this.cache.set(RESULTS_CACHE_KEY, allResults, RESULTS_CACHE_TTL);
+    }
     const unpublished = allResults.filter((r) => !r.published);
     const ts = now();
 
@@ -413,6 +462,10 @@ export class ResultsService {
           `Failed to send result emails for result ${result.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
         );
       }
+    }
+
+    if (published > 0) {
+      await this.cache.invalidatePattern('results:*');
     }
 
     this.logger.log(

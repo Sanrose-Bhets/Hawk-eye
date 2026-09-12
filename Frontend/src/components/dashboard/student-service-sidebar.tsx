@@ -5,7 +5,6 @@ import {
   BookOpen,
   Award,
   Mail,
-  GraduationCap,
   Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -43,12 +42,6 @@ const links = [
     label: 'Mail Management',
     description: 'Broadcasts & notifications',
     icon: Mail,
-  },
-  {
-    to: '/dashboard/student-service/classes',
-    label: 'Classes',
-    description: 'Class seat allocations',
-    icon: GraduationCap,
   },
   {
     to: '/dashboard/student-service/backup',

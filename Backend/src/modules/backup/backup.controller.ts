@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import {
   ApiTags,
@@ -65,6 +66,7 @@ export class BackupController {
   }
 
   @Post('import')
+  @Throttle({ default: { limit: 3, ttl: 3600000 } }) // 3 per hour
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Import scoped data from a backup (replaces only your role data)',

@@ -11,6 +11,10 @@ import { CreateFacultyDto } from './dto/create-faculty.dto.js';
 import { UpdateFacultyDto } from './dto/update-faculty.dto.js';
 import { FacultyEntity } from './entities/faculty.entity.js';
 import { toFaculty } from './factories/faculty.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
+
+const CACHE_KEY = 'faculties:all';
+const CACHE_TTL = 3600; // 1 hour
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -21,6 +25,7 @@ export class FacultyService {
   constructor(
     @Inject(FACULTY_REPOSITORY)
     private readonly facultyRepo: IFacultyRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async createFaculty(dto: CreateFacultyDto): Promise<FacultyEntity> {
@@ -37,6 +42,7 @@ export class FacultyService {
       updatedAt: ts,
     });
 
+    await this.cache.invalidatePattern('faculties:*');
     return toFaculty(model);
   }
 
@@ -54,7 +60,11 @@ export class FacultyService {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    let all = await this.facultyRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.facultyRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     if (filters.search) {
       const q = filters.search.toLowerCase();
@@ -108,6 +118,7 @@ export class FacultyService {
     if (dto.description !== undefined) updateData.description = dto.description;
 
     await this.facultyRepo.update(id, updateData);
+    await this.cache.invalidatePattern('faculties:*');
     return this.findFacultyById(id);
   }
 
@@ -117,5 +128,6 @@ export class FacultyService {
       throw new NotFoundException('Faculty not found');
     }
     await this.facultyRepo.delete(id);
+    await this.cache.invalidatePattern('faculties:*');
   }
 }

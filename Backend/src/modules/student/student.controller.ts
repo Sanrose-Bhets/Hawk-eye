@@ -16,6 +16,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import {
@@ -128,6 +129,7 @@ export class StudentController {
   }
 
   @Post('import')
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 per hour
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Import students from CSV data' })
   @ApiResponse({

@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './common/winston/winston.config.js';
 import { CommonModule } from './common/common.module.js';
 import { RedisModule } from './common/redis/redis.module.js';
+import { CacheModule } from './common/cache/cache.module.js';
 import { FileStorageModule } from './common/file-storage/file-storage.module.js';
 import { PrismaModule } from './modules/prisma/prisma.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -19,9 +22,17 @@ import { BackupModule } from './modules/backup/backup.module.js';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     WinstonModule.forRoot(winstonConfig),
     CommonModule,
     RedisModule,
+    CacheModule,
     FileStorageModule,
     PrismaModule,
     HealthModule,
@@ -35,6 +46,12 @@ import { BackupModule } from './modules/backup/backup.module.js';
     CalendarModule,
     ExamRoutineModule,
     BackupModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

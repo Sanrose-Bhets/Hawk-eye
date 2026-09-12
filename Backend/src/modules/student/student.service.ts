@@ -19,9 +19,12 @@ import { CreateStudentDto } from './dto/create-student.dto.js';
 import { UpdateStudentDto } from './dto/update-student.dto.js';
 import { StudentEntity } from './entities/student.entity.js';
 import { toStudent } from './factories/student.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
 
 const DEFAULT_PASSWORD = 'student123';
 const SALT_ROUNDS = 10;
+const CACHE_KEY = 'students:all';
+const CACHE_TTL = 300; // 5 minutes
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -36,6 +39,7 @@ export class StudentService {
     private readonly fileStorage: IFileStorage,
     @Inject(FACULTY_REPOSITORY)
     private readonly facultyRepo: IFacultyRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async create(dto: CreateStudentDto): Promise<StudentEntity> {
@@ -76,7 +80,7 @@ export class StudentService {
     };
 
     const model = await this.studentRepo.create(data);
-
+    await this.cache.invalidatePattern('students:*');
     return toStudent(model);
   }
 
@@ -95,7 +99,11 @@ export class StudentService {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    let all = await this.studentRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.studentRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     if (filters.faculty) {
       const faculty = await this.facultyRepo.findByName(filters.faculty);
@@ -164,6 +172,7 @@ export class StudentService {
     if (dto.semester !== undefined) updateData.semester = dto.semester;
 
     await this.studentRepo.update(id, updateData);
+    await this.cache.invalidatePattern('students:*');
     return this.findById(id);
   }
 
@@ -176,6 +185,7 @@ export class StudentService {
       await this.fileStorage.delete(existing.image);
     }
     await this.studentRepo.delete(id);
+    await this.cache.invalidatePattern('students:*');
   }
 
   async importStudents(
@@ -231,6 +241,10 @@ export class StudentService {
         const message = err instanceof Error ? err.message : 'Unknown error';
         errors.push({ email: dto.email, reason: message });
       }
+    }
+
+    if (created > 0) {
+      await this.cache.invalidatePattern('students:*');
     }
 
     return { created, errors };
@@ -289,6 +303,7 @@ export class StudentService {
       updatedAt: now(),
     });
 
+    await this.cache.invalidatePattern('students:*');
     return this.findById(id);
   }
 }

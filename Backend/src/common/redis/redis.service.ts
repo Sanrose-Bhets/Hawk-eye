@@ -38,6 +38,36 @@ export class RedisService implements OnModuleDestroy {
     return result === 1;
   }
 
+  async getJSON<T>(key: string): Promise<T | null> {
+    const raw = await this.client.get(key);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  async setJSON(
+    key: string,
+    value: unknown,
+    ttlSeconds?: number,
+  ): Promise<void> {
+    const serialized = JSON.stringify(value);
+    if (ttlSeconds) {
+      await this.client.set(key, serialized, 'EX', ttlSeconds);
+    } else {
+      await this.client.set(key, serialized);
+    }
+  }
+
+  async delPattern(pattern: string): Promise<void> {
+    const keys = await this.client.keys(pattern);
+    if (keys.length > 0) {
+      await this.client.del(...keys);
+    }
+  }
+
   async onModuleDestroy() {
     await this.client.quit();
   }

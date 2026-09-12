@@ -8,6 +8,10 @@ import { CreateModuleDto } from './dto/create-module.dto.js';
 import { UpdateModuleDto } from './dto/update-module.dto.js';
 import { ModuleEntity } from './entities/module.entity.js';
 import { toModule } from './factories/module.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
+
+const CACHE_KEY = 'modules:all';
+const CACHE_TTL = 3600; // 1 hour
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -20,6 +24,7 @@ export class ModuleService {
     private readonly moduleRepo: IModuleRepository,
     @Inject(FACULTY_REPOSITORY)
     private readonly facultyRepo: IFacultyRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async create(dto: CreateModuleDto): Promise<ModuleEntity> {
@@ -40,6 +45,7 @@ export class ModuleService {
       updatedAt: ts,
     });
 
+    await this.cache.invalidatePattern('modules:*');
     return toModule(model);
   }
 
@@ -61,7 +67,11 @@ export class ModuleService {
     const page = filters.page || 1;
     const limit = filters.limit || 10;
 
-    let all = await this.moduleRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.moduleRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     // Server-side scoping: STUDENT can only see their faculty's modules for their semester
     if (filters.role === 'STUDENT' && filters.userFacultyId) {
@@ -159,6 +169,7 @@ export class ModuleService {
       await this.moduleRepo.setSemesters(id, dto.semesters);
     }
 
+    await this.cache.invalidatePattern('modules:*');
     return this.findById(id);
   }
 
@@ -168,5 +179,6 @@ export class ModuleService {
       throw new NotFoundException('Module not found');
     }
     await this.moduleRepo.delete(id);
+    await this.cache.invalidatePattern('modules:*');
   }
 }

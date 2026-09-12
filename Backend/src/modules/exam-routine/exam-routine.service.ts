@@ -12,6 +12,10 @@ import { CreateExamRoutineDto } from './dto/create-exam-routine.dto.js';
 import { UpdateExamRoutineDto } from './dto/update-exam-routine.dto.js';
 import { ExamRoutineEntity } from './entities/exam-routine.entity.js';
 import { toExamRoutine } from './factories/exam-routine.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
+
+const CACHE_KEY = 'examroutines:all';
+const CACHE_TTL = 300; // 5 minutes
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -39,6 +43,7 @@ export class ExamRoutineService {
   constructor(
     @Inject(EXAM_ROUTINE_REPOSITORY)
     private readonly examRoutineRepo: IExamRoutineRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async create(
@@ -60,6 +65,8 @@ export class ExamRoutineService {
       createdAt: ts,
       updatedAt: ts,
     });
+
+    await this.cache.invalidatePattern('examroutines:*');
     return toExamRoutine(model);
   }
 
@@ -67,7 +74,11 @@ export class ExamRoutineService {
     rteId: string,
     filters?: { month?: number; year?: number },
   ): Promise<ExamRoutineEntity[]> {
-    let all = await this.examRoutineRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.examRoutineRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     all = all.filter((r) => r.rteId === rteId);
 
@@ -106,7 +117,11 @@ export class ExamRoutineService {
     facultyId: string,
     filters?: { month?: number; year?: number },
   ): Promise<ExamRoutineEntity[]> {
-    let all = await this.examRoutineRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.examRoutineRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     all = all.filter((r) => r.facultyId === facultyId);
 
@@ -182,6 +197,7 @@ export class ExamRoutineService {
     if (dto.moduleId !== undefined) updateData.moduleId = dto.moduleId;
 
     await this.examRoutineRepo.update(id, updateData);
+    await this.cache.invalidatePattern('examroutines:*');
     return this.findById(id, rteId);
   }
 
@@ -194,5 +210,6 @@ export class ExamRoutineService {
       throw new ForbiddenException('Access denied');
     }
     await this.examRoutineRepo.delete(id);
+    await this.cache.invalidatePattern('examroutines:*');
   }
 }

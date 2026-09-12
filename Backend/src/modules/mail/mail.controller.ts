@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -38,6 +39,7 @@ export class MailController {
   constructor(private readonly mailService: MailService) {}
 
   @Post('send')
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 per hour
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send email to a student parent' })
   @ApiResponse({
@@ -51,6 +53,7 @@ export class MailController {
   }
 
   @Post('send-bulk')
+  @Throttle({ default: { limit: 2, ttl: 3600000 } }) // 2 per hour
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send email to multiple student parents' })
   @ApiResponse({ status: 200, description: 'Bulk send results' })

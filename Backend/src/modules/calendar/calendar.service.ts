@@ -11,6 +11,10 @@ import { CreateCalendarNoteDto } from './dto/create-calendar-note.dto.js';
 import { UpdateCalendarNoteDto } from './dto/update-calendar-note.dto.js';
 import { CalendarNoteEntity } from './entities/calendar.entity.js';
 import { toCalendarNote } from './factories/calendar.factory.js';
+import { CacheService } from '../../common/cache/cache.service.js';
+
+const CACHE_KEY = 'calendar:all';
+const CACHE_TTL = 300; // 5 minutes
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -21,6 +25,7 @@ export class CalendarService {
   constructor(
     @Inject(CALENDAR_REPOSITORY)
     private readonly calendarRepo: ICalendarRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async create(
@@ -38,6 +43,8 @@ export class CalendarService {
       createdAt: ts,
       updatedAt: ts,
     });
+
+    await this.cache.invalidatePattern('calendar:*');
     return toCalendarNote(model);
   }
 
@@ -45,7 +52,11 @@ export class CalendarService {
     rteId: string,
     filters?: { month?: number; year?: number },
   ): Promise<CalendarNoteEntity[]> {
-    let all = await this.calendarRepo.findAll();
+    let all = await this.cache.get<any[]>(CACHE_KEY);
+    if (!all) {
+      all = await this.calendarRepo.findAll();
+      await this.cache.set(CACHE_KEY, all, CACHE_TTL);
+    }
 
     all = all.filter((n) => n.rteId === rteId);
 
@@ -114,6 +125,7 @@ export class CalendarService {
     if (dto.content !== undefined) updateData.content = dto.content;
 
     await this.calendarRepo.update(id, updateData);
+    await this.cache.invalidatePattern('calendar:*');
     return this.findById(id, rteId);
   }
 
@@ -126,5 +138,6 @@ export class CalendarService {
       throw new ForbiddenException('Access denied');
     }
     await this.calendarRepo.delete(id);
+    await this.cache.invalidatePattern('calendar:*');
   }
 }

@@ -14,6 +14,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -133,6 +134,7 @@ export class ResultsController {
   }
 
   @Post('import')
+  @Throttle({ default: { limit: 5, ttl: 3600000 } }) // 5 per hour
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Import results from CSV data' })
   @ApiResponse({
@@ -148,6 +150,7 @@ export class ResultsController {
   }
 
   @Post('publish-all')
+  @Throttle({ default: { limit: 1, ttl: 3600000 } }) // 1 per hour
   @HttpCode(HttpStatus.OK)
   @Roles('RTE')
   @ApiOperation({ summary: 'Publish all unpublished results (RTE only)' })
