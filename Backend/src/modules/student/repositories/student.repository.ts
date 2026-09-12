@@ -16,7 +16,8 @@ export class StudentRepository implements IStudentRepository {
     address: string;
     contact: string;
     parentEmail: string;
-    facultyId?: string;
+    facultyId: string;
+    role: 'STUDENT' | 'STUDENT_SERVICE' | 'RTE';
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<StudentModel> {

@@ -5,6 +5,7 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
+import { Temporal } from 'temporal-polyfill';
 import bcrypt from 'bcrypt';
 import sharp from 'sharp';
 import { randomUUID } from 'crypto';
@@ -21,6 +22,10 @@ import { toStudent } from './factories/student.factory.js';
 
 const DEFAULT_PASSWORD = 'student123';
 const SALT_ROUNDS = 10;
+
+function now() {
+  return Temporal.Instant.fromEpochMilliseconds(Date.now());
+}
 
 @Injectable()
 export class StudentService {
@@ -39,10 +44,23 @@ export class StudentService {
       throw new ConflictException('Student with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    const now = new Date();
+    const hashedPassword = await bcrypt.hash(
+      dto.password || DEFAULT_PASSWORD,
+      SALT_ROUNDS,
+    );
 
-    const model = await this.studentRepo.create({
+    const data: {
+      name: string;
+      email: string;
+      password: string;
+      address: string;
+      contact: string;
+      parentEmail: string;
+      facultyId: string;
+      role: 'STUDENT';
+      createdAt: Temporal.Instant;
+      updatedAt: Temporal.Instant;
+    } = {
       name: dto.name,
       email: dto.email,
       password: hashedPassword,
@@ -50,9 +68,12 @@ export class StudentService {
       contact: dto.contact,
       parentEmail: dto.parentEmail,
       facultyId: dto.facultyId,
-      createdAt: now,
-      updatedAt: now,
-    });
+      role: 'STUDENT',
+      createdAt: now(),
+      updatedAt: now(),
+    };
+
+    const model = await this.studentRepo.create(data);
 
     return toStudent(model);
   }
@@ -121,7 +142,7 @@ export class StudentService {
       throw new NotFoundException('Student not found');
     }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: now() };
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.email !== undefined) {
@@ -172,9 +193,20 @@ export class StudentService {
           dto.password || DEFAULT_PASSWORD,
           SALT_ROUNDS,
         );
-        const now = new Date();
+        const ts = now();
 
-        await this.studentRepo.create({
+        const data: {
+          name: string;
+          email: string;
+          password: string;
+          address: string;
+          contact: string;
+          parentEmail: string;
+          facultyId: string;
+          role: 'STUDENT';
+          createdAt: Temporal.Instant;
+          updatedAt: Temporal.Instant;
+        } = {
           name: dto.name,
           email: dto.email,
           password: hashedPassword,
@@ -182,9 +214,12 @@ export class StudentService {
           contact: dto.contact,
           parentEmail: dto.parentEmail,
           facultyId: dto.facultyId,
-          createdAt: now,
-          updatedAt: now,
-        });
+          role: 'STUDENT',
+          createdAt: ts,
+          updatedAt: ts,
+        };
+
+        await this.studentRepo.create(data);
 
         created++;
       } catch (err) {
@@ -246,7 +281,7 @@ export class StudentService {
 
     await this.studentRepo.update(id, {
       image: uploadedKey,
-      updatedAt: new Date(),
+      updatedAt: now(),
     });
 
     return this.findById(id);
