@@ -196,10 +196,10 @@ export function StudentSidebar() {
                             to={to}
                             className={({ isActive }) =>
                               cn(
-                                'flex w-full items-center gap-2.5 rounded-[4px] px-3 py-2 text-xs font-medium transition-colors border',
+                                'flex w-full items-center gap-2.5 rounded-[4px] px-3 py-2 text-xs font-medium transition-colors',
                                 isActive
-                                  ? 'bg-primary-light text-primary font-semibold border-primary/30'
-                                  : 'border-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+                                  ? 'text-primary font-semibold'
+                                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50',
                               )
                             }
                           >
