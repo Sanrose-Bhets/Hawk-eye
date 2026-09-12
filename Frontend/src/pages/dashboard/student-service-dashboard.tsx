@@ -6,8 +6,10 @@ import { selectCurrentUser } from '@/redux/userSlice';
 export default function StudentServiceDashboard() {
   const user = useSelector(selectCurrentUser);
 
-  if (!user || user.role !== 'STUDENT_SERVICE') {
-    return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/" replace />;
+  if (user.role !== 'STUDENT_SERVICE') {
+    const dest = user.role === 'RTE' ? '/dashboard/rte' : '/';
+    return <Navigate to={dest} replace />;
   }
 
   return (

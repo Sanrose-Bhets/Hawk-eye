@@ -33,9 +33,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'785d93fca1c3b5e9979729574ed20b6c7816bd8a1ef439f9fcc1cfd78cd71263'>;
+  StorageHashBase<'855f361a641fa3087277fd84a69ee062e41c0662d916a699c20a49c546766469'>;
 export type ExecutionHash =
-  ExecutionHashBase<'fc97f28a50a17f884627d33197f1e4fffec6b267ec265bb256bbf7a3bd4b5a58'>;
+  ExecutionHashBase<'c2e1c9783615688dd32966cb4805d68f2a71b6b6f7a592d3336cc38cfaa10db1'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -268,18 +268,6 @@ export type FieldOutputTypes = {
       readonly error: CodecTypes['pg/text@1']['output'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
-    readonly ExamRoutine: {
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly rteId: CodecTypes['pg/text@1']['output'];
-      readonly date: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly startTime: CodecTypes['pg/text@1']['output'];
-      readonly endTime: CodecTypes['pg/text@1']['output'];
-      readonly duration: CodecTypes['pg/text@1']['output'];
-      readonly facultyId: CodecTypes['pg/text@1']['output'];
-      readonly moduleId: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    };
     readonly Faculty: {
       readonly id: CodecTypes['pg/text@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -379,18 +367,6 @@ export type FieldInputTypes = {
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly error: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-    };
-    readonly ExamRoutine: {
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly rteId: CodecTypes['pg/text@1']['input'];
-      readonly date: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly startTime: CodecTypes['pg/text@1']['input'];
-      readonly endTime: CodecTypes['pg/text@1']['input'];
-      readonly duration: CodecTypes['pg/text@1']['input'];
-      readonly facultyId: CodecTypes['pg/text@1']['input'];
-      readonly moduleId: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly Faculty: {
       readonly id: CodecTypes['pg/text@1']['input'];
@@ -492,18 +468,6 @@ export type StorageColumnTypes = {
       readonly subject: CodecTypes['pg/text@1']['output'];
       readonly to: CodecTypes['pg/text@1']['output'];
     };
-    readonly examRoutine: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly date: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly duration: CodecTypes['pg/text@1']['output'];
-      readonly endTime: CodecTypes['pg/text@1']['output'];
-      readonly facultyId: CodecTypes['pg/text@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly moduleId: CodecTypes['pg/text@1']['output'];
-      readonly rteId: CodecTypes['pg/text@1']['output'];
-      readonly startTime: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    };
     readonly faculty: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly description: CodecTypes['pg/text@1']['output'] | null;
@@ -603,18 +567,6 @@ export type StorageColumnInputTypes = {
       readonly studentId: CodecTypes['pg/text@1']['input'] | null;
       readonly subject: CodecTypes['pg/text@1']['input'];
       readonly to: CodecTypes['pg/text@1']['input'];
-    };
-    readonly examRoutine: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly date: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly duration: CodecTypes['pg/text@1']['input'];
-      readonly endTime: CodecTypes['pg/text@1']['input'];
-      readonly facultyId: CodecTypes['pg/text@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly moduleId: CodecTypes['pg/text@1']['input'];
-      readonly rteId: CodecTypes['pg/text@1']['input'];
-      readonly startTime: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
     readonly faculty: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -838,65 +790,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [];
-              indexes: readonly [];
-              foreignKeys: readonly [];
-            };
-            readonly examRoutine: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly rteId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly date: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                };
-                readonly startTime: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly endTime: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly duration: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly facultyId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly moduleId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly updatedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
@@ -1392,10 +1285,6 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'CalendarNote';
     };
-    readonly examRoutine: {
-      readonly namespace: 'public' & NamespaceId;
-      readonly model: 'ExamRoutine';
-    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -1554,76 +1443,6 @@ type ContractBase = Omit<
                 readonly status: { readonly column: 'status' };
                 readonly error: { readonly column: 'error' };
                 readonly createdAt: { readonly column: 'createdAt' };
-              };
-            };
-          };
-          readonly ExamRoutine: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly rteId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly date: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-              readonly startTime: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly endTime: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly duration: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly facultyId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly moduleId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-            };
-            readonly relations: Record<string, never>;
-            readonly storage: {
-              readonly table: 'examRoutine';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly rteId: { readonly column: 'rteId' };
-                readonly date: { readonly column: 'date' };
-                readonly startTime: { readonly column: 'startTime' };
-                readonly endTime: { readonly column: 'endTime' };
-                readonly duration: { readonly column: 'duration' };
-                readonly facultyId: { readonly column: 'facultyId' };
-                readonly moduleId: { readonly column: 'moduleId' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
           };
@@ -2197,14 +2016,6 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'emailLog';
-            readonly column: 'id';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'examRoutine';
             readonly column: 'id';
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };

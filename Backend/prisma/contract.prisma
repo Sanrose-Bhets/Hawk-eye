@@ -110,3 +110,26 @@ model EmailLog {
   error     String?
   createdAt DateTime @default(now())
 }
+
+model CalendarNote {
+  id        String   @id @default(uuid())
+  rteId     String
+  date      DateTime
+  title     String
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model ExamRoutine {
+  id        String   @id @default(uuid())
+  rteId     String
+  date      DateTime
+  startTime String
+  endTime   String
+  duration  String
+  facultyId String
+  moduleId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}

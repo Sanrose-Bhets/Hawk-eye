@@ -56,6 +56,7 @@ export class ResultsController {
   }
 
   @Get()
+  @Roles('STUDENT_SERVICE', 'RTE')
   @ApiOperation({
     summary: 'List all results with pagination, search, and filters',
   })
@@ -86,6 +87,7 @@ export class ResultsController {
   }
 
   @Get(':id')
+  @Roles('STUDENT_SERVICE', 'RTE')
   @ApiOperation({ summary: 'Get a result by ID' })
   @ApiResponse({
     status: 200,
@@ -135,6 +137,18 @@ export class ResultsController {
     @Body() dto: ImportResultsDto,
   ): Promise<ImportResultsResponseDto> {
     return this.resultsService.importResults(dto.items);
+  }
+
+  @Post('publish-all')
+  @HttpCode(HttpStatus.OK)
+  @Roles('RTE')
+  @ApiOperation({ summary: 'Publish all unpublished results (RTE only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'All unpublished results published',
+  })
+  publishAll(): Promise<{ published: number; emailed: number }> {
+    return this.resultsService.publishAll();
   }
 
   @Put(':id/publish')

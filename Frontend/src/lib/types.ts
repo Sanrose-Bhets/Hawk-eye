@@ -141,3 +141,26 @@ export interface MailStats {
   totalQueued: number;
   totalFailed: number;
 }
+
+export interface CalendarNote {
+  id: string;
+  rteId: string;
+  date: string;
+  title: string;
+  content: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExamRoutine {
+  id: string;
+  rteId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  duration: string;
+  facultyId: string;
+  moduleId: string;
+  createdAt: string;
+  updatedAt: string;
+}

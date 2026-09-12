@@ -1,5 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutGrid, GraduationCap, Award } from 'lucide-react';
+import {
+  LayoutGrid,
+  GraduationCap,
+  Award,
+  CalendarDays,
+  ClipboardList,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 import { SidebarUserMenu } from '@/components/dashboard/sidebar-user-menu';
@@ -22,6 +28,18 @@ const links = [
     label: 'Results',
     description: 'Exam grades & evaluations',
     icon: Award,
+  },
+  {
+    to: '/dashboard/rte/calendar',
+    label: 'Calendar',
+    description: 'Schedule and notes',
+    icon: CalendarDays,
+  },
+  {
+    to: '/dashboard/rte/exam-routines',
+    label: 'Exam Routines',
+    description: 'Manage examination schedules',
+    icon: ClipboardList,
   },
 ];
 
