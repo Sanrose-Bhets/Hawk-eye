@@ -1,42 +1,31 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles } from '@/components/auth/sparkle';
+
+import { cn } from '@/lib/utils';
 
 interface AuthLayoutProps {
   children: ReactNode;
   title: string;
   subtitle: string;
+  titleClassName?: string;
 }
 
-export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+export function AuthLayout({ children, title, subtitle, titleClassName }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full">
-      <div className="hidden lg:flex relative w-1/2 flex-col items-center justify-center bg-[#1a2e1a] p-12 overflow-hidden">
-        <Sparkles />
+    <div className="relative flex min-h-screen w-full items-center justify-end overflow-hidden bg-[#FCFBFA]">
+      <img
+        src="/common/login.jpg"
+        alt="Login background"
+        className="absolute inset-0 h-full w-full object-cover object-center"
+      />
 
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <Link to="/">
-            <img src="/logo.svg" alt="Logo" className="mb-8 h-20 w-auto" />
-          </Link>
-          <h1 className="mb-4 text-4xl font-bold text-white">RTE Platform</h1>
-          <p className="text-lg text-white/70">
-            Empowering Education Through Technology
-          </p>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#79C24B]/20 to-transparent" />
-      </div>
-
-      <div className="flex w-full items-center justify-center bg-white px-6 lg:w-1/2">
-        <div className="w-full max-w-lg">
+      <div className="relative z-10 flex w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:w-1/2 lg:px-16 xl:px-24">
+        <div className="w-full max-w-md">
           <div className="mb-8 text-center lg:hidden">
-            <Link to="/" className="inline-block mb-4">
-              <img src="/logo.svg" alt="Logo" className="mx-auto h-14 w-auto" />
-            </Link>
+            <img src="/logo.svg" alt="Logo" className="mx-auto mb-4 h-14 w-auto" />
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
+          <div className="mb-8">
+            <h2 className={cn('text-3xl font-bold text-gray-900 font-title', titleClassName)}>{title}</h2>
             <p className="mt-2 text-gray-500">{subtitle}</p>
           </div>
 
