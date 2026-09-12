@@ -7,14 +7,11 @@ import {
   Lock,
   Copy,
   Check,
-  ShieldCheck,
   Building2,
   Mail,
   Phone,
   MapPin,
   Users,
-  Calendar,
-  Sparkles,
 } from 'lucide-react';
 import { selectCurrentUser } from '@/redux/userSlice';
 import { studentApi } from '@/lib/api/students';
@@ -345,11 +342,11 @@ export default function StudentProfilePage() {
         </div>
       </section>
 
-      {/* 4. Academic & Institutional Records (Read-Only) */}
+      {/* 2. Academic & Personal Records (Read-Only) */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-            02 / ACADEMIC & INSTITUTIONAL DETAILS
+            02 / ACADEMIC & CONTACT INFORMATION
           </div>
           <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-gray-400 uppercase tracking-wider">
             <Lock size={11} /> Read-Only
@@ -357,96 +354,22 @@ export default function StudentProfilePage() {
         </div>
 
         <div className="border border-gray-200 bg-white divide-y divide-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-            <div className="p-5 md:p-6 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Building2 size={12} />
-                  FACULTY / DEPARTMENT
-                </span>
-                <Lock size={12} className="text-gray-300" />
-              </div>
-              <p className="text-sm font-bold text-gray-900">
-                {faculty?.name || 'Department of Computing & IT'}
-              </p>
-              <p className="text-xs text-gray-500 font-sans">
-                {faculty?.description ||
-                  'Undergraduate academic degree program'}
-              </p>
+          <div className="p-5 md:p-6 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                <Building2 size={12} />
+                FACULTY / DEPARTMENT
+              </span>
+              <Lock size={12} className="text-gray-300" />
             </div>
-
-            <div className="p-5 md:p-6 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Sparkles size={12} />
-                  ACADEMIC STATUS
-                </span>
-                <Lock size={12} className="text-gray-300" />
-              </div>
-              <p className="text-sm font-bold text-primary flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-primary" />
-                ACTIVE / REGULAR ENROLLMENT
-              </p>
-              <p className="text-xs text-gray-500 font-sans">
-                Current Semester 2026 Academic Session
-              </p>
-            </div>
+            <p className="text-sm font-bold text-gray-900">
+              {faculty?.name || 'Department of Computing & IT'}
+            </p>
+            <p className="text-xs text-gray-500 font-sans">
+              {faculty?.description || 'Undergraduate academic degree program'}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-            <div className="p-5 md:p-6 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <Calendar size={12} />
-                  REGISTRATION DATE
-                </span>
-                <Lock size={12} className="text-gray-300" />
-              </div>
-              <p className="text-sm font-bold text-gray-900 font-mono">
-                {student?.createdAt
-                  ? new Date(student.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })
-                  : 'January 15, 2026'}
-              </p>
-              <p className="text-xs text-gray-500 font-sans">
-                Institutional admission date
-              </p>
-            </div>
-
-            <div className="p-5 md:p-6 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-                  <ShieldCheck size={12} />
-                  SYSTEM ROLE & PRIVILEGES
-                </span>
-                <Lock size={12} className="text-gray-300" />
-              </div>
-              <p className="text-sm font-bold text-gray-900 font-mono">
-                {student?.role || 'STUDENT'}
-              </p>
-              <p className="text-xs text-gray-500 font-sans">
-                Student self-service exam & results access
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Personal & Contact Details (Read-Only) */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-            03 / PERSONAL & CONTACT INFORMATION
-          </div>
-          <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold text-gray-400 uppercase tracking-wider">
-            <Lock size={11} /> Read-Only
-          </span>
-        </div>
-
-        <div className="border border-gray-200 bg-white divide-y divide-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
             <div className="p-5 md:p-6 space-y-1.5">
               <div className="flex items-center justify-between">
