@@ -14,6 +14,12 @@ export class GenerateAdmitCardsDto {
   @Min(1)
   @Max(6)
   semester!: number;
+
+  @ApiPropertyOptional({ example: 'class-uuid-here' })
+  @Trim()
+  @IsString()
+  @IsOptional()
+  classId?: string;
 }
 
 export class GenerateSingleAdmitCardDto {

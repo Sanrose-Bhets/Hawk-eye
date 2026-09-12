@@ -19,7 +19,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Modal } from '@/components/ui/modal';
 import { admitCardApi } from '@/lib/api/admit-cards';
 import { facultyApi } from '@/lib/api/faculties';
-import type { AdmitCard, Faculty } from '@/lib/types';
+import { classApi } from '@/lib/api/seat-plan';
+import type { AdmitCard, Faculty, ClassData } from '@/lib/types';
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -46,6 +47,7 @@ export default function AdmitCardsPage() {
   const [search, setSearch] = useState('');
 
   const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [classes, setClasses] = useState<ClassData[]>([]);
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<AdmitCard | null>(null);
@@ -58,6 +60,7 @@ export default function AdmitCardsPage() {
 
   const [formFacultyId, setFormFacultyId] = useState('');
   const [formSemester, setFormSemester] = useState(1);
+  const [formClassId, setFormClassId] = useState('');
   const [formErrors, setFormErrors] = useState<{
     facultyId?: string | null;
     semester?: string | null;
@@ -79,8 +82,12 @@ export default function AdmitCardsPage() {
 
   const fetchFaculties = useCallback(async () => {
     try {
-      const res = await facultyApi.list({ limit: 100 });
-      setFaculties(res.data.data);
+      const [facRes, clsRes] = await Promise.all([
+        facultyApi.list({ limit: 100 }),
+        classApi.list(),
+      ]);
+      setFaculties(facRes.data.data);
+      setClasses(clsRes.data);
     } catch {
       // silent
     }
@@ -105,6 +112,7 @@ export default function AdmitCardsPage() {
   const resetForm = () => {
     setFormFacultyId('');
     setFormSemester(1);
+    setFormClassId('');
     setFormErrors({});
     setFormError('');
     setGenerateResult(null);
@@ -142,6 +150,7 @@ export default function AdmitCardsPage() {
       const res = await admitCardApi.generateBulk({
         facultyId: formFacultyId,
         semester: formSemester,
+        classId: formClassId || undefined,
       });
       setGenerateResult(res.data);
       fetchCards();
@@ -434,6 +443,26 @@ export default function AdmitCardsPage() {
               {formErrors.semester && (
                 <p className="text-xs text-red-500">{formErrors.semester}</p>
               )}
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">
+                Class (optional)
+              </Label>
+              <select
+                value={formClassId}
+                onChange={(e) => setFormClassId(e.target.value)}
+                className="flex w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value="">No class (auto-assign seats)</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.assignments.length} students)
+                  </option>
+                ))}
+              </select>
+              <p className="text-[11px] text-gray-400">
+                Select a class to use its seat assignments, or leave empty for auto-assigned seat numbers.
+              </p>
             </div>
             <p className="text-xs text-gray-500">
               This will generate admit cards for all enrolled students in the

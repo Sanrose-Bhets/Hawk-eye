@@ -4,6 +4,7 @@ import type { AdmitCard } from '@/lib/types';
 export interface GenerateBulkData {
   facultyId: string;
   semester: number;
+  classId?: string;
 }
 
 export const admitCardApi = {

@@ -118,16 +118,22 @@ export class AdmitCardService {
     let skipped = 0;
     const errors: string[] = [];
 
-    // Try to find a class for seating assignment
+    // Load class assignments if classId provided
     let classAssignments: any[] = [];
-    try {
-      const classes = await this.classRepo.findAll();
-      if (classes.length > 0) {
-        classAssignments = (classes[0].assignments as any[]) || [];
+    let className = 'Main Hall';
+    if (dto.classId) {
+      try {
+        const cls = await this.classRepo.findById(dto.classId);
+        if (cls) {
+          classAssignments = (cls.assignments as any[]) || [];
+          className = cls.name;
+        }
+      } catch {
+        // class not found, proceed without seating
       }
-    } catch {
-      // No classes available, proceed without seating
     }
+
+    let seatCounter = 1;
 
     for (const student of targetStudents) {
       for (const routine of facultyRoutines) {
@@ -141,14 +147,14 @@ export class AdmitCardService {
             continue;
           }
 
-          // Find seating assignment
+          // Find seating assignment from the selected class
           const assignment = classAssignments.find(
-            (a) => a.studentEmail === student.email,
+            (a: any) => a.studentEmail === student.email,
           );
           const seatNumber = assignment
             ? String(assignment.seatIndex + 1)
-            : undefined;
-          const roomName = assignment ? 'Main Hall' : undefined;
+            : String(seatCounter++);
+          const roomName = className;
 
           const ts = now();
           const card = await this.admitCardRepo.create({
@@ -238,11 +244,13 @@ export class AdmitCardService {
 
     // Get seating from class if provided
     let classAssignments: any[] = [];
+    let className = 'Main Hall';
     if (classId) {
       try {
         const cls = await this.classRepo.findById(classId);
         if (cls) {
           classAssignments = (cls.assignments as any[]) || [];
+          className = cls.name;
         }
       } catch {
         // proceed without seating
@@ -250,6 +258,7 @@ export class AdmitCardService {
     }
 
     const created: AdmitCardEntity[] = [];
+    let seatCounter = 1;
 
     for (const routine of facultyRoutines) {
       const existing = await this.admitCardRepo.findUnique(
@@ -259,12 +268,12 @@ export class AdmitCardService {
       if (existing) continue;
 
       const assignment = classAssignments.find(
-        (a) => a.studentEmail === student.email,
+        (a: any) => a.studentEmail === student.email,
       );
       const seatNumber = assignment
         ? String(assignment.seatIndex + 1)
-        : undefined;
-      const roomName = assignment ? 'Main Hall' : undefined;
+        : String(seatCounter++);
+      const roomName = className;
 
       const ts = now();
       const card = await this.admitCardRepo.create({
