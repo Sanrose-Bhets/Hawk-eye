@@ -229,23 +229,7 @@ export default function StudentProfilePage() {
         </p>
       </header>
 
-      {/* 2. Institutional Notice */}
-      <div className="border border-gray-200 bg-gray-50/70 p-4 sm:p-5 flex items-start gap-3.5">
-        <ShieldCheck size={18} className="text-primary shrink-0 mt-0.5" />
-        <div className="space-y-1 text-xs">
-          <p className="font-semibold text-gray-900 tracking-tight">
-            Institutional Record Notice
-          </p>
-          <p className="text-gray-500 leading-relaxed font-sans">
-            Your personal, academic, and contact records are verified by the
-            Examination Board and Student Service office and cannot be altered
-            directly. You are permitted to manage and upload your verified
-            profile photo below.
-          </p>
-        </div>
-      </div>
-
-      {/* 3. Profile Photo & Primary Identity Card */}
+      {/* 2. Profile Photo & Primary Identity Card */}
       <section className="space-y-3">
         <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
           01 / PROFILE PHOTO & IDENTITY
