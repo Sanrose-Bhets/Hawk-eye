@@ -17,6 +17,7 @@ import ClassesPage from '@/pages/dashboard/seat-plan/classes';
 import CreateClassPage from '@/pages/dashboard/seat-plan/create-class';
 import ClassDetailPage from '@/pages/dashboard/seat-plan/class-detail';
 import CalendarPage from '@/pages/dashboard/calendar';
+import ExamRoutinesPage from '@/pages/dashboard/exam-routines';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="classes/:id" element={<ClassDetailPage />} />
         <Route path="results" element={<ResultsPage />} />
         <Route path="calendar" element={<CalendarPage />} />
+        <Route path="exam-routines" element={<ExamRoutinesPage />} />
       </Route>
 
       {/* Student Service Portal Routes */}
