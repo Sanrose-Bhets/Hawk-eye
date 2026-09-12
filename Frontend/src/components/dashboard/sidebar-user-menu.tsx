@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,7 @@ import { clearCredentials, selectCurrentUser } from '@/redux/userSlice';
 
 export function SidebarUserMenu() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
 
@@ -30,6 +31,10 @@ export function SidebarUserMenu() {
     localStorage.removeItem('refreshToken');
     navigate('/');
   };
+
+  const isStudent =
+    user?.role === 'STUDENT' ||
+    location.pathname.startsWith('/dashboard/student');
 
   const userEmail = user?.email || 'admin@islingtoncollege.com';
   const displayName =
@@ -72,6 +77,23 @@ export function SidebarUserMenu() {
               {userEmail}
             </div>
           </div>
+
+          {/* Student Profile Link */}
+          {isStudent && (
+            <div className="py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  navigate('/dashboard/student/profile');
+                }}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+              >
+                <UserIcon size={15} className="text-gray-500" />
+                My Profile
+              </button>
+            </div>
+          )}
 
           {/* Logout */}
           <div className="pt-1">
