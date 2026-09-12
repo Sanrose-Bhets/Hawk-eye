@@ -16,6 +16,13 @@ import EditFloorPlanPage from '@/pages/dashboard/seat-plan/edit-floor-plan';
 import ClassesPage from '@/pages/dashboard/seat-plan/classes';
 import CreateClassPage from '@/pages/dashboard/seat-plan/create-class';
 import ClassDetailPage from '@/pages/dashboard/seat-plan/class-detail';
+import StudentDashboard from '@/pages/dashboard/student-dashboard';
+import StudentOverview from '@/pages/dashboard/student/overview';
+import StudentResultsPage from '@/pages/dashboard/student/results';
+import StudentModulesPage from '@/pages/dashboard/student/modules';
+import StudentSeatingPage from '@/pages/dashboard/student/seating';
+import TodaysExamPage from '@/pages/dashboard/student/todays-exam';
+import UpcomingExamsPage from '@/pages/dashboard/student/upcoming-exams';
 import CalendarPage from '@/pages/dashboard/calendar';
 import ExamRoutinesPage from '@/pages/dashboard/exam-routines';
 
@@ -54,6 +61,17 @@ function App() {
         <Route path="classes" element={<ClassesPage />} />
         <Route path="classes/new" element={<CreateClassPage />} />
         <Route path="classes/:id" element={<ClassDetailPage />} />
+      </Route>
+
+      {/* Student Portal Routes */}
+      <Route path="/dashboard/student" element={<StudentDashboard />}>
+        <Route index element={<StudentOverview />} />
+        <Route path="results" element={<StudentResultsPage />} />
+        <Route path="modules" element={<StudentModulesPage />} />
+        <Route path="seating" element={<StudentSeatingPage />} />
+        <Route path="examination/today" element={<TodaysExamPage />} />
+        <Route path="examination/seating" element={<StudentSeatingPage />} />
+        <Route path="examination/upcoming" element={<UpcomingExamsPage />} />
       </Route>
     </Routes>
   );

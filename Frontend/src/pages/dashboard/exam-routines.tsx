@@ -202,8 +202,8 @@ export default function ExamRoutinesPage() {
     } catch (err: unknown) {
       const msg =
         err instanceof Error && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message ?? 'Failed to create exam routine'
+          ? ((err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message ?? 'Failed to create exam routine')
           : err instanceof Error
             ? err.message
             : 'Failed to create exam routine';
@@ -233,8 +233,8 @@ export default function ExamRoutinesPage() {
     } catch (err: unknown) {
       const msg =
         err instanceof Error && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response
-              ?.data?.message ?? 'Failed to update exam routine'
+          ? ((err as { response?: { data?: { message?: string } } }).response
+              ?.data?.message ?? 'Failed to update exam routine')
           : err instanceof Error
             ? err.message
             : 'Failed to update exam routine';
