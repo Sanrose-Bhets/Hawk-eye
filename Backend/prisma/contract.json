@@ -8,6 +8,10 @@
       "model": "Class",
       "namespace": "public"
     },
+    "emailLog": {
+      "model": "EmailLog",
+      "namespace": "public"
+    },
     "faculty": {
       "model": "Faculty",
       "namespace": "public"
@@ -133,6 +137,97 @@
               },
               "namespaceId": "public",
               "table": "class"
+            }
+          },
+          "EmailLog": {
+            "fields": {
+              "body": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "error": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "studentId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "subject": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "to": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "body": {
+                  "column": "body"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "error": {
+                  "column": "error"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "studentId": {
+                  "column": "studentId"
+                },
+                "subject": {
+                  "column": "subject"
+                },
+                "to": {
+                  "column": "to"
+                }
+              },
+              "namespaceId": "public",
+              "table": "emailLog"
             }
           },
           "Faculty": {
@@ -985,6 +1080,66 @@
               },
               "uniques": []
             },
+            "emailLog": {
+              "columns": {
+                "body": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "error": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "queued"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "studentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "subject": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "to": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "faculty": {
               "columns": {
                 "createdAt": {
@@ -1607,10 +1762,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fe470d1477077b9cc5fe3416b8387a5a324a204df8597576b815d99433334818"
+    "storageHash": "3261a7f10dd3426a7003a2c24613b29bde8721172c7621cca4c2941013b3bed4"
   },
   "execution": {
-    "executionHash": "aaa5c8f0dd4960ec29f6a82a8595c668a327ba01af6c6addba850f33446bb608",
+    "executionHash": "dac5675fcedc75ebb8f4b299ec2718766f316c69644f21d254c699012bbedf72",
     "mutations": {
       "defaults": [
         {
@@ -1622,6 +1777,17 @@
             "column": "id",
             "namespace": "public",
             "table": "class"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "emailLog"
           }
         },
         {

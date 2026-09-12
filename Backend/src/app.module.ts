@@ -12,6 +12,7 @@ import { StudentModule } from './modules/student/student.module.js';
 import { FacultyModule } from './modules/faculty/faculty.module.js';
 import { ModuleModule } from './modules/module/module.module.js';
 import { ResultsModule } from './modules/results/results.module.js';
+import { MailModule } from './modules/mail/mail.module.js';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ResultsModule } from './modules/results/results.module.js';
     FacultyModule,
     ModuleModule,
     ResultsModule,
+    MailModule,
   ],
 })
 export class AppModule {}
