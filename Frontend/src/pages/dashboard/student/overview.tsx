@@ -230,12 +230,9 @@ export default function StudentOverview() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-gray-400 group-hover:text-primary shrink-0 self-end md:self-center transition-colors">
-                <span className="hidden sm:inline text-[11px] uppercase tracking-wider">
-                  Access
-                </span>
+              <div className="text-gray-400 group-hover:text-primary shrink-0 self-end md:self-center transition-colors">
                 <ArrowUpRight
-                  size={16}
+                  size={18}
                   className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                 />
               </div>
