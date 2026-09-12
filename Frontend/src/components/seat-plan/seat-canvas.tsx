@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import {
   DndContext,
   useDraggable,
@@ -226,6 +226,18 @@ export function SeatCanvas({
       .includes(highlightStudent.toLowerCase());
   };
 
+  const canvasDimensions = useMemo(() => {
+    if (seats.length === 0) {
+      return { minWidth: '100%', minHeight: '520px' };
+    }
+    const maxSeatX = Math.max(...seats.map((s) => s.x + 96 + 60), 720);
+    const maxSeatY = Math.max(...seats.map((s) => s.y + 72 + 64), 520);
+    return {
+      minWidth: `${maxSeatX}px`,
+      minHeight: `${maxSeatY}px`,
+    };
+  }, [seats]);
+
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       {!readonly && (
@@ -244,59 +256,64 @@ export function SeatCanvas({
         </div>
       )}
 
-      <div
-        ref={(node) => {
-          setNodeRef(node);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (canvasRef as any).current = node;
-        }}
-        className="relative w-full min-h-[520px] rounded-2xl border-2 border-dashed border-gray-300/80 bg-gray-50/40 transition-colors overflow-hidden"
-        style={{
-          backgroundImage:
-            'radial-gradient(#d1d5db 1.25px, transparent 1.25px)',
-          backgroundSize: '24px 24px',
-        }}
-      >
-        {/* Front / Board indicator */}
-        <div className="absolute top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-xs px-4 py-1 text-[11px] font-semibold tracking-wider text-gray-500 uppercase shadow-2xs border border-gray-200/80 select-none z-0">
-          <span className="h-2 w-2 rounded-full bg-primary" />
-          Front / Blackboard
-        </div>
-
-        {/* Door indicator */}
-        <div className="absolute bottom-3.5 right-5 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-gray-400 uppercase select-none z-0">
-          <DoorOpen size={14} className="text-gray-400" />
-          <span>Door</span>
-        </div>
-
-        {seats.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-2xs mb-3 text-gray-400">
-              <LayoutGrid size={26} />
-            </div>
-            <p className="text-sm font-semibold text-gray-800 mb-1">
-              {readonly ? 'No seats in this floor plan' : 'No seats placed yet'}
-            </p>
-            <p className="text-xs text-gray-400 max-w-xs">
-              {readonly
-                ? 'This classroom layout currently has no seats configured.'
-                : 'Click "+ Add Seat" above to start placing student desks onto the room canvas.'}
-            </p>
+      <div className="w-full overflow-x-auto pb-2 rounded-2xl">
+        <div
+          ref={(node) => {
+            setNodeRef(node);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (canvasRef as any).current = node;
+          }}
+          className="relative min-w-full rounded-2xl border-2 border-dashed border-gray-300/80 bg-gray-50/40 transition-all duration-200 overflow-hidden"
+          style={{
+            minWidth: canvasDimensions.minWidth,
+            minHeight: canvasDimensions.minHeight,
+            backgroundImage:
+              'radial-gradient(#d1d5db 1.25px, transparent 1.25px)',
+            backgroundSize: '24px 24px',
+          }}
+        >
+          {/* Front / Board indicator */}
+          <div className="absolute top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-gray-400 uppercase select-none z-0">
+            <span>Front / Blackboard</span>
           </div>
-        )}
 
-        {seats.map((seat, i) => (
-          <DraggableSeat
-            key={`${seat.label}-${i}`}
-            seat={seat}
-            index={i}
-            onRemove={handleRemove}
-            onRename={handleRename}
-            highlight={isHighlighted(i)}
-            studentName={getStudentForSeat(i)}
-            readonly={readonly}
-          />
-        ))}
+          {/* Door indicator */}
+          <div className="absolute bottom-3.5 right-5 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-gray-400 uppercase select-none z-0">
+            <DoorOpen size={14} className="text-gray-400" />
+            <span>Door</span>
+          </div>
+
+          {seats.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-2xs mb-3 text-gray-400">
+                <LayoutGrid size={26} />
+              </div>
+              <p className="text-sm font-semibold text-gray-800 mb-1">
+                {readonly
+                  ? 'No seats in this floor plan'
+                  : 'No seats placed yet'}
+              </p>
+              <p className="text-xs text-gray-400 max-w-xs">
+                {readonly
+                  ? 'This classroom layout currently has no seats configured.'
+                  : 'Click "+ Add Seat" above to start placing student desks onto the room canvas.'}
+              </p>
+            </div>
+          )}
+
+          {seats.map((seat, i) => (
+            <DraggableSeat
+              key={`${seat.label}-${i}`}
+              seat={seat}
+              index={i}
+              onRemove={handleRemove}
+              onRename={handleRename}
+              highlight={isHighlighted(i)}
+              studentName={getStudentForSeat(i)}
+              readonly={readonly}
+            />
+          ))}
+        </div>
       </div>
     </DndContext>
   );
