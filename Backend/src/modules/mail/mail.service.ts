@@ -175,6 +175,112 @@ export class MailService {
   async markFailed(id: string, error: string): Promise<void> {
     await this.mailRepo.update(id, { status: 'failed', error });
   }
+
+  async sendResultPublished(result: {
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    items: {
+      moduleName: string;
+      moduleCode: string | null;
+      score: number;
+      grade: string;
+    }[];
+  }): Promise<{ queued: number; errors: string[] }> {
+    const errors: string[] = [];
+    let queued = 0;
+
+    const student = await this.studentRepo.findById(result.studentId);
+    if (!student) {
+      errors.push('Student not found');
+      return { queued: 0, errors };
+    }
+
+    const subject = `Results Published - ${result.studentName}`;
+    const body = this.buildResultEmailHtml(result.studentName, result.items);
+
+    const recipients = [student.email, student.parentEmail].filter(
+      (e): e is string => !!e,
+    );
+
+    for (const recipient of recipients) {
+      try {
+        const ts = now();
+        const log = await this.mailRepo.create({
+          to: recipient,
+          subject,
+          body,
+          studentId: result.studentId,
+          status: 'queued',
+          createdAt: ts,
+        });
+
+        await this.mailQueue.add(
+          'send-email',
+          { logId: log.id, to: recipient, subject, body },
+          { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+        );
+
+        this.logger.log(
+          `Results email queued for ${recipient}, logId: ${log.id}`,
+        );
+        queued++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        this.logger.error(
+          `Failed to queue results email for ${recipient}: ${msg}`,
+        );
+        errors.push(msg);
+      }
+    }
+
+    return { queued, errors };
+  }
+
+  private buildResultEmailHtml(
+    studentName: string,
+    items: {
+      moduleName: string;
+      moduleCode: string | null;
+      score: number;
+      grade: string;
+    }[],
+  ): string {
+    const rows = items
+      .map(
+        (i) => `
+        <tr>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${i.moduleName}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#6b7280;">${i.moduleCode ?? '-'}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;text-align:center;">${i.score}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;font-weight:600;text-align:center;color:${i.grade === 'F' ? '#dc2626' : '#059669'};">${i.grade}</td>
+        </tr>`,
+      )
+      .join('');
+
+    return `
+      <div style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+        <div style="background:#f8fafc;border-radius:12px;padding:24px;margin-bottom:24px;">
+          <h2 style="margin:0 0 8px;font-size:20px;color:#111827;">Results Published</h2>
+          <p style="margin:0;font-size:14px;color:#6b7280;">Dear ${studentName},</p>
+          <p style="margin:8px 0 0;font-size:14px;color:#374151;">Your academic results have been published. Please find the details below:</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+          <thead>
+            <tr style="background:#f1f5f9;">
+              <th style="padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:#475569;">Module</th>
+              <th style="padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:#475569;">Code</th>
+              <th style="padding:10px 14px;text-align:center;font-size:13px;font-weight:600;color:#475569;">Score</th>
+              <th style="padding:10px 14px;text-align:center;font-size:13px;font-weight:600;color:#475569;">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+        <p style="margin-top:24px;font-size:12px;color:#9ca3af;text-align:center;">This is an automated notification. Please do not reply directly to this email.</p>
+      </div>`;
+  }
 }
 
 interface SendMailResult {

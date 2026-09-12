@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { FormEvent } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Search,
   Plus,
@@ -28,6 +29,7 @@ import {
 } from '@/lib/api/results';
 import { studentApi } from '@/lib/api/students';
 import { moduleApi } from '@/lib/api/modules';
+import { selectCurrentUser } from '@/redux/userSlice';
 import type { Result, Student, Module } from '@/lib/types';
 
 const GRADE_COLORS: Record<string, string> = {
@@ -50,6 +52,9 @@ function hasErrors(obj: FormErrors): boolean {
 }
 
 export default function ResultsPage() {
+  const user = useSelector(selectCurrentUser);
+  const isRte = user?.role === 'RTE';
+
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -89,6 +94,8 @@ export default function ResultsPage() {
     errors: { studentEmail: string; moduleCode: string; reason: string }[];
   } | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+
+  const [publishingAll, setPublishingAll] = useState(false);
 
   const PAGE_LIMIT = 10;
 
@@ -399,6 +406,19 @@ export default function ResultsPage() {
     }
   };
 
+  const handlePublishAll = async () => {
+    setPublishingAll(true);
+    setError('');
+    try {
+      await resultApi.publishAll();
+      fetchResults(searchQuery, page, gradeFilter, publishedFilter);
+    } catch {
+      setError('Failed to publish all results.');
+    } finally {
+      setPublishingAll(false);
+    }
+  };
+
   // ── Render ──
 
   return (
@@ -414,21 +434,34 @@ export default function ResultsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              resetImport();
-              setIsImportOpen(true);
-            }}
-            className="cursor-pointer"
-          >
-            <Upload size={18} className="mr-2" />
-            Import CSV
-          </Button>
-          <Button onClick={handleOpenCreate} className="cursor-pointer">
-            <Plus size={18} className="mr-2" />
-            Add Result
-          </Button>
+          {isRte ? (
+            <Button
+              onClick={handlePublishAll}
+              disabled={publishingAll}
+              className="cursor-pointer"
+            >
+              <CheckCircle2 size={18} className="mr-2" />
+              {publishingAll ? 'Publishing...' : 'Publish All'}
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetImport();
+                  setIsImportOpen(true);
+                }}
+                className="cursor-pointer"
+              >
+                <Upload size={18} className="mr-2" />
+                Import CSV
+              </Button>
+              <Button onClick={handleOpenCreate} className="cursor-pointer">
+                <Plus size={18} className="mr-2" />
+                Add Result
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -573,26 +606,28 @@ export default function ResultsPage() {
                         >
                           {result.published ? 'Published' : 'Unpublished'}
                         </button>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenEdit(result);
-                            }}
-                            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors cursor-pointer"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDelete(result);
-                            }}
-                            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors cursor-pointer"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+                        {!isRte && (
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenEdit(result);
+                              }}
+                              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-colors cursor-pointer"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenDelete(result);
+                              }}
+                              className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-colors cursor-pointer"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -950,32 +985,34 @@ export default function ResultsPage() {
               ))}
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  handleOpenEdit(selectedResult);
-                }}
-                className="cursor-pointer"
-              >
-                <Pencil size={14} className="mr-1.5" />
-                Edit
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setIsDetailOpen(false);
-                  handleOpenDelete(selectedResult);
-                }}
-                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-              >
-                <Trash2 size={14} className="mr-1.5" />
-                Delete
-              </Button>
-            </div>
+            {!isRte && (
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsDetailOpen(false);
+                    handleOpenEdit(selectedResult);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Pencil size={14} className="mr-1.5" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setIsDetailOpen(false);
+                    handleOpenDelete(selectedResult);
+                  }}
+                  className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                >
+                  <Trash2 size={14} className="mr-1.5" />
+                  Delete
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </Modal>
