@@ -1,37 +1,42 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Plus, Pencil, Trash2, LayoutGrid } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { floorPlanApi } from "@/lib/api/seat-plan"
-import type { FloorPlan } from "@/lib/types"
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { floorPlanApi } from '@/lib/api/seat-plan';
+import type { FloorPlan } from '@/lib/types';
 
 export default function FloorPlansPage() {
-  const navigate = useNavigate()
-  const [plans, setPlans] = useState<FloorPlan[]>([])
-  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
+  const [plans, setPlans] = useState<FloorPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    floorPlanApi.list().then((r) => {
-      setPlans(r.data)
-      setLoading(false)
-    }).catch(() => setLoading(false))
-  }, [])
+    floorPlanApi
+      .list()
+      .then((r) => {
+        setPlans(r.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this floor plan?")) return
-    await floorPlanApi.delete(id)
-    setPlans(plans.filter((p) => p.id !== id))
-  }
+    if (!confirm('Delete this floor plan?')) return;
+    await floorPlanApi.delete(id);
+    setPlans(plans.filter((p) => p.id !== id));
+  };
 
   return (
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Floor Plans</h1>
-          <p className="text-sm text-gray-500 mt-1">Create and manage reusable seat layouts</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Create and manage reusable seat layouts
+          </p>
         </div>
-        <Button onClick={() => navigate("/dashboard/rte/floor-plans/new")}>
+        <Button onClick={() => navigate('/dashboard/rte/floor-plans/new')}>
           <Plus size={18} className="mr-2" />
           New Floor Plan
         </Button>
@@ -49,9 +54,13 @@ export default function FloorPlansPage() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 mb-4">
               <LayoutGrid size={32} className="text-gray-400" />
             </div>
-            <p className="text-base font-medium text-gray-900 mb-1">No floor plans yet</p>
-            <p className="text-sm text-gray-500 mb-5">Create a floor plan to start designing seat layouts</p>
-            <Button onClick={() => navigate("/dashboard/rte/floor-plans/new")}>
+            <p className="text-base font-medium text-gray-900 mb-1">
+              No floor plans yet
+            </p>
+            <p className="text-sm text-gray-500 mb-5">
+              Create a floor plan to start designing seat layouts
+            </p>
+            <Button onClick={() => navigate('/dashboard/rte/floor-plans/new')}>
               <Plus size={18} className="mr-2" />
               New Floor Plan
             </Button>
@@ -66,14 +75,17 @@ export default function FloorPlansPage() {
                   <div>
                     <h3 className="font-semibold text-gray-900">{plan.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {plan.seats.length} seat{plan.seats.length !== 1 ? "s" : ""}
+                      {plan.seats.length} seat
+                      {plan.seats.length !== 1 ? 's' : ''}
                     </p>
                   </div>
                   <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => navigate(`/dashboard/rte/floor-plans/${plan.id}/edit`)}
+                      onClick={() =>
+                        navigate(`/dashboard/rte/floor-plans/${plan.id}/edit`)
+                      }
                     >
                       <Pencil size={16} />
                     </Button>
@@ -108,5 +120,5 @@ export default function FloorPlansPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

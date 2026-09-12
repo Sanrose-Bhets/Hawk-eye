@@ -1,85 +1,91 @@
-import { useState, type FormEvent } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useDispatch } from "react-redux"
-import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
-import { loginRequest } from "@/lib/api/auth"
-import { setCredentials } from "@/redux/userSlice"
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Eye, EyeOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
+import { loginRequest } from '@/lib/api/auth';
+import { setCredentials } from '@/redux/userSlice';
 
 export function LoginForm() {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
 
     try {
-      const data = await loginRequest({ email, password })
+      const data = await loginRequest({ email, password });
 
       dispatch(
         setCredentials({
           user: data.user,
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,
-        })
-      )
+        }),
+      );
 
-      localStorage.setItem("accessToken", data.accessToken)
-      localStorage.setItem("refreshToken", data.refreshToken)
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
 
       if (rememberMe) {
-        localStorage.setItem("rememberedEmail", email)
+        localStorage.setItem('rememberedEmail', email);
       } else {
-        localStorage.removeItem("rememberedEmail")
+        localStorage.removeItem('rememberedEmail');
       }
 
       switch (data.user.role) {
-        case "RTE":
-          navigate("/dashboard/rte")
-          break
-        case "STUDENT_SERVICE":
-          navigate("/dashboard/student-service")
-          break
-        case "STUDENT":
-          navigate("/dashboard/student")
-          break
+        case 'RTE':
+          navigate('/dashboard/rte');
+          break;
+        case 'STUDENT_SERVICE':
+          navigate('/dashboard/student-service');
+          break;
+        case 'STUDENT':
+          navigate('/dashboard/student');
+          break;
         default:
-          navigate("/")
+          navigate('/');
       }
     } catch (err: unknown) {
       if (
         err &&
-        typeof err === "object" &&
-        "response" in err &&
+        typeof err === 'object' &&
+        'response' in err &&
         err.response &&
-        typeof err.response === "object" &&
-        "status" in err.response
+        typeof err.response === 'object' &&
+        'status' in err.response
       ) {
-        const axiosErr = err as { response: { status: number; data?: { message?: string | string[] } } }
+        const axiosErr = err as {
+          response: { status: number; data?: { message?: string | string[] } };
+        };
         if (axiosErr.response.status === 401) {
-          setError("Invalid email or password.")
+          setError('Invalid email or password.');
         } else {
-          const msg = axiosErr.response.data?.message
-          setError(Array.isArray(msg) ? msg[0] : (msg ?? "Login failed. Please try again."))
+          const msg = axiosErr.response.data?.message;
+          setError(
+            Array.isArray(msg)
+              ? msg[0]
+              : (msg ?? 'Login failed. Please try again.'),
+          );
         }
       } else {
-        setError("Unable to connect to server. Please try again later.")
+        setError('Unable to connect to server. Please try again later.');
       }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -112,7 +118,7 @@ export function LoginForm() {
             <div className="relative">
               <Input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -148,10 +154,10 @@ export function LoginForm() {
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

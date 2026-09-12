@@ -1,24 +1,24 @@
-import { NavLink, useNavigate } from "react-router-dom"
-import { useDispatch } from "react-redux"
-import { LayoutGrid, GraduationCap, LogOut } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { clearCredentials } from "@/redux/userSlice"
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { LayoutGrid, GraduationCap, LogOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { clearCredentials } from '@/redux/userSlice';
 
 const links = [
-  { to: "/dashboard/rte/floor-plans", label: "Floor Plans", icon: LayoutGrid },
-  { to: "/dashboard/rte/classes", label: "Classes", icon: GraduationCap },
-]
+  { to: '/dashboard/rte/floor-plans', label: 'Floor Plans', icon: LayoutGrid },
+  { to: '/dashboard/rte/classes', label: 'Classes', icon: GraduationCap },
+];
 
 export function Sidebar() {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    dispatch(clearCredentials())
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    navigate("/")
-  }
+    dispatch(clearCredentials());
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    navigate('/');
+  };
 
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
@@ -36,10 +36,10 @@ export function Sidebar() {
             to={to}
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors",
+                'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors',
                 isActive
-                  ? "bg-primary-light text-primary"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? 'bg-primary-light text-primary'
+                  : 'text-gray-600 hover:bg-gray-100',
               )
             }
           >
@@ -59,5 +59,5 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
-  )
+  );
 }

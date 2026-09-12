@@ -1,13 +1,13 @@
-import { Navigate, Outlet } from "react-router-dom"
-import { useSelector } from "react-redux"
-import { Sidebar } from "@/components/dashboard/sidebar"
-import { selectCurrentUser } from "@/redux/userSlice"
+import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { selectCurrentUser } from '@/redux/userSlice';
 
 export default function RteDashboard() {
-  const user = useSelector(selectCurrentUser)
+  const user = useSelector(selectCurrentUser);
 
-  if (!user || user.role !== "RTE") {
-    return <Navigate to="/" replace />
+  if (!user || user.role !== 'RTE') {
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -17,5 +17,5 @@ export default function RteDashboard() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

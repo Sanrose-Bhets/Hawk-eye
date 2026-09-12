@@ -1,11 +1,11 @@
-import type { ReactNode } from "react"
-import { Link } from "react-router-dom"
-import { Sparkles } from "@/components/auth/sparkle"
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { Sparkles } from '@/components/auth/sparkle';
 
 interface AuthLayoutProps {
-  children: ReactNode
-  title: string
-  subtitle: string
+  children: ReactNode;
+  title: string;
+  subtitle: string;
 }
 
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
@@ -18,9 +18,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <Link to="/">
             <img src="/logo.svg" alt="Logo" className="mb-8 h-20 w-auto" />
           </Link>
-          <h1 className="mb-4 text-4xl font-bold text-white">
-            RTE Platform
-          </h1>
+          <h1 className="mb-4 text-4xl font-bold text-white">RTE Platform</h1>
           <p className="text-lg text-white/70">
             Empowering Education Through Technology
           </p>
@@ -46,5 +44,5 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

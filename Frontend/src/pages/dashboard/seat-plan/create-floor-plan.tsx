@@ -1,69 +1,75 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { SeatCanvas } from "@/components/seat-plan/seat-canvas"
-import { floorPlanApi } from "@/lib/api/seat-plan"
-import type { SeatPosition } from "@/lib/types"
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { SeatCanvas } from '@/components/seat-plan/seat-canvas';
+import { floorPlanApi } from '@/lib/api/seat-plan';
+import type { SeatPosition } from '@/lib/types';
 
 export default function CreateFloorPlanPage() {
-  const navigate = useNavigate()
-  const [name, setName] = useState("")
-  const [seats, setSeats] = useState<SeatPosition[]>([])
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [seats, setSeats] = useState<SeatPosition[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setError("Please enter a floor plan name")
-      return
+      setError('Please enter a floor plan name');
+      return;
     }
     if (seats.length === 0) {
-      setError("Please add at least one seat")
-      return
+      setError('Please add at least one seat');
+      return;
     }
 
-    setSaving(true)
-    setError("")
+    setSaving(true);
+    setError('');
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
       await floorPlanApi.create({
         name: name.trim(),
         seats,
-        createdBy: user.id || "unknown",
-      })
-      navigate("/dashboard/rte/floor-plans")
+        createdBy: user.id || 'unknown',
+      });
+      navigate('/dashboard/rte/floor-plans');
     } catch {
-      setError("Failed to save floor plan")
+      setError('Failed to save floor plan');
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   return (
     <div className="max-w-4xl">
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate("/dashboard/rte/floor-plans")}
+        onClick={() => navigate('/dashboard/rte/floor-plans')}
         className="mb-4 text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft size={16} className="mr-1" />
         Back to Floor Plans
       </Button>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Floor Plan</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        Create Floor Plan
+      </h1>
 
       <Card className="mb-6">
         <CardHeader>
-          <h2 className="text-base font-semibold text-gray-900">Plan Details</h2>
+          <h2 className="text-base font-semibold text-gray-900">
+            Plan Details
+          </h2>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="planName" required>Floor Plan Name</Label>
+            <Label htmlFor="planName" required>
+              Floor Plan Name
+            </Label>
             <Input
               id="planName"
               placeholder="e.g. Room 101 Layout"
@@ -77,8 +83,12 @@ export default function CreateFloorPlanPage() {
       <Card className="mb-6">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">Seat Layout</h2>
-            <span className="text-sm text-gray-500">{seats.length} seat{seats.length !== 1 ? "s" : ""}</span>
+            <h2 className="text-base font-semibold text-gray-900">
+              Seat Layout
+            </h2>
+            <span className="text-sm text-gray-500">
+              {seats.length} seat{seats.length !== 1 ? 's' : ''}
+            </span>
           </div>
         </CardHeader>
         <CardContent>
@@ -94,12 +104,15 @@ export default function CreateFloorPlanPage() {
 
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save Floor Plan"}
+          {saving ? 'Saving...' : 'Save Floor Plan'}
         </Button>
-        <Button variant="outline" onClick={() => navigate("/dashboard/rte/floor-plans")}>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/dashboard/rte/floor-plans')}
+        >
           Cancel
         </Button>
       </div>
     </div>
-  )
+  );
 }

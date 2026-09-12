@@ -1,0 +1,15 @@
+pre-commit:
+  parallel: true
+  commands:
+    frontend-typecheck:
+      glob: "Frontend/**/*.{ts,tsx}"
+      run: cd Frontend && npx tsc -b --noEmit
+    backend-typecheck:
+      glob: "Backend/**/*.ts"
+      run: cd Backend && npx tsc -b --noEmit
+    frontend-format:
+      glob: "Frontend/**/*.{ts,tsx}"
+      run: cd Frontend && npx prettier --check "src/**/*.{ts,tsx}"
+    backend-format:
+      glob: "Backend/**/*.ts"
+      run: cd Backend && npx prettier --check "src/**/*.ts" "test/**/*.ts"

@@ -10,7 +10,13 @@ export interface FloorPlanModel {
 }
 
 export interface IFloorPlanRepository {
-  create(data: { name: string; seats: JsonValue; createdBy: string; createdAt: unknown; updatedAt: unknown }): Promise<FloorPlanModel>;
+  create(data: {
+    name: string;
+    seats: JsonValue;
+    createdBy: string;
+    createdAt: unknown;
+    updatedAt: unknown;
+  }): Promise<FloorPlanModel>;
   findAll(): Promise<FloorPlanModel[]>;
   findById(id: string): Promise<FloorPlanModel | null>;
   update(id: string, data: Record<string, unknown>): Promise<void>;

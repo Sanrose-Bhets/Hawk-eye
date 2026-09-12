@@ -1,28 +1,28 @@
-import { Link } from "react-router-dom"
-import { Shield, GraduationCap, Headphones } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Link } from 'react-router-dom';
+import { Shield, GraduationCap, Headphones } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const roles = [
   {
-    title: "RTE",
-    description: "Right to Education administration and management",
+    title: 'RTE',
+    description: 'Right to Education administration and management',
     icon: Shield,
-    path: "/login/rte",
+    path: '/login/rte',
   },
   {
-    title: "Student Service",
-    description: "Student services and support management",
+    title: 'Student Service',
+    description: 'Student services and support management',
     icon: Headphones,
-    path: "/login/student-service",
+    path: '/login/student-service',
   },
   {
-    title: "Student",
-    description: "Student portal for learning and resources",
+    title: 'Student',
+    description: 'Student portal for learning and resources',
     icon: GraduationCap,
-    path: "/login/student",
+    path: '/login/student',
   },
-]
+];
 
 export default function Home() {
   return (
@@ -39,7 +39,10 @@ export default function Home() {
 
       <div className="grid w-full max-w-2xl gap-4">
         {roles.map((role) => (
-          <Card key={role.path} className="group transition-all duration-200 hover:shadow-xl hover:border-primary/30">
+          <Card
+            key={role.path}
+            className="group transition-all duration-200 hover:shadow-xl hover:border-primary/30"
+          >
             <CardContent>
               <div className="flex items-center gap-5">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
@@ -62,5 +65,5 @@ export default function Home() {
         ))}
       </div>
     </div>
-  )
+  );
 }
