@@ -16,6 +16,7 @@ import EditFloorPlanPage from '@/pages/dashboard/seat-plan/edit-floor-plan';
 import ClassesPage from '@/pages/dashboard/seat-plan/classes';
 import CreateClassPage from '@/pages/dashboard/seat-plan/create-class';
 import ClassDetailPage from '@/pages/dashboard/seat-plan/class-detail';
+import CalendarPage from '@/pages/dashboard/calendar';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         <Route path="classes/new" element={<CreateClassPage />} />
         <Route path="classes/:id" element={<ClassDetailPage />} />
         <Route path="results" element={<ResultsPage />} />
+        <Route path="calendar" element={<CalendarPage />} />
       </Route>
 
       {/* Student Service Portal Routes */}
