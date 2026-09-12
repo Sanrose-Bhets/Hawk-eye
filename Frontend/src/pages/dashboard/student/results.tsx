@@ -183,7 +183,7 @@ export default function StudentResultsPage() {
                 <div className="col-span-2 font-mono text-xs font-bold text-primary">
                   {item.moduleCode || '—'}
                 </div>
-                <div className="col-span-6 font-bold text-sm text-gray-900 uppercase tracking-tight">
+                <div className="col-span-6 font-bold text-sm text-gray-900 tracking-tight">
                   {item.moduleName}
                 </div>
                 <div className="col-span-2 font-mono text-sm font-bold text-gray-900 md:text-right">

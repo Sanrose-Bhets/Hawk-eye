@@ -98,7 +98,7 @@ export default function StudentModulesPage() {
               </div>
 
               <div className="col-span-6">
-                <h3 className="text-base font-bold text-gray-900 uppercase tracking-tight">
+                <h3 className="text-base font-bold text-gray-900 tracking-tight">
                   {module.name}
                 </h3>
               </div>

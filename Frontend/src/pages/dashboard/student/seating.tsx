@@ -94,7 +94,7 @@ export default function StudentSeatingPage() {
           <p className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400">
             STATUS: UNASSIGNED
           </p>
-          <h2 className="text-xl font-bold text-gray-900 uppercase">
+          <h2 className="text-xl font-bold text-gray-900">
             No Exam Seating Assigned Yet
           </h2>
           <p className="text-xs text-gray-500 max-w-md mx-auto font-sans">
@@ -114,7 +114,7 @@ export default function StudentSeatingPage() {
                   <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
                     CLASS SECTION
                   </span>
-                  <h3 className="text-base font-bold text-gray-900 uppercase">
+                  <h3 className="text-base font-bold text-gray-900">
                     {item.className}
                   </h3>
                 </div>

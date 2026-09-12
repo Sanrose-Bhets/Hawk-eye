@@ -129,7 +129,7 @@ export default function UpcomingExamsPage() {
               </div>
 
               <div className="col-span-5">
-                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight">
+                <h3 className="text-sm font-bold text-gray-900 tracking-tight">
                   {exam.moduleName}
                 </h3>
                 <span className="text-[10px] font-mono text-gray-400 font-sans">
