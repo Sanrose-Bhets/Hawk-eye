@@ -1,9 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { LayoutGrid, GraduationCap, LogOut, User } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { LayoutGrid, GraduationCap, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
-import { clearCredentials, selectCurrentUser } from '@/redux/userSlice';
+import { SidebarUserMenu } from '@/components/dashboard/sidebar-user-menu';
 
 const links = [
   {
@@ -18,32 +17,21 @@ const links = [
     description: 'Manage class lists and seat allocations',
     icon: GraduationCap,
   },
+  {
+    to: '/dashboard/rte/results',
+    label: 'Results',
+    description: 'Exam grades & evaluations',
+    icon: Award,
+  },
 ];
 
 export function Sidebar() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const user = useSelector(selectCurrentUser);
-
-  const handleLogout = () => {
-    dispatch(clearCredentials());
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    navigate('/');
-  };
-
   return (
     <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
-      <div className="flex items-center gap-3 border-b border-gray-200 px-6 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white font-bold text-sm shadow-sm">
-          RTE
-        </div>
-        <div>
-          <span className="text-base font-semibold text-gray-900 block leading-tight">
-            RTE Dashboard
-          </span>
-          <span className="text-xs text-gray-500 font-medium">Portal</span>
-        </div>
+      <div className="border-b border-gray-200 px-6 py-5">
+        <h1 className="text-[24px] font-bold text-gray-900 leading-tight">
+          RTE Dashboard
+        </h1>
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
@@ -72,32 +60,8 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-gray-200 p-3 space-y-1">
-        {user?.email && (
-          <Tooltip
-            content={`Signed in as ${user.email}`}
-            side="right"
-            wrapperClassName="w-full"
-          >
-            <div className="flex w-full items-center gap-3 px-4 py-2.5 rounded-xl bg-gray-50 text-xs text-gray-600">
-              <User size={16} className="text-gray-400 shrink-0" />
-              <span className="truncate font-medium">{user.email}</span>
-            </div>
-          </Tooltip>
-        )}
-        <Tooltip
-          content="Sign out of your account"
-          side="right"
-          wrapperClassName="w-full"
-        >
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
-        </Tooltip>
+      <div className="border-t border-gray-200 p-3">
+        <SidebarUserMenu />
       </div>
     </aside>
   );

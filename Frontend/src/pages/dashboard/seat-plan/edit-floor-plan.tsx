@@ -59,7 +59,7 @@ export default function EditFloorPlanPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl">
+      <div className="w-full max-w-5xl mx-auto">
         <Card>
           <CardContent className="flex items-center justify-center py-16">
             <p className="text-sm text-gray-500">Loading...</p>
@@ -70,18 +70,24 @@ export default function EditFloorPlanPage() {
   }
 
   return (
-    <div className="max-w-4xl">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`${basePath}/floor-plans`)}
-        className="mb-4 text-gray-500 hover:text-gray-700"
-      >
-        <ArrowLeft size={16} className="mr-1" />
-        Back to Floor Plans
-      </Button>
+    <div className="w-full max-w-5xl mx-auto space-y-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/floor-plans`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Floor Plans
+        </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Floor Plan</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+          Edit Floor Plan
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Modify seating arrangement and layout properties
+        </p>
+      </div>
 
       <Card className="mb-6">
         <CardHeader>
@@ -110,8 +116,8 @@ export default function EditFloorPlanPage() {
             <h2 className="text-base font-semibold text-gray-900">
               Seat Layout
             </h2>
-            <span className="text-sm text-gray-500">
-              {seats.length} seat{seats.length !== 1 ? 's' : ''}
+            <span className="text-xs text-gray-500 font-medium">
+              Drag seats to arrange layout
             </span>
           </div>
         </CardHeader>

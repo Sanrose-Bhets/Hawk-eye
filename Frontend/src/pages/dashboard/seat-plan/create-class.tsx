@@ -82,18 +82,24 @@ export default function CreateClassPage() {
   };
 
   return (
-    <div className="max-w-3xl">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`${basePath}/classes`)}
-        className="mb-4 text-gray-500 hover:text-gray-700"
-      >
-        <ArrowLeft size={16} className="mr-1" />
-        Back to Classes
-      </Button>
+    <div className="w-full max-w-5xl mx-auto space-y-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/classes`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Classes
+        </button>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Class</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+          Create Class
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Set up class details, assign floor plan layout and student seating
+        </p>
+      </div>
 
       <Card className="mb-6">
         <CardHeader>
@@ -133,7 +139,7 @@ export default function CreateClassPage() {
                 id="floorPlan"
                 value={selectedPlanId}
                 onChange={(e) => setSelectedPlanId(e.target.value)}
-                className="flex h-12 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary-ring focus:outline-none appearance-none cursor-pointer"
+                className="flex h-11 w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary-ring focus:outline-none appearance-none cursor-pointer"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                   backgroundPosition: 'right 0.75rem center',

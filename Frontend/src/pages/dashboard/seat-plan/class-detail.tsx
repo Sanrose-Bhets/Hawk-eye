@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Search, RotateCcw, Users } from 'lucide-react';
+import { ArrowLeft, Download, Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -18,7 +18,6 @@ export default function ClassDetailPage() {
   const [allClasses, setAllClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [saving, setSaving] = useState(false);
   const [showStudentList, setShowStudentList] = useState(false);
   const planRef = useRef<HTMLDivElement>(null);
 
@@ -51,45 +50,6 @@ export default function ClassDetailPage() {
     });
     return emails;
   }, [allClasses]);
-
-  const handleAutoAssign = useCallback(async () => {
-    if (!cls || !plan) return;
-    setSaving(true);
-    try {
-      // Exclude students already in THIS class (for merge) AND all other classes
-      const thisClassEmails = new Set(
-        cls.assignments.map((a) => a.studentEmail),
-      );
-      const otherClassEmails = new Set(
-        allClasses
-          .filter((c) => c.id !== cls.id)
-          .flatMap((c) => c.assignments.map((a) => a.studentEmail)),
-      );
-      const remaining = plan.seats.length - cls.assignments.length;
-      if (remaining <= 0) {
-        setSaving(false);
-        return;
-      }
-      const available = DUMMY_STUDENTS.filter(
-        (s) => !thisClassEmails.has(s.email) && !otherClassEmails.has(s.email),
-      );
-      const newStudents = [...available]
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, remaining);
-      const newAssignments = newStudents.map((student, i) => ({
-        seatIndex: cls.assignments.length + i,
-        studentName: student.name,
-        studentEmail: student.email,
-      }));
-      const merged = [...cls.assignments, ...newAssignments];
-      await classApi.update(cls.id, { assignments: merged });
-      setCls({ ...cls, assignments: merged });
-    } catch {
-      // ignore
-    } finally {
-      setSaving(false);
-    }
-  }, [cls, plan, allClasses]);
 
   const handleExport = useCallback(() => {
     if (!plan) return;
@@ -147,6 +107,15 @@ export default function ClassDetailPage() {
     ctx.roundRect(borderX, borderY, borderW, borderH, 16);
     ctx.stroke();
     ctx.setLineDash([]);
+
+    // Front / Blackboard & Door markers
+    ctx.font = 'bold 10px system-ui, sans-serif';
+    ctx.fillStyle = '#9ca3af';
+    ctx.textAlign = 'center';
+    ctx.fillText('FRONT / BLACKBOARD', borderX + borderW / 2, borderY + 16);
+    ctx.textAlign = 'right';
+    ctx.fillText('DOOR', borderX + borderW - 24, borderY + borderH - 14);
+    ctx.textAlign = 'start';
 
     if (seats.length === 0) {
       ctx.font = '14px system-ui, sans-serif';
@@ -208,7 +177,7 @@ export default function ClassDetailPage() {
 
   if (loading || !cls || !plan) {
     return (
-      <div className="max-w-4xl">
+      <div className="w-full max-w-6xl mx-auto">
         <Card>
           <CardContent className="flex items-center justify-center py-16">
             <p className="text-sm text-gray-500">Loading...</p>
@@ -219,44 +188,40 @@ export default function ClassDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`${basePath}/classes`)}
-        className="mb-4 text-gray-500 hover:text-gray-700"
-      >
-        <ArrowLeft size={16} className="mr-1" />
-        Back to Classes
-      </Button>
+    <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div>
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/classes`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Classes
+        </button>
 
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{cls.name}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {cls.assignments.length} / {plan.seats.length} seats assigned
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowStudentList(!showStudentList)}
-          >
-            <Users size={16} className="mr-2" />
-            {showStudentList ? 'Hide' : 'Show'} Students
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleAutoAssign}
-            disabled={saving}
-          >
-            <RotateCcw size={16} className="mr-2" />
-            {saving ? 'Assigning...' : 'Auto-Assign'}
-          </Button>
-          <Button onClick={handleExport}>
-            <Download size={16} className="mr-2" />
-            Export PNG
-          </Button>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+              {cls.name}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              {cls.assignments.length} / {plan.seats.length} seats assigned
+            </p>
+          </div>
+          <div className="flex gap-2.5">
+            <Button
+              variant="outline"
+              onClick={() => setShowStudentList(!showStudentList)}
+              className="gap-2"
+            >
+              <Users size={16} />
+              {showStudentList ? 'Hide' : 'Show'} Students
+            </Button>
+            <Button onClick={handleExport} className="gap-2">
+              <Download size={16} />
+              Export PNG
+            </Button>
+          </div>
         </div>
       </div>
 
