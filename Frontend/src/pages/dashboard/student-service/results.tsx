@@ -51,6 +51,8 @@ function hasErrors(obj: FormErrors): boolean {
   );
 }
 
+const CSV_IMPORT_LIMIT = 10;
+
 export default function ResultsPage() {
   const user = useSelector(selectCurrentUser);
   const isRte = user?.role === 'RTE';
@@ -89,6 +91,7 @@ export default function ResultsPage() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvPreview, setCsvPreview] = useState<ImportResultItemData[]>([]);
   const [csvError, setCsvError] = useState('');
+  const [csvPage, setCsvPage] = useState(1);
   const [importResult, setImportResult] = useState<{
     created: number;
     errors: { studentEmail: string; moduleCode: string; reason: string }[];
@@ -324,6 +327,7 @@ export default function ResultsPage() {
     setCsvFile(null);
     setCsvPreview([]);
     setCsvError('');
+    setCsvPage(1);
     setImportResult(null);
     if (csvInputRef.current) csvInputRef.current.value = '';
   };
@@ -358,15 +362,18 @@ export default function ResultsPage() {
       const rows: ImportResultItemData[] = [];
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(',').map((c) => c.trim());
-        const email = cols[emailIdx];
-        const code = cols[codeIdx];
-        const score = Number(cols[scoreIdx]);
-        if (!email || !code || isNaN(score)) continue;
-        rows.push({ studentEmail: email, moduleCode: code, score });
+        const email = cols[emailIdx] ?? '';
+        const code = cols[codeIdx] ?? '';
+        const scoreVal = cols[scoreIdx] ?? '';
+        rows.push({
+          studentEmail: email,
+          moduleCode: code,
+          score: scoreVal === '' ? 0 : Number(scoreVal),
+        });
       }
 
       if (rows.length === 0) {
-        setCsvError('No valid data rows found');
+        setCsvError('No data rows found');
         return;
       }
 
@@ -374,6 +381,35 @@ export default function ResultsPage() {
     };
     reader.readAsText(file);
   };
+
+  const updateCsvRow = (
+    index: number,
+    field: keyof ImportResultItemData,
+    value: string,
+  ) => {
+    setCsvPreview((prev) =>
+      prev.map((row, i) => {
+        if (i !== index) return row;
+        if (field === 'score') {
+          const num = value === '' ? 0 : Number(value);
+          return { ...row, score: isNaN(num) ? 0 : num };
+        }
+        return { ...row, [field]: value };
+      }),
+    );
+  };
+
+  const removeCsvRow = (index: number) => {
+    setCsvPreview((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const hasEmptyFields = csvPreview.some(
+    (row) => !row.studentEmail || !row.moduleCode,
+  );
+
+  const hasInvalidScores = csvPreview.some(
+    (row) => isNaN(row.score) || row.score < 0 || row.score > 100,
+  );
 
   const handleImportSubmit = async () => {
     if (csvPreview.length === 0) return;
@@ -1059,6 +1095,7 @@ export default function ResultsPage() {
         onClose={() => setIsImportOpen(false)}
         title="Import Results from CSV"
         description="Upload a CSV with columns: studentEmail, moduleCode, score"
+        className="max-w-4xl"
       >
         <div className="space-y-4">
           {importResult ? (
@@ -1141,48 +1178,148 @@ export default function ResultsPage() {
                   <p className="text-xs font-medium text-gray-700">
                     Preview ({csvPreview.length} rows):
                   </p>
-                  <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200">
+                  <div className="rounded-lg border border-gray-200">
                     <table className="w-full text-xs">
-                      <thead className="bg-gray-50 sticky top-0">
+                      <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600 w-8" />
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Student Email
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Module Code
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Score
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Grade
                           </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {csvPreview.map((row, i) => (
-                          <tr key={i} className="bg-white">
-                            <td className="px-3 py-2 text-gray-900">
-                              {row.studentEmail}
-                            </td>
-                            <td className="px-3 py-2 text-gray-900 font-mono">
-                              {row.moduleCode}
-                            </td>
-                            <td className="px-3 py-2 text-gray-900">
-                              {row.score}
-                            </td>
-                            <td className="px-3 py-2">
-                              <span
-                                className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-bold ${GRADE_COLORS[calcGrade(row.score)] ?? 'bg-gray-50 text-gray-700 border-gray-200'}`}
-                              >
-                                {calcGrade(row.score)}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {csvPreview
+                          .slice(
+                            (csvPage - 1) * CSV_IMPORT_LIMIT,
+                            csvPage * CSV_IMPORT_LIMIT,
+                          )
+                          .map((row, i) => {
+                            const actualIndex =
+                              (csvPage - 1) * CSV_IMPORT_LIMIT + i;
+                            return (
+                              <tr key={actualIndex} className="bg-white">
+                                <td className="px-2 py-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeCsvRow(actualIndex)}
+                                    className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="email"
+                                    value={row.studentEmail}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'studentEmail',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !row.studentEmail
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="text"
+                                    value={row.moduleCode}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'moduleCode',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs font-mono transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !row.moduleCode
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    value={row.score}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'score',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-20 rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      row.score < 0 || row.score > 100
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-2 py-1.5">
+                                  <span
+                                    className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-bold ${GRADE_COLORS[calcGrade(row.score)] ?? 'bg-gray-50 text-gray-700 border-gray-200'}`}
+                                  >
+                                    {calcGrade(row.score)}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
                       </tbody>
                     </table>
                   </div>
+                  {Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT) > 1 && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500">
+                        Page {csvPage} of{' '}
+                        {Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT)}
+                      </p>
+                      <div className="flex gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={csvPage === 1}
+                          onClick={() => setCsvPage((p) => p - 1)}
+                          className="cursor-pointer h-7 text-xs"
+                        >
+                          <ChevronLeft size={14} />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={
+                            csvPage >=
+                            Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT)
+                          }
+                          onClick={() => setCsvPage((p) => p + 1)}
+                          className="cursor-pointer h-7 text-xs"
+                        >
+                          <ChevronRight size={14} />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1196,7 +1333,12 @@ export default function ResultsPage() {
                 </Button>
                 <Button
                   onClick={handleImportSubmit}
-                  disabled={submitting || csvPreview.length === 0}
+                  disabled={
+                    submitting ||
+                    csvPreview.length === 0 ||
+                    hasEmptyFields ||
+                    hasInvalidScores
+                  }
                   className="cursor-pointer"
                 >
                   {submitting ? 'Importing...' : 'Import Results'}

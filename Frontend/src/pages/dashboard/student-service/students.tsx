@@ -42,6 +42,7 @@ import { facultyApi } from '@/lib/api/faculties';
 import type { Student, Faculty } from '@/lib/types';
 
 const PAGE_LIMIT = 10;
+const CSV_IMPORT_LIMIT = 10;
 
 function validateEmail(value: string): string | null {
   if (!value.trim()) return 'Email is required';
@@ -138,6 +139,7 @@ export default function StudentsPage() {
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvPreview, setCsvPreview] = useState<CreateStudentData[]>([]);
   const [csvError, setCsvError] = useState('');
+  const [csvPage, setCsvPage] = useState(1);
   const [importResult, setImportResult] = useState<{
     created: number;
     errors: { email: string; reason: string }[];
@@ -342,23 +344,6 @@ export default function StudentsPage() {
           setCsvError('No student data found in CSV.');
           return;
         }
-        const csvErrors: string[] = [];
-        parsed.forEach((s, i) => {
-          if (validateName(s.name))
-            csvErrors.push(`Row ${i + 1}: invalid name`);
-          if (validateEmail(s.email))
-            csvErrors.push(`Row ${i + 1}: invalid email`);
-          if (validateContact(s.contact))
-            csvErrors.push(`Row ${i + 1}: invalid contact`);
-          if (validateAddress(s.address))
-            csvErrors.push(`Row ${i + 1}: invalid address`);
-          if (validateParentEmail(s.parentEmail))
-            csvErrors.push(`Row ${i + 1}: invalid parent email`);
-        });
-        if (csvErrors.length > 0) {
-          setCsvError(csvErrors.join('. '));
-          return;
-        }
         setCsvPreview(parsed);
       } catch (err) {
         setCsvError(
@@ -368,6 +353,29 @@ export default function StudentsPage() {
     };
     reader.readAsText(file);
   };
+
+  const updateCsvRow = (
+    index: number,
+    field: keyof CreateStudentData,
+    value: string,
+  ) => {
+    setCsvPreview((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
+    );
+  };
+
+  const removeCsvRow = (index: number) => {
+    setCsvPreview((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const hasEmptyFields = csvPreview.some(
+    (row) =>
+      !row.name ||
+      !row.email ||
+      !row.address ||
+      !row.contact ||
+      !row.parentEmail,
+  );
 
   const handleImportSubmit = async () => {
     if (csvPreview.length === 0) return;
@@ -390,6 +398,7 @@ export default function StudentsPage() {
     setCsvFile(null);
     setCsvPreview([]);
     setCsvError('');
+    setCsvPage(1);
     setImportResult(null);
     if (csvInputRef.current) csvInputRef.current.value = '';
   };
@@ -1039,6 +1048,7 @@ export default function StudentsPage() {
         }}
         title="Import Students from CSV"
         description="Upload a CSV file with student data"
+        className="max-w-4xl"
       >
         <div className="space-y-4">
           {!importResult ? (
@@ -1086,38 +1096,177 @@ export default function StudentsPage() {
                   <p className="text-sm font-medium text-gray-700 mb-2">
                     Preview ({csvPreview.length} students):
                   </p>
-                  <div className="max-h-48 overflow-y-auto rounded-xl border border-gray-200">
+                  <div className="rounded-xl border border-gray-200">
                     <table className="w-full text-xs">
-                      <thead className="bg-gray-50 sticky top-0">
+                      <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600 w-8" />
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Name
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Email
                           </th>
-                          <th className="px-3 py-2 text-left font-medium text-gray-600">
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
+                            Address
+                          </th>
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
                             Contact
+                          </th>
+                          <th className="px-2 py-2 text-left font-medium text-gray-600">
+                            Parent Email
                           </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {csvPreview.map((s, i) => (
-                          <tr key={i}>
-                            <td className="px-3 py-2 text-gray-900">
-                              {s.name}
-                            </td>
-                            <td className="px-3 py-2 text-gray-600">
-                              {s.email}
-                            </td>
-                            <td className="px-3 py-2 text-gray-600">
-                              {s.contact}
-                            </td>
-                          </tr>
-                        ))}
+                        {csvPreview
+                          .slice(
+                            (csvPage - 1) * CSV_IMPORT_LIMIT,
+                            csvPage * CSV_IMPORT_LIMIT,
+                          )
+                          .map((s, i) => {
+                            const actualIndex =
+                              (csvPage - 1) * CSV_IMPORT_LIMIT + i;
+                            return (
+                              <tr key={actualIndex} className="bg-white">
+                                <td className="px-2 py-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeCsvRow(actualIndex)}
+                                    className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="text"
+                                    value={s.name}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'name',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !s.name
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="email"
+                                    value={s.email}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'email',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !s.email
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="text"
+                                    value={s.address}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'address',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !s.address
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="text"
+                                    value={s.contact}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'contact',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !s.contact
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                                <td className="px-1 py-1.5">
+                                  <input
+                                    type="email"
+                                    value={s.parentEmail}
+                                    onChange={(e) =>
+                                      updateCsvRow(
+                                        actualIndex,
+                                        'parentEmail',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className={`w-full rounded border px-2 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                                      !s.parentEmail
+                                        ? 'border-red-400 bg-red-50 text-red-700'
+                                        : 'border-gray-200'
+                                    }`}
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          })}
                       </tbody>
                     </table>
                   </div>
+                  {Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT) > 1 && (
+                    <div className="flex items-center justify-between mt-3">
+                      <p className="text-xs text-gray-500">
+                        Page {csvPage} of{' '}
+                        {Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT)}
+                      </p>
+                      <div className="flex gap-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={csvPage === 1}
+                          onClick={() => setCsvPage((p) => p - 1)}
+                          className="cursor-pointer h-7 text-xs"
+                        >
+                          <ChevronLeft size={14} />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={
+                            csvPage >=
+                            Math.ceil(csvPreview.length / CSV_IMPORT_LIMIT)
+                          }
+                          onClick={() => setCsvPage((p) => p + 1)}
+                          className="cursor-pointer h-7 text-xs"
+                        >
+                          <ChevronRight size={14} />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1134,7 +1283,9 @@ export default function StudentsPage() {
                 </Button>
                 <Button
                   onClick={handleImportSubmit}
-                  disabled={csvPreview.length === 0 || submitting}
+                  disabled={
+                    csvPreview.length === 0 || hasEmptyFields || submitting
+                  }
                 >
                   {submitting
                     ? 'Importing...'
