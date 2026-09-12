@@ -208,7 +208,7 @@ export default function ClassDetailPage() {
 
   if (loading || !cls || !plan) {
     return (
-      <div className="max-w-4xl">
+      <div className="w-full max-w-4xl mx-auto">
         <Card>
           <CardContent className="flex items-center justify-center py-16">
             <p className="text-sm text-gray-500">Loading...</p>
@@ -219,7 +219,7 @@ export default function ClassDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full max-w-4xl mx-auto">
       <Button
         variant="ghost"
         size="sm"

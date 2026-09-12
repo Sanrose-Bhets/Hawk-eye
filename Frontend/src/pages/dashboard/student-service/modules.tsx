@@ -71,7 +71,7 @@ export default function ModulesPage() {
   );
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="w-full max-w-5xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">

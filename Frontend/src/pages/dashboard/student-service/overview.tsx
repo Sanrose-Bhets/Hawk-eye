@@ -78,7 +78,7 @@ export default function StudentServiceOverview() {
   ];
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="w-full max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">
           Student Service Dashboard

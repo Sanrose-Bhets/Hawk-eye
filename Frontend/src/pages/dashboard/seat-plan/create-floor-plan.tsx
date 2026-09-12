@@ -46,7 +46,7 @@ export default function CreateFloorPlanPage() {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full max-w-4xl mx-auto">
       <Button
         variant="ghost"
         size="sm"
