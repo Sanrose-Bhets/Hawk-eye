@@ -171,9 +171,8 @@ export default function StudentOverview() {
 
       {/* 2. Academic Overview Grid */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-          <span>01 / ACADEMIC OVERVIEW</span>
-          <span>LIVE METRICS</span>
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          01 / ACADEMIC OVERVIEW
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 bg-white">
@@ -206,9 +205,8 @@ export default function StudentOverview() {
 
       {/* 3. Quick Access & Services Directory */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-          <span>02 / SERVICES & DIRECTORY</span>
-          <span>NAVIGATION INDEX</span>
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          02 / SERVICES & DIRECTORY
         </div>
 
         <div className="border border-gray-200 divide-y divide-gray-200 bg-white">
