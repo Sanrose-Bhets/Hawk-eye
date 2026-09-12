@@ -11,6 +11,7 @@ import { SeatPlanModule } from './modules/seat-plan/seat-plan.module.js';
 import { StudentModule } from './modules/student/student.module.js';
 import { FacultyModule } from './modules/faculty/faculty.module.js';
 import { ModuleModule } from './modules/module/module.module.js';
+import { ResultsModule } from './modules/results/results.module.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ModuleModule } from './modules/module/module.module.js';
     StudentModule,
     FacultyModule,
     ModuleModule,
+    ResultsModule,
   ],
 })
 export class AppModule {}

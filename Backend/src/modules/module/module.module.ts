@@ -16,6 +16,6 @@ import { MODULE_REPOSITORY } from './constants/module.constants.js';
       useClass: ModuleRepository,
     },
   ],
-  exports: [ModuleService],
+  exports: [ModuleService, MODULE_REPOSITORY],
 })
 export class ModuleModule {}
