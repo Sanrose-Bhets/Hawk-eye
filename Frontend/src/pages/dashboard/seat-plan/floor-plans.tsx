@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
+import { Plus, Pencil, Trash2, LayoutGrid, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { floorPlanApi } from '@/lib/api/seat-plan';
 import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { FloorPlan } from '@/lib/types';
@@ -12,6 +13,8 @@ export default function FloorPlansPage() {
   const basePath = useDashboardBase();
   const [plans, setPlans] = useState<FloorPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [planToDelete, setPlanToDelete] = useState<FloorPlan | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     floorPlanApi
@@ -23,10 +26,18 @@ export default function FloorPlansPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this floor plan?')) return;
-    await floorPlanApi.delete(id);
-    setPlans(plans.filter((p) => p.id !== id));
+  const handleConfirmDelete = async () => {
+    if (!planToDelete) return;
+    setIsDeleting(true);
+    try {
+      await floorPlanApi.delete(planToDelete.id);
+      setPlans(plans.filter((p) => p.id !== planToDelete.id));
+      setPlanToDelete(null);
+    } catch {
+      // ignore
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -94,8 +105,8 @@ export default function FloorPlansPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(plan.id)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => setPlanToDelete(plan)}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -121,6 +132,45 @@ export default function FloorPlansPage() {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!planToDelete}
+        onClose={() => !isDeleting && setPlanToDelete(null)}
+        title="Delete Floor Plan"
+        description="Are you sure you want to delete this floor plan? This action cannot be undone."
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-200/80 p-3 text-amber-800 text-xs font-medium">
+            <AlertTriangle size={18} className="shrink-0 text-amber-600" />
+            <span>
+              Deleting{' '}
+              <strong className="font-semibold">{planToDelete?.name}</strong>{' '}
+              will permanently remove this layout template.
+            </span>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPlanToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Floor Plan'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

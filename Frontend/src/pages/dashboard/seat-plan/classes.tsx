@@ -1,9 +1,17 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye, Trash2, GraduationCap, Search } from 'lucide-react';
+import {
+  Plus,
+  Eye,
+  Trash2,
+  GraduationCap,
+  Search,
+  AlertTriangle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { Modal } from '@/components/ui/modal';
 import { classApi } from '@/lib/api/seat-plan';
 import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
 import type { ClassData } from '@/lib/types';
@@ -14,6 +22,8 @@ export default function ClassesPage() {
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [classToDelete, setClassToDelete] = useState<ClassData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     classApi
@@ -39,10 +49,18 @@ export default function ClassesPage() {
     );
   }, [classes, searchQuery]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this class?')) return;
-    await classApi.delete(id);
-    setClasses(classes.filter((c) => c.id !== id));
+  const handleConfirmDelete = async () => {
+    if (!classToDelete) return;
+    setIsDeleting(true);
+    try {
+      await classApi.delete(classToDelete.id);
+      setClasses(classes.filter((c) => c.id !== classToDelete.id));
+      setClassToDelete(null);
+    } catch {
+      // ignore
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -125,8 +143,8 @@ export default function ClassesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(cls.id)}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => setClassToDelete(cls)}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -156,6 +174,45 @@ export default function ClassesPage() {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!classToDelete}
+        onClose={() => !isDeleting && setClassToDelete(null)}
+        title="Delete Class"
+        description="Are you sure you want to delete this class? This action cannot be undone."
+      >
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-200/80 p-3 text-amber-800 text-xs font-medium">
+            <AlertTriangle size={18} className="shrink-0 text-amber-600" />
+            <span>
+              Deleting{' '}
+              <strong className="font-semibold">{classToDelete?.name}</strong>{' '}
+              will remove all seat allocations for this class.
+            </span>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setClassToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white shadow-xs cursor-pointer"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Class'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
