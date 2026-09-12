@@ -1,6 +1,16 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download, Search, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Download,
+  Search,
+  Users,
+  GraduationCap,
+  Layers,
+  MapPin,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -8,7 +18,13 @@ import { SeatCanvas } from '@/components/seat-plan/seat-canvas';
 import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
 import { studentApi } from '@/lib/api/students';
 import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
-import type { ClassData, FloorPlan, Student } from '@/lib/types';
+import type { ClassData, FloorPlan } from '@/lib/types';
+
+interface StudentListItem {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export default function ClassDetailPage() {
   const navigate = useNavigate();
@@ -17,36 +33,86 @@ export default function ClassDetailPage() {
   const [cls, setCls] = useState<ClassData | null>(null);
   const [plan, setPlan] = useState<FloorPlan | null>(null);
   const [allClasses, setAllClasses] = useState<ClassData[]>([]);
-  const [allStudents, setAllStudents] = useState<Student[]>([]);
+  const [allStudents, setAllStudents] = useState<StudentListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showStudentList, setShowStudentList] = useState(false);
   const planRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
+    setLoadError(null);
+
     classApi
       .get(id)
       .then(async (r) => {
-        setCls(r.data);
-        const [pRes, allRes, studentsRes] = await Promise.all([
-          floorPlanApi.get(r.data.floorPlanId),
-          classApi.list(),
-          studentApi.list({ limit: 500 }),
-        ]);
-        setPlan(pRes.data);
-        setAllClasses(allRes.data);
-        setAllStudents(studentsRes.data?.data || []);
+        const classData = r.data;
+        setCls(classData);
+
+        // Fetch floor plan, other classes, and students concurrently with safe fallback handlers
+        const [planRes, classListRes, studentListRes] =
+          await Promise.allSettled([
+            classData.floorPlanId
+              ? floorPlanApi.get(classData.floorPlanId)
+              : Promise.reject(new Error('No floor plan ID')),
+            classApi.list(),
+            studentApi.list({ limit: 500 }),
+          ]);
+
+        if (planRes.status === 'fulfilled' && planRes.value?.data) {
+          setPlan(planRes.value.data);
+        } else {
+          // Fallback minimal floor plan if not found or detached
+          setPlan({
+            id: classData.floorPlanId || 'default',
+            name: 'Classroom Floor Plan',
+            seats: [],
+            createdBy: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        }
+
+        if (classListRes.status === 'fulfilled' && classListRes.value?.data) {
+          setAllClasses(classListRes.value.data);
+        }
+
+        if (
+          studentListRes.status === 'fulfilled' &&
+          studentListRes.value?.data
+        ) {
+          const fetched =
+            studentListRes.value.data?.data || studentListRes.value.data || [];
+          setAllStudents(Array.isArray(fetched) ? fetched : []);
+        } else {
+          // If student list endpoint is restricted (e.g. for RTE role), synthesize from assignments
+          const syntheticStudents: StudentListItem[] =
+            classData.assignments.map((a, index) => ({
+              id: `assigned-${index}`,
+              name: a.studentName,
+              email: a.studentEmail,
+            }));
+          setAllStudents(syntheticStudents);
+        }
+
         setLoading(false);
       })
-      .catch(() => navigate(`${basePath}/classes`));
-  }, [id, navigate, basePath]);
+      .catch((err) => {
+        console.error('Failed to load class:', err);
+        setLoadError(
+          'Unable to load the requested class details. It may have been removed or you do not have permission to view it.',
+        );
+        setLoading(false);
+      });
+  }, [id]);
 
   // Global taken emails — students assigned in ANY class
   const globalTakenEmails = useMemo(() => {
     const emails = new Map<string, string>(); // email -> className
     allClasses.forEach((c) => {
-      c.assignments.forEach((a) => {
+      (c.assignments || []).forEach((a) => {
         if (!emails.has(a.studentEmail)) {
           emails.set(a.studentEmail, c.name);
         }
@@ -57,7 +123,7 @@ export default function ClassDetailPage() {
 
   const handleExport = useCallback(() => {
     if (!plan) return;
-    const seats = plan.seats;
+    const seats = plan.seats || [];
     const assignments = cls?.assignments || [];
     const seatW = 80;
     const seatH = 80;
@@ -87,7 +153,9 @@ export default function ClassDetailPage() {
     const canvas = document.createElement('canvas');
     canvas.width = Math.ceil(contentW) * scale;
     canvas.height = Math.ceil(contentH) * scale;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     ctx.scale(scale, scale);
 
     ctx.fillStyle = '#ffffff';
@@ -97,7 +165,7 @@ export default function ClassDetailPage() {
     ctx.fillStyle = '#111827';
     ctx.textAlign = 'start';
     ctx.textBaseline = 'top';
-    ctx.fillText(cls?.name || '', padding, padding);
+    ctx.fillText(cls?.name || 'Class Seating Chart', padding, padding);
 
     const borderX = padding;
     const borderY = padding + titleH + titleGap;
@@ -126,7 +194,7 @@ export default function ClassDetailPage() {
       ctx.fillStyle = '#9ca3af';
       ctx.textAlign = 'center';
       ctx.fillText(
-        'No seats in this plan',
+        'No seats in this floor plan',
         borderX + borderW / 2,
         borderY + borderH / 2 - 7,
       );
@@ -172,27 +240,74 @@ export default function ClassDetailPage() {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.download = `seat-plan-${cls?.name || 'class'}.png`;
+      a.download = `seating-plan-${cls?.name || 'class'}.png`;
       a.href = url;
       a.click();
       URL.revokeObjectURL(url);
     }, 'image/png');
   }, [cls, plan]);
 
-  if (loading || !cls || !plan) {
+  if (loading) {
     return (
-      <div className="w-full max-w-6xl mx-auto">
-        <Card>
-          <CardContent className="flex items-center justify-center py-16">
-            <p className="text-sm text-gray-500">Loading...</p>
+      <div className="w-full max-w-6xl mx-auto space-y-6">
+        <Card className="rounded-2xl border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
+            <p className="text-sm font-medium text-gray-500">
+              Loading class seating plan...
+            </p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
+  if (loadError || !cls) {
+    return (
+      <div className="w-full max-w-6xl mx-auto space-y-6">
+        <button
+          type="button"
+          onClick={() => navigate(`${basePath}/classes`)}
+          className="-ml-1 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-2 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={16} />
+          Back to Classes
+        </button>
+
+        <Card className="rounded-2xl border-red-200 bg-red-50/40">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-3">
+              <AlertCircle size={28} />
+            </div>
+            <h3 className="text-base font-bold text-gray-900 mb-1">
+              Class Not Found
+            </h3>
+            <p className="text-sm text-gray-600 max-w-md mb-6">
+              {loadError || 'The requested class could not be loaded.'}
+            </p>
+            <Button
+              onClick={() => navigate(`${basePath}/classes`)}
+              className="cursor-pointer"
+            >
+              Return to Classes
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const seats = plan?.seats || [];
+  const assignments = cls.assignments || [];
+  const assignedCount = assignments.length;
+  const totalCapacity = seats.length;
+  const fillRate = totalCapacity
+    ? Math.round((assignedCount / totalCapacity) * 100)
+    : 0;
+
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6">
+      {/* Top Header */}
       <div>
         <button
           type="button"
@@ -204,24 +319,41 @@ export default function ClassDetailPage() {
         </button>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
-              {cls.name}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              {cls.assignments.length} / {plan.seats.length} seats assigned
-            </p>
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-light text-primary border border-primary/15 shadow-2xs">
+              <GraduationCap size={24} />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold font-title text-gray-900 tracking-tight">
+                {cls.name}
+              </h1>
+              <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 font-medium">
+                <span className="flex items-center gap-1">
+                  <MapPin size={13} className="text-gray-400" />
+                  {plan?.name || 'Classroom Layout'}
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle2 size={13} className="text-emerald-500" />
+                  {assignedCount} / {totalCapacity} seats assigned ({fillRate}%)
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2.5">
+
+          <div className="flex items-center gap-2.5">
             <Button
               variant="outline"
               onClick={() => setShowStudentList(!showStudentList)}
-              className="gap-2"
+              className="gap-2 cursor-pointer rounded-xl"
             >
               <Users size={16} />
               {showStudentList ? 'Hide' : 'Show'} Students
             </Button>
-            <Button onClick={handleExport} className="gap-2">
+            <Button
+              onClick={handleExport}
+              className="gap-2 shadow-sm cursor-pointer rounded-xl"
+            >
               <Download size={16} />
               Export PNG
             </Button>
@@ -229,13 +361,17 @@ export default function ClassDetailPage() {
         </div>
       </div>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-gray-900">
-              {plan.name}
-            </h2>
-            <div className="relative w-72">
+      {/* Seating Plan Canvas Card */}
+      <Card className="rounded-2xl border-gray-200/90 shadow-2xs">
+        <CardHeader className="border-b border-gray-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Layers size={18} className="text-primary" />
+              <h2 className="text-base font-semibold text-gray-900">
+                Interactive Seating Chart — {plan?.name || 'Layout'}
+              </h2>
+            </div>
+            <div className="relative w-full sm:w-80">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -244,17 +380,17 @@ export default function ClassDetailPage() {
                 placeholder="Search student to highlight seat..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 pl-9 text-sm"
+                className="h-9 pl-9 text-xs sm:text-sm rounded-xl border-gray-200 bg-gray-50/50"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div ref={planRef}>
+        <CardContent className="pt-6">
+          <div ref={planRef} className="overflow-x-auto">
             <SeatCanvas
-              seats={plan.seats}
+              seats={seats}
               onChange={() => {}}
-              assignments={cls.assignments}
+              assignments={assignments}
               highlightStudent={searchQuery}
               readonly
             />
@@ -262,29 +398,48 @@ export default function ClassDetailPage() {
         </CardContent>
       </Card>
 
-      {cls.assignments.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <h2 className="text-base font-semibold text-gray-900">
-              Assigned Students
-            </h2>
+      {/* Assigned Students Roster Grid */}
+      {assignments.length > 0 && (
+        <Card className="rounded-2xl border-gray-200/90 shadow-2xs">
+          <CardHeader className="border-b border-gray-100 pb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">
+                Assigned Students Roster ({assignments.length})
+              </h2>
+              <span className="text-xs text-gray-500 font-medium">
+                Sorted by desk order
+              </span>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
-              {cls.assignments
+          <CardContent className="pt-5">
+            <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+              {[...assignments]
                 .sort((a, b) => a.seatIndex - b.seatIndex)
                 .map((a) => {
-                  const seat = plan.seats[a.seatIndex];
+                  const seat = seats[a.seatIndex];
+                  const isMatching =
+                    searchQuery.trim() &&
+                    (a.studentName
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                      a.studentEmail
+                        .toLowerCase()
+                        .includes(searchQuery.toLowerCase()));
+
                   return (
                     <div
                       key={a.seatIndex}
-                      className="flex items-center gap-3 rounded-xl bg-gray-50 border border-gray-100 px-4 py-3"
+                      className={`flex items-center gap-3 rounded-xl border px-3.5 py-2.5 transition-colors ${
+                        isMatching
+                          ? 'border-primary ring-2 ring-primary/20 bg-primary-light'
+                          : 'border-gray-200/80 bg-gray-50/60 hover:bg-gray-50'
+                      }`}
                     >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-light text-xs font-bold text-primary">
-                        {seat?.label}
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white border border-gray-200 text-xs font-bold text-gray-900 shadow-2xs">
+                        {seat?.label || `S${a.seatIndex + 1}`}
                       </span>
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-semibold text-gray-900 truncate">
                           {a.studentName}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
@@ -299,25 +454,25 @@ export default function ClassDetailPage() {
         </Card>
       )}
 
+      {/* Full Students Roster Drawer / List */}
       {showStudentList && (
-        <Card>
-          <CardHeader>
+        <Card className="rounded-2xl border-gray-200/90 shadow-2xs">
+          <CardHeader className="border-b border-gray-100 pb-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-gray-900">
-                All Students
+                All Available Students
               </h2>
-              <span className="text-sm text-gray-500">
-                {allStudents.length - globalTakenEmails.size} available /{' '}
-                {allStudents.length} total
+              <span className="text-xs text-gray-500 font-medium">
+                {allStudents.length} total students tracked
               </span>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-5">
             <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 divide-y divide-gray-100">
-              {allStudents
+              {[...allStudents]
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((student) => {
-                  const isInThisClass = cls.assignments.some(
+                  const isInThisClass = assignments.some(
                     (a) => a.studentEmail === student.email,
                   );
                   const assignedClassName = globalTakenEmails.get(
@@ -327,16 +482,16 @@ export default function ClassDetailPage() {
                   return (
                     <div
                       key={student.id}
-                      className={`flex items-center gap-3 px-4 py-3 text-sm ${
+                      className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
                         isInThisClass
-                          ? 'bg-primary-light'
+                          ? 'bg-primary-light/60'
                           : isInOtherClass
-                            ? 'bg-yellow-50'
-                            : ''
+                            ? 'bg-amber-50/50'
+                            : 'hover:bg-gray-50/80'
                       }`}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900">
+                        <div className="font-semibold text-gray-900">
                           {student.name}
                         </div>
                         <div className="text-xs text-gray-500">
@@ -344,15 +499,15 @@ export default function ClassDetailPage() {
                         </div>
                       </div>
                       {isInThisClass ? (
-                        <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white shrink-0">
+                        <span className="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white shrink-0">
                           This Class
                         </span>
                       ) : isInOtherClass ? (
-                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-700 shrink-0">
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 shrink-0">
                           {assignedClassName}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-500 shrink-0">
+                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600 shrink-0">
                           Available
                         </span>
                       )}
