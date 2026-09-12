@@ -314,14 +314,11 @@ export default function StudentProfilePage() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="rounded-none border-gray-300 text-xs font-mono font-bold tracking-wider uppercase hover:bg-gray-50"
+                className="rounded-none border-gray-300 text-xs font-mono font-bold tracking-wider uppercase hover:bg-gray-50 cursor-pointer"
               >
                 <Camera size={14} className="mr-2 text-gray-500" />
                 {uploading ? 'Uploading...' : 'Change Photo'}
               </Button>
-              <p className="text-[10px] text-gray-400 font-mono">
-                JPG, PNG • Max 500 KB
-              </p>
             </div>
           </div>
 
