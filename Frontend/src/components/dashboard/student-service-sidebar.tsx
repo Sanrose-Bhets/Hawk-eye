@@ -6,6 +6,7 @@ import {
   Award,
   Mail,
   GraduationCap,
+  Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -48,6 +49,12 @@ const links = [
     label: 'Classes',
     description: 'Class seat allocations',
     icon: GraduationCap,
+  },
+  {
+    to: '/dashboard/student-service/backup',
+    label: 'Backup',
+    description: 'Export and import system data',
+    icon: Database,
   },
 ];
 

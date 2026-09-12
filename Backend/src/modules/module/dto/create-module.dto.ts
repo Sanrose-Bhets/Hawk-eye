@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsString, IsOptional, MinLength, IsArray, IsInt, Min, Max } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  MinLength,
+  IsArray,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Trim } from '../../../common/transformers/index.js';
 

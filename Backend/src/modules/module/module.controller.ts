@@ -68,7 +68,13 @@ export class ModuleController {
   })
   findAll(
     @Request()
-    req: { user: { role: string; facultyId?: string | null; semester?: number | null } },
+    req: {
+      user: {
+        role: string;
+        facultyId?: string | null;
+        semester?: number | null;
+      };
+    },
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search?: string,
@@ -97,10 +103,21 @@ export class ModuleController {
   @ApiResponse({ status: 404, description: 'Module not found' })
   findOne(
     @Request()
-    req: { user: { role: string; facultyId?: string | null; semester?: number | null } },
+    req: {
+      user: {
+        role: string;
+        facultyId?: string | null;
+        semester?: number | null;
+      };
+    },
     @Param('id') id: string,
   ): Promise<ModuleResponseDto> {
-    return this.moduleService.findById(id, req.user.role, req.user.facultyId, req.user.semester);
+    return this.moduleService.findById(
+      id,
+      req.user.role,
+      req.user.facultyId,
+      req.user.semester,
+    );
   }
 
   @Put(':id')

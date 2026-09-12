@@ -45,7 +45,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = this.generateTokens(user.id, user.email, user.role, user.facultyId, user.semester);
+    const tokens = this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.facultyId,
+      user.semester,
+    );
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
     return tokens;

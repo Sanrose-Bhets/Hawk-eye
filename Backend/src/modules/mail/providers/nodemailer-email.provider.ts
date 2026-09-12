@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type {
   IEmailProvider,
   EmailSendResult,
+  EmailAttachment,
 } from './email-provider.interface.js';
 
 @Injectable()
@@ -12,6 +13,7 @@ export class NodemailerEmailProvider implements IEmailProvider {
     to: string,
     subject: string,
     html: string,
+    _attachments?: EmailAttachment[],
   ): Promise<EmailSendResult> {
     this.logger.warn(
       `Nodemailer provider not yet implemented. Email to ${to} dropped.`,
