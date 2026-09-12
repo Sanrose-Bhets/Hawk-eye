@@ -9,4 +9,7 @@ export class User {
 
   @ApiProperty({ enum: ['STUDENT', 'STUDENT_SERVICE', 'RTE'] })
   role!: string;
+
+  @ApiProperty({ required: false, nullable: true })
+  facultyId?: string | null;
 }

@@ -102,6 +102,45 @@ export class ExamRoutineService {
     return all.map(toExamRoutine);
   }
 
+  async findAllByFaculty(
+    facultyId: string,
+    filters?: { month?: number; year?: number },
+  ): Promise<ExamRoutineEntity[]> {
+    let all = await this.examRoutineRepo.findAll();
+
+    all = all.filter((r) => r.facultyId === facultyId);
+
+    if (filters?.month !== undefined && filters?.year !== undefined) {
+      all = all.filter((r) => {
+        const epochMs =
+          typeof (r.date as { epochMilliseconds?: number })
+            .epochMilliseconds === 'number'
+            ? (r.date as { epochMilliseconds: number }).epochMilliseconds
+            : new Date(r.date as string).getTime();
+        const d = new Date(epochMs);
+        return (
+          d.getMonth() + 1 === filters.month && d.getFullYear() === filters.year
+        );
+      });
+    }
+
+    all.sort((a, b) => {
+      const aTime =
+        typeof (a.date as { epochMilliseconds?: number }).epochMilliseconds ===
+        'number'
+          ? (a.date as { epochMilliseconds: number }).epochMilliseconds
+          : new Date(a.date as string).getTime();
+      const bTime =
+        typeof (b.date as { epochMilliseconds?: number }).epochMilliseconds ===
+        'number'
+          ? (b.date as { epochMilliseconds: number }).epochMilliseconds
+          : new Date(b.date as string).getTime();
+      return aTime - bTime;
+    });
+
+    return all.map(toExamRoutine);
+  }
+
   async findById(id: string, rteId: string): Promise<ExamRoutineEntity> {
     const model = await this.examRoutineRepo.findById(id);
     if (!model) {

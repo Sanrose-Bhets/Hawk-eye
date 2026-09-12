@@ -18,6 +18,9 @@ export const examRoutineApi = {
   calendar: (params?: { month?: number; year?: number }) =>
     apiClient.get<ExamRoutine[]>('/exam-routines', { params }),
 
+  studentList: (params?: { month?: number; year?: number }) =>
+    apiClient.get<ExamRoutine[]>('/exam-routines/student', { params }),
+
   get: (id: string) => apiClient.get<ExamRoutine>(`/exam-routines/${id}`),
 
   create: (data: CreateExamRoutineData) =>

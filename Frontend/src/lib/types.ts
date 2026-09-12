@@ -4,6 +4,7 @@ export interface User {
   id: string;
   email: string;
   role: Role;
+  facultyId?: string | null;
 }
 
 export interface LoginRequest {

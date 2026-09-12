@@ -56,7 +56,7 @@ export class ResultsController {
   }
 
   @Get()
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({
     summary: 'List all results with pagination, search, and filters',
   })
@@ -87,7 +87,7 @@ export class ResultsController {
   }
 
   @Get(':id')
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'Get a result by ID' })
   @ApiResponse({
     status: 200,

@@ -18,6 +18,7 @@ interface JwtPayload {
   sub: string;
   email: string;
   role: string;
+  facultyId?: string | null;
   type: 'access' | 'refresh';
 }
 
@@ -77,7 +78,12 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const tokens = this.generateTokens(user.id, user.email, user.role);
+    const tokens = this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.facultyId,
+    );
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
     return tokens;
@@ -98,12 +104,20 @@ export class AuthService {
     id: string,
     email: string,
     role: string,
+    facultyId?: string | null,
   ): TokenResponseDto {
-    const accessPayload: JwtPayload = { sub: id, email, role, type: 'access' };
+    const accessPayload: JwtPayload = {
+      sub: id,
+      email,
+      role,
+      facultyId,
+      type: 'access',
+    };
     const refreshPayload: JwtPayload = {
       sub: id,
       email,
       role,
+      facultyId,
       type: 'refresh',
     };
 
@@ -118,7 +132,7 @@ export class AuthService {
     });
 
     return {
-      user: toUser({ id, email, role }),
+      user: toUser({ id, email, role, facultyId }),
       accessToken,
       refreshToken,
     };
