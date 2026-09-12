@@ -93,3 +93,13 @@ export interface Faculty {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Module {
+  id: string;
+  name: string;
+  code: string | null;
+  moduleLeader: string;
+  facultyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
