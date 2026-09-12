@@ -264,8 +264,8 @@ export function SeatCanvas({
         </div>
 
         {/* Door indicator */}
-        <div className="absolute top-3.5 right-4 flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-xs px-3.5 py-1 text-[11px] font-semibold tracking-wider text-gray-500 uppercase shadow-2xs border border-gray-200/80 select-none z-0">
-          <DoorOpen size={13} className="text-amber-600" />
+        <div className="absolute bottom-3.5 right-5 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-gray-400 uppercase select-none z-0">
+          <DoorOpen size={14} className="text-gray-400" />
           <span>Door</span>
         </div>
 

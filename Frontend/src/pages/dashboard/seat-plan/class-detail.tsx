@@ -114,7 +114,7 @@ export default function ClassDetailPage() {
     ctx.textAlign = 'center';
     ctx.fillText('• FRONT / BLACKBOARD', borderX + borderW / 2, borderY + 16);
     ctx.textAlign = 'right';
-    ctx.fillText('DOOR', borderX + borderW - 24, borderY + 16);
+    ctx.fillText('DOOR', borderX + borderW - 24, borderY + borderH - 14);
     ctx.textAlign = 'start';
 
     if (seats.length === 0) {
