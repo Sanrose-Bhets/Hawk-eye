@@ -1,16 +1,32 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { loginRequest } from '@/lib/api/auth';
-import { setCredentials } from '@/redux/userSlice';
+import { setCredentials, selectCurrentUser } from '@/redux/userSlice';
 
 export function LoginForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector(selectCurrentUser);
+
+  useEffect(() => {
+    if (!user) return;
+    switch (user.role) {
+      case 'RTE':
+        navigate('/dashboard/rte', { replace: true });
+        break;
+      case 'STUDENT_SERVICE':
+        navigate('/dashboard/student-service', { replace: true });
+        break;
+      default:
+        navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
