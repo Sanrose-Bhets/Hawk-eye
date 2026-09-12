@@ -18,6 +18,8 @@ interface JwtPayload {
   sub: string;
   email: string;
   role: string;
+  facultyId?: string | null;
+  semester?: number | null;
   type: 'access' | 'refresh';
 }
 
@@ -43,7 +45,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = this.generateTokens(user.id, user.email, user.role);
+    const tokens = this.generateTokens(user.id, user.email, user.role, user.facultyId, user.semester);
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
     return tokens;
@@ -77,7 +79,13 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    const tokens = this.generateTokens(user.id, user.email, user.role);
+    const tokens = this.generateTokens(
+      user.id,
+      user.email,
+      user.role,
+      user.facultyId,
+      user.semester,
+    );
     await this.storeRefreshToken(tokens.refreshToken, user.id);
 
     return tokens;
@@ -98,12 +106,23 @@ export class AuthService {
     id: string,
     email: string,
     role: string,
+    facultyId?: string | null,
+    semester?: number | null,
   ): TokenResponseDto {
-    const accessPayload: JwtPayload = { sub: id, email, role, type: 'access' };
+    const accessPayload: JwtPayload = {
+      sub: id,
+      email,
+      role,
+      facultyId,
+      semester,
+      type: 'access',
+    };
     const refreshPayload: JwtPayload = {
       sub: id,
       email,
       role,
+      facultyId,
+      semester,
       type: 'refresh',
     };
 
@@ -118,7 +137,7 @@ export class AuthService {
     });
 
     return {
-      user: toUser({ id, email, role }),
+      user: toUser({ id, email, role, facultyId, semester }),
       accessToken,
       refreshToken,
     };

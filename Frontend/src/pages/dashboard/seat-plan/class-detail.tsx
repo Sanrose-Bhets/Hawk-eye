@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SeatCanvas } from '@/components/seat-plan/seat-canvas';
-import { classApi, floorPlanApi, DUMMY_STUDENTS } from '@/lib/api/seat-plan';
+import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
+import { studentApi } from '@/lib/api/students';
 import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
-import type { ClassData, FloorPlan } from '@/lib/types';
+import type { ClassData, FloorPlan, Student } from '@/lib/types';
 
 export default function ClassDetailPage() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function ClassDetailPage() {
   const [cls, setCls] = useState<ClassData | null>(null);
   const [plan, setPlan] = useState<FloorPlan | null>(null);
   const [allClasses, setAllClasses] = useState<ClassData[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showStudentList, setShowStudentList] = useState(false);
@@ -27,12 +29,14 @@ export default function ClassDetailPage() {
       .get(id)
       .then(async (r) => {
         setCls(r.data);
-        const [pRes, allRes] = await Promise.all([
+        const [pRes, allRes, studentsRes] = await Promise.all([
           floorPlanApi.get(r.data.floorPlanId),
           classApi.list(),
+          studentApi.list({ limit: 500 }),
         ]);
         setPlan(pRes.data);
         setAllClasses(allRes.data);
+        setAllStudents(studentsRes.data?.data || []);
         setLoading(false);
       })
       .catch(() => navigate(`${basePath}/classes`));
@@ -303,15 +307,16 @@ export default function ClassDetailPage() {
                 All Students
               </h2>
               <span className="text-sm text-gray-500">
-                {DUMMY_STUDENTS.length - globalTakenEmails.size} available /{' '}
-                {DUMMY_STUDENTS.length} total
+                {allStudents.length - globalTakenEmails.size} available /{' '}
+                {allStudents.length} total
               </span>
             </div>
           </CardHeader>
           <CardContent>
             <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 divide-y divide-gray-100">
-              {DUMMY_STUDENTS.sort((a, b) => a.name.localeCompare(b.name)).map(
-                (student) => {
+              {allStudents
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((student) => {
                   const isInThisClass = cls.assignments.some(
                     (a) => a.studentEmail === student.email,
                   );
@@ -353,8 +358,7 @@ export default function ClassDetailPage() {
                       )}
                     </div>
                   );
-                },
-              )}
+                })}
             </div>
           </CardContent>
         </Card>

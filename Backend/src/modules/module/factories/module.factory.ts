@@ -8,6 +8,7 @@ export function toModule(model: ModuleModel): ModuleEntity {
     code: model.code ?? null,
     moduleLeader: model.moduleLeader,
     facultyId: model.facultyId,
+    semesters: model.semesters ?? [],
     createdAt: model.createdAt as Date,
     updatedAt: model.updatedAt as Date,
   };

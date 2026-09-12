@@ -32,6 +32,10 @@
       "model": "Module",
       "namespace": "public"
     },
+    "moduleSemester": {
+      "model": "ModuleSemester",
+      "namespace": "public"
+    },
     "rTE": {
       "model": "RTE",
       "namespace": "public"
@@ -675,6 +679,21 @@
                   "model": "ResultItem",
                   "namespace": "public"
                 }
+              },
+              "semesters": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "moduleId"
+                  ]
+                },
+                "to": {
+                  "model": "ModuleSemester",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -703,6 +722,63 @@
               },
               "namespaceId": "public",
               "table": "module"
+            }
+          },
+          "ModuleSemester": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "moduleId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "semester": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "module": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "moduleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Module",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "moduleId": {
+                  "column": "moduleId"
+                },
+                "semester": {
+                  "column": "semester"
+                }
+              },
+              "namespaceId": "public",
+              "table": "moduleSemester"
             }
           },
           "RTE": {
@@ -1061,6 +1137,13 @@
                   "plane": "domain"
                 }
               },
+              "semester": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -1135,6 +1218,9 @@
                 },
                 "role": {
                   "column": "role"
+                },
+                "semester": {
+                  "column": "semester"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -1633,6 +1719,66 @@
               },
               "uniques": []
             },
+            "moduleSemester": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "moduleId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "semester": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "moduleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "moduleSemester"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "module"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "moduleId"
+                  ],
+                  "name": "moduleSemester_moduleId_idx_04fe188b",
+                  "prefix": "moduleSemester_moduleId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "moduleId",
+                    "semester"
+                  ]
+                }
+              ]
+            },
             "rTE": {
               "checks": [
                 {
@@ -1947,6 +2093,15 @@
                     "plane": "storage"
                   }
                 },
+                "semester": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "nativeType": "timestamptz",
@@ -2079,10 +2234,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "785d93fca1c3b5e9979729574ed20b6c7816bd8a1ef439f9fcc1cfd78cd71263"
+    "storageHash": "58bbfcf1d74232bf39a109bd0802ef69cc32cef929eb5254c4a8dd9a8152ead2"
   },
   "execution": {
-    "executionHash": "fc97f28a50a17f884627d33197f1e4fffec6b267ec265bb256bbf7a3bd4b5a58",
+    "executionHash": "676dfd014f5fbc311a7efda99e65fd23ab2f563cd919d01191b621b4140e6781",
     "mutations": {
       "defaults": [
         {
@@ -2160,6 +2315,17 @@
             "column": "id",
             "namespace": "public",
             "table": "module"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "moduleSemester"
           }
         },
         {

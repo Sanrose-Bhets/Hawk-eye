@@ -4,6 +4,9 @@ import {
   IsString,
   MinLength,
   MaxLength,
+  IsInt,
+  Min,
+  Max,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Trim, Lowercase } from '../../../common/transformers/index.js';
@@ -64,4 +67,11 @@ export class UpdateStudentDto {
   @IsString()
   @IsOptional()
   facultyId?: string;
+
+  @ApiPropertyOptional({ example: 1, minimum: 1, maximum: 6 })
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  @IsOptional()
+  semester?: number;
 }

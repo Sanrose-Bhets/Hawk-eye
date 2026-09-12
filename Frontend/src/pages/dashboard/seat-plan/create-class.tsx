@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { classApi, floorPlanApi, DUMMY_STUDENTS } from '@/lib/api/seat-plan';
+import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
+import { studentApi } from '@/lib/api/students';
 import { useDashboardBase } from '@/lib/hooks/use-dashboard-base';
-import type { FloorPlan, ClassData } from '@/lib/types';
+import type { FloorPlan, ClassData, Student } from '@/lib/types';
 
 export default function CreateClassPage() {
   const navigate = useNavigate();
@@ -15,17 +16,21 @@ export default function CreateClassPage() {
   const [name, setName] = useState('');
   const [floorPlans, setFloorPlans] = useState<FloorPlan[]>([]);
   const [existingClasses, setExistingClasses] = useState<ClassData[]>([]);
+  const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([floorPlanApi.list(), classApi.list()]).then(
-      ([fpRes, clRes]) => {
-        setFloorPlans(fpRes.data);
-        setExistingClasses(clRes.data);
-      },
-    );
+    Promise.all([
+      floorPlanApi.list(),
+      classApi.list(),
+      studentApi.list({ limit: 500 }),
+    ]).then(([fpRes, clRes, stRes]) => {
+      setFloorPlans(fpRes.data);
+      setExistingClasses(clRes.data);
+      setAllStudents(stRes.data?.data || []);
+    });
   }, []);
 
   const takenEmails = useMemo(() => {
@@ -40,10 +45,10 @@ export default function CreateClassPage() {
   const seatCount = selectedPlan?.seats.length ?? 0;
 
   const availableStudents = useMemo(() => {
-    return [...DUMMY_STUDENTS]
+    return [...allStudents]
       .filter((s) => !takenEmails.has(s.email))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [takenEmails]);
+  }, [allStudents, takenEmails]);
 
   const autoAssigned = useMemo(() => {
     return availableStudents.slice(0, seatCount);
@@ -198,15 +203,16 @@ export default function CreateClassPage() {
                 Student List
               </h2>
               <span className="text-sm text-gray-500">
-                {availableStudents.length} available / {DUMMY_STUDENTS.length}{' '}
+                {availableStudents.length} available / {allStudents.length}{' '}
                 total
               </span>
             </div>
           </CardHeader>
           <CardContent>
             <div className="max-h-80 overflow-y-auto rounded-xl border border-gray-200 divide-y divide-gray-100">
-              {DUMMY_STUDENTS.sort((a, b) => a.name.localeCompare(b.name)).map(
-                (student) => {
+              {allStudents
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((student) => {
                   const isTaken = takenEmails.has(student.email);
                   const isAssignedToNew = autoAssigned.some(
                     (a) => a.id === student.id,
@@ -245,8 +251,7 @@ export default function CreateClassPage() {
                       )}
                     </div>
                   );
-                },
-              )}
+                })}
             </div>
           </CardContent>
         </Card>

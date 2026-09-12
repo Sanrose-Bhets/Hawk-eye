@@ -13,6 +13,7 @@ export interface CreateModuleData {
   code?: string;
   moduleLeader: string;
   facultyId: string;
+  semesters?: number[];
 }
 
 export type UpdateModuleData = Partial<CreateModuleData>;

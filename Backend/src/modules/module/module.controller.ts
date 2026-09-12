@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Request,
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
@@ -54,7 +55,7 @@ export class ModuleController {
   }
 
   @Get()
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'List all modules with pagination and search' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -66,25 +67,40 @@ export class ModuleController {
     type: PaginatedModuleResponseDto,
   })
   findAll(
+    @Request()
+    req: { user: { role: string; facultyId?: string | null; semester?: number | null } },
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search?: string,
     @Query('faculty') faculty?: string,
   ): Promise<PaginatedModuleResponseDto> {
-    return this.moduleService.findAll({ page, limit, search, faculty });
+    return this.moduleService.findAll({
+      page,
+      limit,
+      search,
+      faculty,
+      role: req.user.role,
+      userFacultyId: req.user.facultyId,
+      userSemester: req.user.semester,
+    });
   }
 
   @Get(':id')
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'Get a module by ID' })
   @ApiResponse({
     status: 200,
     description: 'Module details',
     type: ModuleResponseDto,
   })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'Module not found' })
-  findOne(@Param('id') id: string): Promise<ModuleResponseDto> {
-    return this.moduleService.findById(id);
+  findOne(
+    @Request()
+    req: { user: { role: string; facultyId?: string | null; semester?: number | null } },
+    @Param('id') id: string,
+  ): Promise<ModuleResponseDto> {
+    return this.moduleService.findById(id, req.user.role, req.user.facultyId, req.user.semester);
   }
 
   @Put(':id')

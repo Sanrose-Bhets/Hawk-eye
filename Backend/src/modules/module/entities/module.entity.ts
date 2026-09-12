@@ -17,6 +17,9 @@ export class ModuleEntity {
   facultyId!: string;
 
   @ApiProperty()
+  semesters!: number[];
+
+  @ApiProperty()
   createdAt!: Date;
 
   @ApiProperty()

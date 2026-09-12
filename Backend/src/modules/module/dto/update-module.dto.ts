@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength, IsArray, IsInt, Min, Max } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Trim } from '../../../common/transformers/index.js';
 
@@ -29,4 +29,12 @@ export class UpdateModuleDto {
   @IsString()
   @IsOptional()
   facultyId?: string;
+
+  @ApiPropertyOptional({ example: [1, 2] })
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  @Max(6, { each: true })
+  @IsOptional()
+  semesters?: number[];
 }

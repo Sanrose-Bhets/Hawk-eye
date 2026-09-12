@@ -57,6 +57,7 @@ export class StudentService {
       contact: string;
       parentEmail: string;
       facultyId: string;
+      semester: number;
       role: 'STUDENT';
       createdAt: Temporal.Instant;
       updatedAt: Temporal.Instant;
@@ -68,6 +69,7 @@ export class StudentService {
       contact: dto.contact,
       parentEmail: dto.parentEmail,
       facultyId: dto.facultyId,
+      semester: dto.semester ?? 1,
       role: 'STUDENT',
       createdAt: now(),
       updatedAt: now(),
@@ -159,6 +161,7 @@ export class StudentService {
     if (dto.contact !== undefined) updateData.contact = dto.contact;
     if (dto.parentEmail !== undefined) updateData.parentEmail = dto.parentEmail;
     if (dto.facultyId !== undefined) updateData.facultyId = dto.facultyId;
+    if (dto.semester !== undefined) updateData.semester = dto.semester;
 
     await this.studentRepo.update(id, updateData);
     return this.findById(id);
@@ -203,6 +206,7 @@ export class StudentService {
           contact: string;
           parentEmail: string;
           facultyId: string;
+          semester: number;
           role: 'STUDENT';
           createdAt: Temporal.Instant;
           updatedAt: Temporal.Instant;
@@ -214,6 +218,7 @@ export class StudentService {
           contact: dto.contact,
           parentEmail: dto.parentEmail,
           facultyId: dto.facultyId,
+          semester: dto.semester ?? 1,
           role: 'STUDENT',
           createdAt: ts,
           updatedAt: ts,

@@ -70,6 +70,27 @@ export class ExamRoutineController {
     });
   }
 
+  @Get('student')
+  @Roles('STUDENT')
+  @ApiOperation({ summary: 'List exam routines for student by faculty' })
+  @ApiQuery({ name: 'month', required: false, type: Number })
+  @ApiQuery({ name: 'year', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'List of exam routines for student faculty',
+    type: [ExamRoutineResponseDto],
+  })
+  findForStudent(
+    @Request() req: { user: { facultyId?: string | null } },
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ): Promise<ExamRoutineResponseDto[]> {
+    return this.examRoutineService.findAllByFaculty(req.user.facultyId ?? '', {
+      month: month ? Number(month) : undefined,
+      year: year ? Number(year) : undefined,
+    });
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get an exam routine by ID (RTE only)' })
   @ApiResponse({

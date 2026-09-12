@@ -12,6 +12,7 @@ export function toStudent(model: StudentModel): StudentEntity {
     image: model.image ?? null,
     role: model.role,
     facultyId: model.facultyId ?? null,
+    semester: model.semester,
     createdAt: model.createdAt as Date,
     updatedAt: model.updatedAt as Date,
   };

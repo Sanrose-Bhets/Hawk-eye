@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ArrowUpRight } from 'lucide-react';
 import { selectCurrentUser } from '@/redux/userSlice';
+import { studentApi } from '@/lib/api/students';
 import { moduleApi } from '@/lib/api/modules';
 import { resultApi } from '@/lib/api/results';
+import { facultyApi } from '@/lib/api/faculties';
 import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
 import type { ClassData, FloorPlan } from '@/lib/types';
 
@@ -12,48 +14,102 @@ export default function StudentOverview() {
   const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
 
-  const [modulesCount, setModulesCount] = useState('04');
-  const [academicScore, setAcademicScore] = useState('84.2%');
-  const [assignedSeat, setAssignedSeat] = useState('Desk #14');
+  const [studentName, setStudentName] = useState('STUDENT');
+  const [facultyName, setFacultyName] = useState(
+    'Department of Computing & IT',
+  );
+  const [modulesCount, setModulesCount] = useState('--');
+  const [academicScore, setAcademicScore] = useState('--');
+  const [assignedSeat, setAssignedSeat] = useState('No seat assigned');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadStudentMetrics() {
       try {
+        setLoading(true);
         const studentEmail = user?.email?.toLowerCase() || '';
 
-        const [modulesRes, resultsRes, classesRes, floorPlansRes] =
-          await Promise.allSettled([
-            moduleApi.list({ limit: 10 }),
-            resultApi.list({ search: studentEmail, limit: 1 }),
+        // 1. Fetch student record by email
+        let studentFacultyId = user?.facultyId || null;
+        let studentFullName =
+          user?.email?.split('@')[0].toUpperCase() || 'STUDENT';
+
+        try {
+          const studentRes = await studentApi.list({
+            search: studentEmail,
+            limit: 1,
+          });
+          const students = studentRes.data?.data || [];
+          const matched = students.find(
+            (s) => s.email.toLowerCase() === studentEmail,
+          );
+          if (matched) {
+            studentFullName = matched.name;
+            studentFacultyId = matched.facultyId;
+          }
+        } catch {
+          // Fallback to email-derived name
+        }
+
+        setStudentName(studentFullName);
+
+        // 2. Fetch faculty name
+        if (studentFacultyId) {
+          try {
+            const facRes = await facultyApi.list({ limit: 50 });
+            const facs = facRes.data?.data || [];
+            const fac = facs.find((f) => f.id === studentFacultyId);
+            if (fac) setFacultyName(fac.name);
+          } catch {
+            // Keep default
+          }
+        }
+
+        // 3. Fetch modules (backend scopes to student's faculty automatically)
+        try {
+          const modulesRes = await moduleApi.list({ limit: 50 });
+          const modules = modulesRes.data?.data || [];
+          if (modules.length > 0) {
+            setModulesCount(modules.length.toString().padStart(2, '0'));
+          } else {
+            setModulesCount('00');
+          }
+        } catch {
+          setModulesCount('--');
+        }
+
+        // 4. Fetch results (backend scopes to student automatically)
+        try {
+          const resultsRes = await resultApi.list({
+            published: 'true',
+            limit: 5,
+          });
+          const results = resultsRes.data?.data || [];
+          // Find published results first, fall back to any
+          const published = results.filter((r) => r.published);
+          const bestResult = published.length > 0 ? published[0] : results[0];
+
+          if (bestResult?.items && bestResult.items.length > 0) {
+            const avg =
+              bestResult.items.reduce((acc, it) => acc + it.score, 0) /
+              bestResult.items.length;
+            setAcademicScore(`${avg.toFixed(1)}%`);
+          } else {
+            setAcademicScore('No grades');
+          }
+        } catch {
+          setAcademicScore('--');
+        }
+
+        // 5. Fetch seat assignment
+        try {
+          const [classesRes, floorPlansRes] = await Promise.all([
             classApi.list(),
             floorPlanApi.list(),
           ]);
 
-        if (modulesRes.status === 'fulfilled' && modulesRes.value.data?.data) {
-          const total = modulesRes.value.data.data.length;
-          if (total > 0) setModulesCount(total.toString().padStart(2, '0'));
-        }
-
-        if (
-          resultsRes.status === 'fulfilled' &&
-          resultsRes.value.data?.data &&
-          resultsRes.value.data.data.length > 0
-        ) {
-          const resItem = resultsRes.value.data.data[0];
-          if (resItem.items && resItem.items.length > 0) {
-            const avg =
-              resItem.items.reduce((acc, it) => acc + it.score, 0) /
-              resItem.items.length;
-            setAcademicScore(`${avg.toFixed(1)}%`);
-          }
-        }
-
-        if (
-          classesRes.status === 'fulfilled' &&
-          floorPlansRes.status === 'fulfilled'
-        ) {
-          const classes: ClassData[] = classesRes.value.data || [];
-          const floorPlans: FloorPlan[] = floorPlansRes.value.data || [];
+          const classes: ClassData[] = classesRes.data || [];
+          const floorPlans: FloorPlan[] = floorPlansRes.data || [];
           const floorPlanMap = new Map(floorPlans.map((fp) => [fp.id, fp]));
 
           for (const cls of classes) {
@@ -76,20 +132,20 @@ export default function StudentOverview() {
               break;
             }
           }
+        } catch {
+          // Keep default
         }
       } catch (err) {
         console.error('Failed to load student overview metrics:', err);
+      } finally {
+        setLoading(false);
       }
     }
 
     if (user?.email) {
       loadStudentMetrics();
     }
-  }, [user?.email]);
-
-  const studentName = user?.email
-    ? user.email.split('@')[0].toUpperCase()
-    : 'STUDENT';
+  }, [user?.email, user?.facultyId]);
 
   // Get current greeting based on local time
   const hour = new Date().getHours();
@@ -100,21 +156,21 @@ export default function StudentOverview() {
     {
       index: '01',
       label: 'ENROLLED MODULES',
-      value: modulesCount,
+      value: loading ? '...' : modulesCount,
       description: 'Current semester registration',
     },
     {
       index: '02',
       label: 'ACADEMIC AVERAGE',
-      value: academicScore,
+      value: loading ? '...' : academicScore,
       description: 'Semester grade performance',
       highlight: true,
     },
     {
       index: '03',
       label: 'ASSIGNED EXAM SEAT',
-      value: assignedSeat,
-      description: 'Hall A • Main Exam Room',
+      value: loading ? '...' : assignedSeat,
+      description: facultyName,
     },
   ];
 

@@ -4,6 +4,8 @@ export interface User {
   id: string;
   email: string;
   role: Role;
+  facultyId?: string | null;
+  semester?: number | null;
 }
 
 export interface LoginRequest {
@@ -58,12 +60,6 @@ export interface ClassData {
   updatedAt: string;
 }
 
-export interface DummyStudent {
-  id: string;
-  name: string;
-  email: string;
-}
-
 export interface Student {
   id: string;
   name: string;
@@ -74,6 +70,7 @@ export interface Student {
   image: string | null;
   role: string;
   facultyId: string | null;
+  semester: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,6 +97,7 @@ export interface Module {
   code: string | null;
   moduleLeader: string;
   facultyId: string;
+  semesters: number[];
   createdAt: string;
   updatedAt: string;
 }
