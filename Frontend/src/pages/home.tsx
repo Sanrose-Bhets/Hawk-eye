@@ -27,7 +27,7 @@ export default function Home() {
         <Link to="/" className="inline-block mb-5">
           <img src="/logo.svg" alt="Logo" className="mx-auto h-16 w-auto" />
         </Link>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+        <h1 className="text-[56px] font-bold text-gray-900 tracking-tight leading-tight">
           Welcome
         </h1>
         <p className="mt-2.5 text-base text-gray-500">
