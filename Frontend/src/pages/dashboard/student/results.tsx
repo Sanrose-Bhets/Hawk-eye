@@ -115,88 +115,94 @@ export default function StudentResultsPage() {
       </header>
 
       {/* 3-Col KPI Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 bg-white">
-        <div className="p-6 space-y-2">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
-            EVALUATED MODULES
-          </span>
-          <p className="text-4xl font-bold font-mono text-gray-900">
-            {loading ? '—' : items.length.toString().padStart(2, '0')}
-          </p>
+      <section className="space-y-3">
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          01 / ACADEMIC OVERVIEW
         </div>
 
-        <div className="p-6 space-y-2">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
-            AVERAGE SCORE
-          </span>
-          <p className="text-4xl font-bold font-mono text-primary">
-            {loading ? '—' : `${averageScore}%`}
-          </p>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 bg-white">
+          <div className="p-6 space-y-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+              EVALUATED MODULES
+            </span>
+            <p className="text-4xl font-bold font-mono text-gray-900">
+              {loading ? '—' : items.length.toString().padStart(2, '0')}
+            </p>
+          </div>
 
-        <div className="p-6 space-y-2">
-          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
-            ACADEMIC GPA
-          </span>
-          <p className="text-4xl font-bold font-mono text-gray-900">
-            {loading ? '—' : gpa}
-          </p>
+          <div className="p-6 space-y-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+              AVERAGE SCORE
+            </span>
+            <p className="text-4xl font-bold font-mono text-primary">
+              {loading ? '—' : `${averageScore}%`}
+            </p>
+          </div>
+
+          <div className="p-6 space-y-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+              ACADEMIC GPA
+            </span>
+            <p className="text-4xl font-bold font-mono text-gray-900">
+              {loading ? '—' : gpa}
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Results Table */}
-      <div className="border border-gray-200 bg-white">
-        <div className="p-5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-gray-900">
-            MODULE GRADE BREAKDOWN
-          </span>
+      <section className="space-y-3">
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          02 / MODULE GRADE BREAKDOWN
         </div>
 
-        {loading ? (
-          <div className="p-12 text-center text-xs font-mono text-gray-500 font-sans">
-            Loading results data...
-          </div>
-        ) : items.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <p className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400">
-              NO RESULTS RECORDED
-            </p>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto font-sans">
-              Your semester evaluations have not yet been uploaded or released
-              by the examination board.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
-              <div className="col-span-2">CODE</div>
-              <div className="col-span-6">MODULE NAME</div>
-              <div className="col-span-2 text-right">SCORE (%)</div>
-              <div className="col-span-2 text-right">GRADE</div>
+        <div className="border border-gray-200 bg-white">
+          {loading ? (
+            <div className="p-12 text-center text-xs font-mono text-gray-500 font-sans">
+              Loading results data...
             </div>
-
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 p-5 md:px-6 md:py-4 items-center hover:bg-gray-50 transition-colors"
-              >
-                <div className="col-span-2 font-mono text-xs font-bold text-primary">
-                  {item.moduleCode || '—'}
-                </div>
-                <div className="col-span-6 font-bold text-sm text-gray-900 tracking-tight">
-                  {item.moduleName}
-                </div>
-                <div className="col-span-2 font-mono text-sm font-bold text-gray-900 md:text-right">
-                  {item.score}%
-                </div>
-                <div className="col-span-2 font-mono text-sm font-bold text-primary md:text-right">
-                  {item.grade}
-                </div>
+          ) : items.length === 0 ? (
+            <div className="p-12 text-center space-y-2">
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400">
+                NO RESULTS RECORDED
+              </p>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto font-sans">
+                Your semester evaluations have not yet been uploaded or released
+                by the examination board.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-white border-b border-gray-200 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
+                <div className="col-span-2">CODE</div>
+                <div className="col-span-6">MODULE NAME</div>
+                <div className="col-span-2 text-right">SCORE (%)</div>
+                <div className="col-span-2 text-right">GRADE</div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 p-5 md:px-6 md:py-4 items-center hover:bg-gray-50 transition-colors"
+                >
+                  <div className="col-span-2 font-mono text-xs font-bold text-primary">
+                    {item.moduleCode || '—'}
+                  </div>
+                  <div className="col-span-6 font-bold text-sm text-gray-900 tracking-tight">
+                    {item.moduleName}
+                  </div>
+                  <div className="col-span-2 font-mono text-sm font-bold text-gray-900 md:text-right">
+                    {item.score}%
+                  </div>
+                  <div className="col-span-2 font-mono text-sm font-bold text-primary md:text-right">
+                    {item.grade}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
