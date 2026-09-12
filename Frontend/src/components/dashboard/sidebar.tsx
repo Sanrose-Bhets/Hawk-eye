@@ -61,7 +61,7 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-gray-200 p-3">
-        <SidebarUserMenu roleTitle="RTE Portal" />
+        <SidebarUserMenu />
       </div>
     </aside>
   );

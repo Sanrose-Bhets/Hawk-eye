@@ -22,11 +22,7 @@ import {
   selectRefreshToken,
 } from '@/redux/userSlice';
 
-interface SidebarUserMenuProps {
-  roleTitle?: string;
-}
-
-export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
+export function SidebarUserMenu() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
@@ -90,13 +86,6 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
   const displayName =
     user?.email?.split('@')[0] ||
     (user?.role === 'RTE' ? 'RTE Officer' : 'SS Admin');
-  const roleDisplay =
-    roleTitle ||
-    (user?.role === 'RTE'
-      ? 'RTE Admin'
-      : user?.role === 'STUDENT_SERVICE'
-        ? 'Student Service'
-        : 'User');
 
   return (
     <div className="relative" ref={menuRef}>
@@ -117,7 +106,7 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
             {displayName}
           </div>
           <div className="text-xs text-gray-500 truncate mt-0.5">
-            {roleDisplay}
+            {userEmail}
           </div>
         </div>
       </button>

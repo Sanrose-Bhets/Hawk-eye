@@ -91,7 +91,7 @@ export function StudentServiceSidebar() {
 
       {/* User Dropdown */}
       <div className="border-t border-gray-200 p-3">
-        <SidebarUserMenu roleTitle="Student Service" />
+        <SidebarUserMenu />
       </div>
     </aside>
   );
