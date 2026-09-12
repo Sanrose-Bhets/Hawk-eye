@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { Temporal } from 'temporal-polyfill';
 import { RESULT_REPOSITORY } from './constants/results.constants.js';
@@ -11,6 +12,7 @@ import type { IStudentRepository } from '../student/interfaces/student.repositor
 import type { IModuleRepository } from '../module/interfaces/module.repository.interface.js';
 import { STUDENT_REPOSITORY } from '../student/constants/student.constants.js';
 import { MODULE_REPOSITORY } from '../module/constants/module.constants.js';
+import { MailService } from '../mail/mail.service.js';
 import { CreateResultDto } from './dto/create-result.dto.js';
 import { UpdateResultDto } from './dto/update-result.dto.js';
 import { ImportResultItemDto } from './dto/import-results.dto.js';
@@ -31,6 +33,8 @@ function calculateGrade(score: number): string {
 
 @Injectable()
 export class ResultsService {
+  private readonly logger = new Logger(ResultsService.name);
+
   constructor(
     @Inject(RESULT_REPOSITORY)
     private readonly resultRepo: IResultRepository,
@@ -38,6 +42,7 @@ export class ResultsService {
     private readonly studentRepo: IStudentRepository,
     @Inject(MODULE_REPOSITORY)
     private readonly moduleRepo: IModuleRepository,
+    private readonly mailService: MailService,
   ) {}
 
   async create(dto: CreateResultDto): Promise<ResultEntity> {
@@ -335,6 +340,63 @@ export class ResultsService {
       updatedAt: now(),
     });
 
-    return this.findById(id);
+    const result = await this.findById(id);
+
+    if (published) {
+      try {
+        const mailResult = await this.mailService.sendResultPublished({
+          studentId: result.studentId,
+          studentName: result.studentName,
+          studentEmail: result.studentEmail,
+          items: result.items,
+        });
+        this.logger.log(
+          `Result published for ${result.studentName}: ${mailResult.queued} email(s) queued`,
+        );
+      } catch (err) {
+        this.logger.error(
+          `Failed to send result emails for ${result.studentName}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        );
+      }
+    }
+
+    return result;
+  }
+
+  async publishAll(): Promise<{ published: number; emailed: number }> {
+    const allResults = await this.resultRepo.findAll();
+    const unpublished = allResults.filter((r) => !r.published);
+    const ts = now();
+
+    let published = 0;
+    let emailed = 0;
+
+    for (const result of unpublished) {
+      await this.resultRepo.update(result.id, {
+        published: true,
+        updatedAt: ts,
+      });
+      published++;
+
+      try {
+        const enriched = await this.findById(result.id);
+        const mailResult = await this.mailService.sendResultPublished({
+          studentId: enriched.studentId,
+          studentName: enriched.studentName,
+          studentEmail: enriched.studentEmail,
+          items: enriched.items,
+        });
+        emailed += mailResult.queued;
+      } catch (err) {
+        this.logger.error(
+          `Failed to send result emails for result ${result.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        );
+      }
+    }
+
+    this.logger.log(
+      `Publish all: ${published} results published, ${emailed} emails queued`,
+    );
+    return { published, emailed };
   }
 }

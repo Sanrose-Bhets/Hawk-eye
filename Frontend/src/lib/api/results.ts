@@ -58,4 +58,9 @@ export const resultApi = {
 
   publish: (id: string, published: boolean) =>
     apiClient.put<Result>(`/results/${id}/publish`, { published }),
+
+  publishAll: () =>
+    apiClient.post<{ published: number; emailed: number }>(
+      '/results/publish-all',
+    ),
 };
