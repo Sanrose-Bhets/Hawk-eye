@@ -5,6 +5,7 @@ import {
   Award,
   CalendarDays,
   ClipboardList,
+  Database,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -40,6 +41,12 @@ const links = [
     label: 'Exam Routines',
     description: 'Manage examination schedules',
     icon: ClipboardList,
+  },
+  {
+    to: '/dashboard/rte/backup',
+    label: 'Backup',
+    description: 'Export and import system data',
+    icon: Database,
   },
 ];
 

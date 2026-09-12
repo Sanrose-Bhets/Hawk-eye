@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import type {
   IEmailProvider,
   EmailSendResult,
+  EmailAttachment,
 } from './email-provider.interface.js';
 
 @Injectable()
@@ -20,14 +21,25 @@ export class ResendEmailProvider implements IEmailProvider {
     to: string,
     subject: string,
     html: string,
+    attachments?: EmailAttachment[],
   ): Promise<EmailSendResult> {
     try {
-      const { data, error } = await this.resend.emails.send({
+      const emailPayload = {
         from: this.fromEmail,
         to,
         subject,
         html,
-      });
+        ...(attachments && attachments.length > 0
+          ? {
+              attachments: attachments.map((att) => ({
+                filename: att.filename,
+                content: Buffer.from(att.content, 'base64'),
+              })),
+            }
+          : {}),
+      };
+
+      const { data, error } = await this.resend.emails.send(emailPayload);
 
       if (error) {
         this.logger.error(`Resend error: ${error.message}`);

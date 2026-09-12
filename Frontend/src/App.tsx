@@ -26,6 +26,7 @@ import UpcomingExamsPage from '@/pages/dashboard/student/upcoming-exams';
 import StudentProfilePage from '@/pages/dashboard/student/profile';
 import CalendarPage from '@/pages/dashboard/calendar';
 import ExamRoutinesPage from '@/pages/dashboard/exam-routines';
+import BackupPage from '@/pages/dashboard/backup';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
         <Route path="results" element={<ResultsPage />} />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="exam-routines" element={<ExamRoutinesPage />} />
+        <Route path="backup" element={<BackupPage />} />
       </Route>
 
       {/* Student Service Portal Routes */}
@@ -62,6 +64,7 @@ function App() {
         <Route path="classes" element={<ClassesPage />} />
         <Route path="classes/new" element={<CreateClassPage />} />
         <Route path="classes/:id" element={<ClassDetailPage />} />
+        <Route path="backup" element={<BackupPage />} />
       </Route>
 
       {/* Student Portal Routes */}
