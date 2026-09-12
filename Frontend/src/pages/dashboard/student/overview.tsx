@@ -154,6 +154,13 @@ export default function StudentOverview() {
         'Classroom floor plan layouts, student seat assignments, and room allocation maps.',
       to: '/dashboard/student/examination/seating',
     },
+    {
+      index: '06',
+      title: 'Student Profile & Identity',
+      description:
+        'Official academic identity, verified student credentials, and profile photo management.',
+      to: '/dashboard/student/profile',
+    },
   ];
 
   return (

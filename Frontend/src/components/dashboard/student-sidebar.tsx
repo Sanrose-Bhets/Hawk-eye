@@ -9,6 +9,7 @@ import {
   Clock,
   Armchair,
   CalendarDays,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -56,6 +57,12 @@ export function StudentSidebar() {
           description: 'Overview and academic status',
           icon: LayoutDashboard,
           end: true,
+        },
+        {
+          to: '/dashboard/student/profile',
+          label: 'My Profile',
+          description: 'Personal details and student credentials',
+          icon: User,
         },
       ],
     },

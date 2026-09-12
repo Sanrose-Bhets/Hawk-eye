@@ -23,6 +23,7 @@ import StudentModulesPage from '@/pages/dashboard/student/modules';
 import StudentSeatingPage from '@/pages/dashboard/student/seating';
 import TodaysExamPage from '@/pages/dashboard/student/todays-exam';
 import UpcomingExamsPage from '@/pages/dashboard/student/upcoming-exams';
+import StudentProfilePage from '@/pages/dashboard/student/profile';
 import CalendarPage from '@/pages/dashboard/calendar';
 import ExamRoutinesPage from '@/pages/dashboard/exam-routines';
 
@@ -66,6 +67,7 @@ function App() {
       {/* Student Portal Routes */}
       <Route path="/dashboard/student" element={<StudentDashboard />}>
         <Route index element={<StudentOverview />} />
+        <Route path="profile" element={<StudentProfilePage />} />
         <Route path="results" element={<StudentResultsPage />} />
         <Route path="modules" element={<StudentModulesPage />} />
         <Route path="seating" element={<StudentSeatingPage />} />
