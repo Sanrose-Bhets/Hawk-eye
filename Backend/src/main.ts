@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { setupSwagger } from './common/swagger/swagger.setup';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -19,6 +20,8 @@ async function bootstrap() {
     origin: process.env.FRONTEND_URL,
     credentials: true,
   });
+
+  app.use(cookieParser());
 
   app.useGlobalPipes(
     new ValidationPipe({
