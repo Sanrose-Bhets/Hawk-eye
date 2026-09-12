@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { Temporal } from 'temporal-polyfill';
 import { MODULE_REPOSITORY } from './constants/module.constants.js';
 import { FACULTY_REPOSITORY } from '../faculty/constants/faculty.constants.js';
 import type { IModuleRepository } from './interfaces/module.repository.interface.js';
@@ -7,6 +8,10 @@ import { CreateModuleDto } from './dto/create-module.dto.js';
 import { UpdateModuleDto } from './dto/update-module.dto.js';
 import { ModuleEntity } from './entities/module.entity.js';
 import { toModule } from './factories/module.factory.js';
+
+function now() {
+  return Temporal.Instant.fromEpochMilliseconds(Date.now());
+}
 
 @Injectable()
 export class ModuleService {
@@ -23,14 +28,14 @@ export class ModuleService {
       throw new NotFoundException('Faculty not found');
     }
 
-    const now = new Date();
+    const ts = now();
     const model = await this.moduleRepo.create({
       name: dto.name,
       code: dto.code,
       moduleLeader: dto.moduleLeader,
       facultyId: dto.facultyId,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     });
 
     return toModule(model);
@@ -100,7 +105,7 @@ export class ModuleService {
       throw new NotFoundException('Module not found');
     }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: now() };
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.code !== undefined) updateData.code = dto.code;

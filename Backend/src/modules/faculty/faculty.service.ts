@@ -4,12 +4,17 @@ import {
   ConflictException,
   Inject,
 } from '@nestjs/common';
+import { Temporal } from 'temporal-polyfill';
 import { FACULTY_REPOSITORY } from './constants/faculty.constants.js';
 import type { IFacultyRepository } from './interfaces/faculty.repository.interface.js';
 import { CreateFacultyDto } from './dto/create-faculty.dto.js';
 import { UpdateFacultyDto } from './dto/update-faculty.dto.js';
 import { FacultyEntity } from './entities/faculty.entity.js';
 import { toFaculty } from './factories/faculty.factory.js';
+
+function now() {
+  return Temporal.Instant.fromEpochMilliseconds(Date.now());
+}
 
 @Injectable()
 export class FacultyService {
@@ -24,12 +29,12 @@ export class FacultyService {
       throw new ConflictException('Faculty with this name already exists');
     }
 
-    const now = new Date();
+    const ts = now();
     const model = await this.facultyRepo.create({
       name: dto.name,
       description: dto.description,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     });
 
     return toFaculty(model);
@@ -91,7 +96,7 @@ export class FacultyService {
       throw new NotFoundException('Faculty not found');
     }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
+    const updateData: Record<string, unknown> = { updatedAt: now() };
 
     if (dto.name !== undefined) {
       const nameTaken = await this.facultyRepo.findByName(dto.name);
