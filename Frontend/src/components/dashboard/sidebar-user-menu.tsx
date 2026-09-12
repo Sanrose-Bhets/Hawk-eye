@@ -132,24 +132,12 @@ export function SidebarUserMenu({ roleTitle }: SidebarUserMenuProps) {
       {isOpen && (
         <div className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl border border-gray-200 bg-white p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150 z-50 divide-y divide-gray-100">
           {/* User Info Header */}
-          <div className="px-3 py-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white font-bold text-xs">
-                {initials}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-gray-900 truncate">
-                  {displayName}
-                </div>
-                <div className="text-[11px] text-gray-500 truncate">
-                  {userEmail}
-                </div>
-              </div>
+          <div className="px-3 py-2">
+            <div className="text-xs font-semibold text-gray-900 truncate">
+              {displayName}
             </div>
-            <div className="mt-2">
-              <span className="inline-flex items-center rounded-md bg-primary-light px-2 py-0.5 text-[10px] font-semibold text-primary">
-                {roleDisplay}
-              </span>
+            <div className="text-[11px] text-gray-500 truncate">
+              {userEmail}
             </div>
           </div>
 
