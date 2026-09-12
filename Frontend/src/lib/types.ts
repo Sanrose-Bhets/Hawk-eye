@@ -124,3 +124,20 @@ export interface Result {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface EmailLog {
+  id: string;
+  to: string;
+  subject: string;
+  body: string;
+  studentId: string | null;
+  status: string;
+  error: string | null;
+  createdAt: string;
+}
+
+export interface MailStats {
+  totalSent: number;
+  totalQueued: number;
+  totalFailed: number;
+}

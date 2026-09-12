@@ -99,3 +99,14 @@ model Class {
   createdAt   DateTime @default(now())
   updatedAt   DateTime
 }
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  to        String
+  subject   String
+  body      String
+  studentId String?
+  status    String   @default("queued")
+  error     String?
+  createdAt DateTime @default(now())
+}
