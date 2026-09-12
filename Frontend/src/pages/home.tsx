@@ -1,67 +1,78 @@
 import { Link } from 'react-router-dom';
-import { Shield, GraduationCap, Headphones } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Shield, GraduationCap, Headphones, ArrowRight } from 'lucide-react';
 
 const roles = [
   {
-    title: 'RTE',
-    description: 'Right to Education administration and management',
+    title: 'RTE Portal',
+    description: 'Right to Education administration and seating management',
     icon: Shield,
     path: '/login/rte',
+    badge: 'Exam Admin',
   },
   {
     title: 'Student Service',
-    description: 'Student services and support management',
+    description:
+      'Student services, module coordination, and support management',
     icon: Headphones,
     path: '/login/student-service',
+    badge: 'Staff & Ops',
   },
   {
-    title: 'Student',
-    description: 'Student portal for learning and resources',
+    title: 'Student Portal',
+    description: 'Access exam seat allocations, results, and study resources',
     icon: GraduationCap,
     path: '/login/student',
+    badge: 'Student Access',
   },
 ];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-6">
-      <div className="mb-10 text-center">
-        <Link to="/" className="inline-block mb-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50/70 py-12 px-6">
+      <div className="mb-12 text-center max-w-lg">
+        <Link to="/" className="inline-block mb-5">
           <img src="/logo.svg" alt="Logo" className="mx-auto h-16 w-auto" />
         </Link>
-        <h1 className="text-4xl font-bold text-gray-900">Welcome</h1>
-        <p className="mt-2 text-lg text-gray-500">
-          Select your role to sign in
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+          Welcome
+        </h1>
+        <p className="mt-2.5 text-base text-gray-500">
+          Select your portal to sign in to your dashboard
         </p>
       </div>
 
-      <div className="grid w-full max-w-2xl gap-4">
+      <div className="grid w-full max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
         {roles.map((role) => (
-          <Card
+          <Link
             key={role.path}
-            className="group transition-all duration-200 hover:shadow-xl hover:border-primary/30"
+            to={role.path}
+            className="group relative flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-7 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-xl cursor-pointer"
           >
-            <CardContent>
-              <div className="flex items-center gap-5">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
-                  <role.icon size={28} />
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-primary-light text-primary transition-transform duration-300 group-hover:scale-105">
+                  <role.icon size={26} />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {role.title}
-                  </h3>
-                  <p className="text-sm text-gray-500">{role.description}</p>
-                </div>
-                <Link to={role.path}>
-                  <Button variant="outline" size="sm">
-                    Sign In
-                  </Button>
-                </Link>
+                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 transition-colors group-hover:bg-primary-light group-hover:text-primary">
+                  {role.badge}
+                </span>
               </div>
-            </CardContent>
-          </Card>
+
+              <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-primary">
+                {role.title}
+              </h3>
+              <p className="mt-2.5 text-sm text-gray-500 leading-relaxed">
+                {role.description}
+              </p>
+            </div>
+
+            <div className="mt-8 pt-5 border-t border-gray-100 flex items-center justify-between text-sm font-semibold text-primary transition-colors group-hover:text-primary-hover">
+              <span>Sign In</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-light text-primary transition-transform duration-200 group-hover:translate-x-1">
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
