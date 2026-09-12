@@ -42,7 +42,7 @@ export default function Home() {
             to={role.path}
             className="group relative flex flex-col justify-between rounded-3xl border border-gray-200/80 bg-white p-7 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-xl cursor-pointer"
           >
-            <div>
+            <div className="text-center">
               <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-primary">
                 {role.title}
               </h3>
