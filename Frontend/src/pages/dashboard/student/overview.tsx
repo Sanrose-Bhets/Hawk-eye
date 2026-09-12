@@ -154,6 +154,13 @@ export default function StudentOverview() {
         'Classroom floor plan layouts, student seat assignments, and room allocation maps.',
       to: '/dashboard/student/examination/seating',
     },
+    {
+      index: '06',
+      title: 'Student Profile & Identity',
+      description:
+        'Official academic identity, verified student credentials, and profile photo management.',
+      to: '/dashboard/student/profile',
+    },
   ];
 
   return (
@@ -161,7 +168,7 @@ export default function StudentOverview() {
       {/* 1. Main Header */}
       <header className="border-b border-gray-200 pb-6 space-y-1">
         <h1 className="text-2xl font-semibold text-gray-900 leading-tight">
-          {greeting}, {studentName}.
+          {greeting}, <span className="text-primary">{studentName}</span>.
         </h1>
         <p className="text-sm text-gray-500 font-sans">
           Welcome to the Student portal. Access your enrolled modules,
@@ -171,9 +178,8 @@ export default function StudentOverview() {
 
       {/* 2. Academic Overview Grid */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-          <span>01 / ACADEMIC OVERVIEW</span>
-          <span>LIVE METRICS</span>
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          01 / ACADEMIC OVERVIEW
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 bg-white">
@@ -192,7 +198,11 @@ export default function StudentOverview() {
               </div>
 
               <div>
-                <p className="text-3xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-gray-900 leading-none">
+                <p
+                  className={`text-3xl sm:text-3xl lg:text-[34px] font-bold tracking-tight leading-none ${
+                    stat.highlight ? 'text-primary' : 'text-gray-900'
+                  }`}
+                >
                   {stat.value}
                 </p>
                 <p className="text-xs text-gray-500 mt-2 font-sans font-normal">
@@ -206,9 +216,8 @@ export default function StudentOverview() {
 
       {/* 3. Quick Access & Services Directory */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
-          <span>02 / SERVICES & DIRECTORY</span>
-          <span>NAVIGATION INDEX</span>
+        <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-gray-400">
+          02 / SERVICES & DIRECTORY
         </div>
 
         <div className="border border-gray-200 divide-y divide-gray-200 bg-white">
@@ -232,12 +241,9 @@ export default function StudentOverview() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-gray-400 group-hover:text-primary shrink-0 self-end md:self-center transition-colors">
-                <span className="hidden sm:inline text-[11px] uppercase tracking-wider">
-                  Access
-                </span>
+              <div className="text-gray-400 group-hover:text-primary shrink-0 self-end md:self-center transition-colors">
                 <ArrowUpRight
-                  size={16}
+                  size={18}
                   className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                 />
               </div>

@@ -66,6 +66,7 @@ export class StudentController {
   }
 
   @Get()
+  @Roles('STUDENT_SERVICE', 'STUDENT')
   @ApiOperation({
     summary: 'List all students with pagination, search, and faculty filter',
   })
@@ -88,6 +89,7 @@ export class StudentController {
   }
 
   @Get(':id')
+  @Roles('STUDENT_SERVICE', 'STUDENT')
   @ApiOperation({ summary: 'Get a student by ID' })
   @ApiResponse({
     status: 200,
@@ -141,6 +143,7 @@ export class StudentController {
   }
 
   @Get(':id/image')
+  @Roles('STUDENT_SERVICE', 'STUDENT')
   @ApiOperation({
     summary: 'Get student image URL',
     description: 'Returns a time-limited presigned URL for the student image',
@@ -153,6 +156,7 @@ export class StudentController {
   }
 
   @Post(':id/image')
+  @Roles('STUDENT_SERVICE', 'STUDENT')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(
     FileInterceptor('image', {

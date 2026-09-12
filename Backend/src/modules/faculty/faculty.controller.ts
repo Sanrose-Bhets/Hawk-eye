@@ -54,7 +54,7 @@ export class FacultyController {
   }
 
   @Get()
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'List all faculties with pagination and search' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
@@ -73,7 +73,7 @@ export class FacultyController {
   }
 
   @Get(':id')
-  @Roles('STUDENT_SERVICE', 'RTE')
+  @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'Get a faculty by ID' })
   @ApiResponse({
     status: 200,

@@ -125,7 +125,7 @@ export default function TodaysExamPage() {
                   <span className="text-xs font-mono font-bold text-gray-500">
                     {assignedExam.moduleCode}
                   </span>
-                  <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 uppercase">
+                  <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
                     {assignedExam.moduleName}
                   </h2>
                   <div className="flex items-center gap-2 text-xs font-mono text-gray-600 font-sans">
@@ -215,8 +215,8 @@ export default function TodaysExamPage() {
           <div className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400">
             STATUS: NO SESSIONS
           </div>
-          <h2 className="text-xl font-bold text-gray-900 uppercase">
-            No Examinations Scheduled For Today
+          <h2 className="text-xl font-bold text-gray-900">
+            No Exam Scheduled For Today
           </h2>
           <p className="text-xs text-gray-500 max-w-md mx-auto font-sans">
             You have no examination sessions registered for today. Navigate to
