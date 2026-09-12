@@ -35,6 +35,23 @@ export class StudentResponseDto {
   updatedAt!: Date;
 }
 
+export class PaginatedStudentResponseDto {
+  @ApiProperty({ type: [StudentResponseDto] })
+  data!: StudentResponseDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  limit!: number;
+
+  @ApiProperty()
+  totalPages!: number;
+}
+
 export class ImportErrorDto {
   @ApiProperty()
   email!: string;

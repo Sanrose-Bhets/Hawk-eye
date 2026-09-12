@@ -16,3 +16,20 @@ export class FacultyResponseDto {
   @ApiProperty()
   updatedAt!: Date;
 }
+
+export class PaginatedFacultyResponseDto {
+  @ApiProperty({ type: [FacultyResponseDto] })
+  data!: FacultyResponseDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  limit!: number;
+
+  @ApiProperty()
+  totalPages!: number;
+}

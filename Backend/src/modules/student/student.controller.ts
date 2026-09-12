@@ -13,6 +13,8 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -34,6 +36,7 @@ import { UpdateStudentDto } from './dto/update-student.dto.js';
 import { ImportStudentsDto } from './dto/import-students.dto.js';
 import {
   StudentResponseDto,
+  PaginatedStudentResponseDto,
   ImportStudentsResponseDto,
 } from './dto/student-response.dto.js';
 
@@ -63,14 +66,25 @@ export class StudentController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all students' })
+  @ApiOperation({
+    summary: 'List all students with pagination, search, and faculty filter',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'faculty', required: false, type: String })
   @ApiResponse({
     status: 200,
-    description: 'List of students',
-    type: [StudentResponseDto],
+    description: 'Paginated list of students',
+    type: PaginatedStudentResponseDto,
   })
-  findAll(): Promise<StudentResponseDto[]> {
-    return this.studentService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+    @Query('faculty') faculty?: string,
+  ): Promise<PaginatedStudentResponseDto> {
+    return this.studentService.findAll({ page, limit, search, faculty });
   }
 
   @Get(':id')

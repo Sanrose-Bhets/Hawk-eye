@@ -28,6 +28,7 @@ export interface IStudentRepository {
   findAll(): Promise<StudentModel[]>;
   findById(id: string): Promise<StudentModel | null>;
   findByEmail(email: string): Promise<StudentModel | null>;
+  count(): Promise<number>;
   update(id: string, data: Record<string, unknown>): Promise<void>;
   delete(id: string): Promise<void>;
 }

@@ -6,15 +6,19 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
@@ -22,20 +26,20 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { FacultyService } from './faculty.service.js';
 import { CreateFacultyDto } from './dto/create-faculty.dto.js';
 import { UpdateFacultyDto } from './dto/update-faculty.dto.js';
-import { CreateModuleDto } from './dto/create-module.dto.js';
-import { UpdateModuleDto } from './dto/update-module.dto.js';
-import { FacultyResponseDto } from './dto/faculty-response.dto.js';
-import { ModuleResponseDto } from './dto/module-response.dto.js';
+import {
+  FacultyResponseDto,
+  PaginatedFacultyResponseDto,
+} from './dto/faculty-response.dto.js';
 
 @ApiTags('Faculties')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('STUDENT_SERVICE')
-@Controller()
+@Controller('faculties')
 export class FacultyController {
   constructor(private readonly facultyService: FacultyService) {}
 
-  @Post('faculties')
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a faculty' })
   @ApiResponse({
@@ -49,18 +53,25 @@ export class FacultyController {
     return this.facultyService.createFaculty(dto);
   }
 
-  @Get('faculties')
-  @ApiOperation({ summary: 'List all faculties' })
+  @Get()
+  @ApiOperation({ summary: 'List all faculties with pagination and search' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
   @ApiResponse({
     status: 200,
-    description: 'List of faculties',
-    type: [FacultyResponseDto],
+    description: 'Paginated list of faculties',
+    type: PaginatedFacultyResponseDto,
   })
-  findAllFaculties(): Promise<FacultyResponseDto[]> {
-    return this.facultyService.findAllFaculties();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
+  ): Promise<PaginatedFacultyResponseDto> {
+    return this.facultyService.findAllFaculties({ page, limit, search });
   }
 
-  @Get('faculties/:id')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a faculty by ID' })
   @ApiResponse({
     status: 200,
@@ -72,7 +83,7 @@ export class FacultyController {
     return this.facultyService.findFacultyById(id);
   }
 
-  @Put('faculties/:id')
+  @Put(':id')
   @ApiOperation({ summary: 'Update a faculty' })
   @ApiResponse({
     status: 200,
@@ -89,67 +100,12 @@ export class FacultyController {
     return this.facultyService.updateFaculty(id, dto);
   }
 
-  @Delete('faculties/:id')
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a faculty' })
   @ApiResponse({ status: 204, description: 'Faculty deleted' })
   @ApiResponse({ status: 404, description: 'Faculty not found' })
   deleteFaculty(@Param('id') id: string): Promise<void> {
     return this.facultyService.deleteFaculty(id);
-  }
-
-  @Post('faculties/:id/modules')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Add a module to a faculty' })
-  @ApiResponse({
-    status: 201,
-    description: 'Module created',
-    type: ModuleResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Validation failed' })
-  @ApiResponse({ status: 404, description: 'Faculty not found' })
-  createModule(
-    @Param('id') facultyId: string,
-    @Body() dto: CreateModuleDto,
-  ): Promise<ModuleResponseDto> {
-    dto.facultyId = facultyId;
-    return this.facultyService.createModule(dto);
-  }
-
-  @Get('faculties/:id/modules')
-  @ApiOperation({ summary: 'List modules in a faculty' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of modules',
-    type: [ModuleResponseDto],
-  })
-  @ApiResponse({ status: 404, description: 'Faculty not found' })
-  findModules(@Param('id') facultyId: string): Promise<ModuleResponseDto[]> {
-    return this.facultyService.findModulesByFaculty(facultyId);
-  }
-
-  @Put('modules/:id')
-  @ApiOperation({ summary: 'Update a module' })
-  @ApiResponse({
-    status: 200,
-    description: 'Module updated',
-    type: ModuleResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Validation failed' })
-  @ApiResponse({ status: 404, description: 'Module not found' })
-  updateModule(
-    @Param('id') id: string,
-    @Body() dto: UpdateModuleDto,
-  ): Promise<ModuleResponseDto> {
-    return this.facultyService.updateModule(id, dto);
-  }
-
-  @Delete('modules/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a module' })
-  @ApiResponse({ status: 204, description: 'Module deleted' })
-  @ApiResponse({ status: 404, description: 'Module not found' })
-  deleteModule(@Param('id') id: string): Promise<void> {
-    return this.facultyService.deleteModule(id);
   }
 }

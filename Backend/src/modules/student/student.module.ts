@@ -3,10 +3,11 @@ import { StudentController } from './student.controller.js';
 import { StudentService } from './student.service.js';
 import { StudentRepository } from './repositories/student.repository.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { FacultyModule } from '../faculty/faculty.module.js';
 import { STUDENT_REPOSITORY } from './constants/student.constants.js';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, FacultyModule],
   controllers: [StudentController],
   providers: [
     StudentService,
