@@ -22,6 +22,9 @@ export function LoginForm() {
       case 'STUDENT_SERVICE':
         navigate('/dashboard/student-service', { replace: true });
         break;
+      case 'STUDENT':
+        navigate('/dashboard/student', { replace: true });
+        break;
       default:
         navigate('/', { replace: true });
     }
@@ -42,16 +45,7 @@ export function LoginForm() {
     try {
       const data = await loginRequest({ email, password });
 
-      dispatch(
-        setCredentials({
-          user: data.user,
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-        }),
-      );
-
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      dispatch(setCredentials({ user: data.user }));
 
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
