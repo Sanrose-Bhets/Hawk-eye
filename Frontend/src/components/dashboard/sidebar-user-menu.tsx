@@ -36,6 +36,8 @@ export function SidebarUserMenu() {
     user?.role === 'STUDENT' ||
     location.pathname.startsWith('/dashboard/student');
 
+  const isStudentService = user?.role === 'STUDENT_SERVICE';
+
   const userEmail = user?.email || 'admin@islingtoncollege.com';
   const displayName =
     user?.email?.split('@')[0] ||
@@ -79,7 +81,7 @@ export function SidebarUserMenu() {
           </div>
 
           {/* Student Profile Link */}
-          {isStudent && (
+          {isStudent && !isStudentService && (
             <div className="py-1">
               <button
                 type="button"
