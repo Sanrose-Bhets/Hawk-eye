@@ -150,9 +150,6 @@ export default function StudentResultsPage() {
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-gray-900">
             MODULE GRADE BREAKDOWN
           </span>
-          <span className="text-xs font-mono font-bold text-primary border border-primary px-2 py-0.5 rounded-[4px]">
-            RATIFIED TRANSCRIPT
-          </span>
         </div>
 
         {loading ? (
