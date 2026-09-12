@@ -27,3 +27,39 @@ export interface ApiError {
   error: string
   timestamp: string
 }
+
+export interface SeatPosition {
+  label: string
+  x: number
+  y: number
+}
+
+export interface FloorPlan {
+  id: string
+  name: string
+  seats: SeatPosition[]
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SeatAssignment {
+  seatIndex: number
+  studentName: string
+  studentEmail: string
+}
+
+export interface ClassData {
+  id: string
+  name: string
+  floorPlanId: string
+  assignments: SeatAssignment[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DummyStudent {
+  id: string
+  name: string
+  email: string
+}

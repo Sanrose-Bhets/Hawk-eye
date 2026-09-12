@@ -1,0 +1,2 @@
+export const FLOOR_PLAN_REPOSITORY = Symbol('FLOOR_PLAN_REPOSITORY');
+export const CLASS_REPOSITORY = Symbol('CLASS_REPOSITORY');

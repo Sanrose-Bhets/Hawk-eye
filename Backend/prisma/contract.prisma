@@ -34,3 +34,21 @@ model RTE {
   createdAt DateTime  @default(now())
   updatedAt DateTime
 }
+
+model FloorPlan {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  seats     Json
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Class {
+  id          String   @id @default(uuid())
+  name        String
+  floorPlanId String
+  assignments Json     @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
