@@ -16,6 +16,6 @@ import { STUDENT_REPOSITORY } from './constants/student.constants.js';
       useClass: StudentRepository,
     },
   ],
-  exports: [StudentService],
+  exports: [StudentService, STUDENT_REPOSITORY],
 })
 export class StudentModule {}
