@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Request,
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
@@ -66,12 +67,21 @@ export class ModuleController {
     type: PaginatedModuleResponseDto,
   })
   findAll(
+    @Request()
+    req: { user: { role: string; facultyId?: string | null } },
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search?: string,
     @Query('faculty') faculty?: string,
   ): Promise<PaginatedModuleResponseDto> {
-    return this.moduleService.findAll({ page, limit, search, faculty });
+    return this.moduleService.findAll({
+      page,
+      limit,
+      search,
+      faculty,
+      role: req.user.role,
+      userFacultyId: req.user.facultyId,
+    });
   }
 
   @Get(':id')
@@ -82,9 +92,14 @@ export class ModuleController {
     description: 'Module details',
     type: ModuleResponseDto,
   })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'Module not found' })
-  findOne(@Param('id') id: string): Promise<ModuleResponseDto> {
-    return this.moduleService.findById(id);
+  findOne(
+    @Request()
+    req: { user: { role: string; facultyId?: string | null } },
+    @Param('id') id: string,
+  ): Promise<ModuleResponseDto> {
+    return this.moduleService.findById(id, req.user.role, req.user.facultyId);
   }
 
   @Put(':id')

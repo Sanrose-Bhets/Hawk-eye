@@ -14,7 +14,7 @@ export default function StudentResultsPage() {
       try {
         setLoading(true);
         const res = await resultApi.list({
-          search: user?.email || '',
+          published: 'true',
           limit: 1,
         });
         if (res.data?.data && res.data.data.length > 0) {
@@ -35,46 +35,7 @@ export default function StudentResultsPage() {
   }, [user?.email]);
 
   const items: ResultItem[] =
-    result?.items && result.items.length > 0
-      ? result.items
-      : [
-          {
-            id: '1',
-            moduleId: 'm1',
-            moduleCode: 'CS6001',
-            moduleName: 'Advanced Software Engineering',
-            score: 86,
-            grade: 'A',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '2',
-            moduleId: 'm2',
-            moduleCode: 'CS6002',
-            moduleName: 'Artificial Intelligence & ML',
-            score: 91,
-            grade: 'A+',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '3',
-            moduleId: 'm3',
-            moduleCode: 'CS6003',
-            moduleName: 'Distributed Cloud Systems',
-            score: 82,
-            grade: 'A-',
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: '4',
-            moduleId: 'm4',
-            moduleCode: 'CS6004',
-            moduleName: 'Information Security & Privacy',
-            score: 78,
-            grade: 'B+',
-            createdAt: new Date().toISOString(),
-          },
-        ];
+    result?.items && result.items.length > 0 ? result.items : [];
 
   const averageScore =
     items.length > 0
@@ -85,11 +46,10 @@ export default function StudentResultsPage() {
 
   // Calculate GPA & Honours Standing
   const calculateGPA = (score: number) => {
-    if (score >= 80) return 4.0;
-    if (score >= 70) return 3.5;
-    if (score >= 60) return 3.0;
-    if (score >= 50) return 2.5;
+    if (score >= 70) return 4.0;
+    if (score >= 55) return 3.0;
     if (score >= 40) return 2.0;
+    if (score >= 28) return 1.0;
     return 0.0;
   };
 
@@ -99,7 +59,7 @@ export default function StudentResultsPage() {
           items.reduce((acc, item) => acc + calculateGPA(item.score), 0) /
           items.length
         ).toFixed(2)
-      : '3.75';
+      : '—';
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-10 font-sans pb-12">
@@ -167,8 +127,8 @@ export default function StudentResultsPage() {
                 NO RESULTS RECORDED
               </p>
               <p className="text-xs text-gray-500 max-w-sm mx-auto font-sans">
-                Your semester evaluations have not yet been uploaded or released
-                by the examination board.
+                Your results have not yet been published by the examination
+                board. Please check back later.
               </p>
             </div>
           ) : (

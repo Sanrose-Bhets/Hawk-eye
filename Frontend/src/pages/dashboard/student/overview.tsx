@@ -31,7 +31,8 @@ export default function StudentOverview() {
 
         // 1. Fetch student record by email
         let studentFacultyId = user?.facultyId || null;
-        let studentFullName = user?.email?.split('@')[0].toUpperCase() || 'STUDENT';
+        let studentFullName =
+          user?.email?.split('@')[0].toUpperCase() || 'STUDENT';
 
         try {
           const studentRes = await studentApi.list({
@@ -64,12 +65,9 @@ export default function StudentOverview() {
           }
         }
 
-        // 3. Fetch modules (filtered by faculty if available)
-        const moduleParams: { limit: number; faculty?: string } = { limit: 50 };
-        if (studentFacultyId) moduleParams.faculty = studentFacultyId;
-
+        // 3. Fetch modules (backend scopes to student's faculty automatically)
         try {
-          const modulesRes = await moduleApi.list(moduleParams);
+          const modulesRes = await moduleApi.list({ limit: 50 });
           const modules = modulesRes.data?.data || [];
           if (modules.length > 0) {
             setModulesCount(modules.length.toString().padStart(2, '0'));
@@ -80,10 +78,10 @@ export default function StudentOverview() {
           setModulesCount('--');
         }
 
-        // 4. Fetch results for this student
+        // 4. Fetch results (backend scopes to student automatically)
         try {
           const resultsRes = await resultApi.list({
-            search: studentEmail,
+            published: 'true',
             limit: 5,
           });
           const results = resultsRes.data?.data || [];

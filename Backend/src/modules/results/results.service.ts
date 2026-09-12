@@ -102,6 +102,8 @@ export class ResultsService {
     search?: string;
     grade?: string;
     published?: string;
+    role?: string;
+    userEmail?: string;
   }): Promise<{
     data: ResultEntity[];
     total: number;
@@ -136,7 +138,13 @@ export class ResultsService {
       );
     }
 
-    if (filters.search) {
+    // Server-side scoping: STUDENT can only see their own results
+    if (filters.role === 'STUDENT' && filters.userEmail) {
+      enriched = enriched.filter(
+        (r) =>
+          r.studentEmail.toLowerCase() === filters.userEmail!.toLowerCase(),
+      );
+    } else if (filters.search) {
       const q = filters.search.toLowerCase();
       enriched = enriched.filter(
         (r) =>
@@ -169,7 +177,11 @@ export class ResultsService {
     return { data: paged, total, page, limit, totalPages };
   }
 
-  async findById(id: string): Promise<ResultEntity> {
+  async findById(
+    id: string,
+    role?: string,
+    userEmail?: string,
+  ): Promise<ResultEntity> {
     const result = await this.resultRepo.findById(id);
     if (!result) {
       throw new NotFoundException('Result not found');
@@ -178,6 +190,15 @@ export class ResultsService {
     const student = await this.studentRepo.findById(result.studentId);
     if (!student) {
       throw new NotFoundException('Student not found');
+    }
+
+    // Server-side scoping: STUDENT can only view their own result
+    if (
+      role === 'STUDENT' &&
+      userEmail &&
+      student.email.toLowerCase() !== userEmail.toLowerCase()
+    ) {
+      throw new NotFoundException('Result not found');
     }
 
     const items = await this.resultRepo.findItemsByResultId(result.id);
@@ -340,7 +361,7 @@ export class ResultsService {
       updatedAt: now(),
     });
 
-    const result = await this.findById(id);
+    const result = await this.findById(id, 'RTE');
 
     if (published) {
       try {

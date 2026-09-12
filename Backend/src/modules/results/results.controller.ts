@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Request,
   ParseIntPipe,
   DefaultValuePipe,
 } from '@nestjs/common';
@@ -71,6 +72,7 @@ export class ResultsController {
     type: PaginatedResultResponseDto,
   })
   findAll(
+    @Request() req: { user: { role: string; email: string } },
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('search') search?: string,
@@ -83,6 +85,8 @@ export class ResultsController {
       search,
       grade,
       published,
+      role: req.user.role,
+      userEmail: req.user.email,
     });
   }
 
@@ -94,9 +98,13 @@ export class ResultsController {
     description: 'Result details',
     type: ResultResponseDto,
   })
+  @ApiResponse({ status: 403, description: 'Access denied' })
   @ApiResponse({ status: 404, description: 'Result not found' })
-  findOne(@Param('id') id: string): Promise<ResultResponseDto> {
-    return this.resultsService.findById(id);
+  findOne(
+    @Request() req: { user: { role: string; email: string } },
+    @Param('id') id: string,
+  ): Promise<ResultResponseDto> {
+    return this.resultsService.findById(id, req.user.role, req.user.email);
   }
 
   @Put(':id')

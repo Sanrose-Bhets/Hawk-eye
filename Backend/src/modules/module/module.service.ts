@@ -46,6 +46,8 @@ export class ModuleService {
     limit?: number;
     search?: string;
     faculty?: string;
+    role?: string;
+    userFacultyId?: string | null;
   }): Promise<{
     data: ModuleEntity[];
     total: number;
@@ -58,7 +60,10 @@ export class ModuleService {
 
     let all = await this.moduleRepo.findAll();
 
-    if (filters.faculty) {
+    // Server-side scoping: STUDENT can only see their faculty's modules
+    if (filters.role === 'STUDENT' && filters.userFacultyId) {
+      all = all.filter((m) => m.facultyId === filters.userFacultyId);
+    } else if (filters.faculty) {
       const faculty = await this.facultyRepo.findByName(filters.faculty);
       if (faculty) {
         all = all.filter((m) => m.facultyId === faculty.id);
@@ -91,11 +96,25 @@ export class ModuleService {
     };
   }
 
-  async findById(id: string): Promise<ModuleEntity> {
+  async findById(
+    id: string,
+    role?: string,
+    userFacultyId?: string | null,
+  ): Promise<ModuleEntity> {
     const model = await this.moduleRepo.findById(id);
     if (!model) {
       throw new NotFoundException('Module not found');
     }
+
+    // Server-side scoping: STUDENT can only view modules in their faculty
+    if (
+      role === 'STUDENT' &&
+      userFacultyId &&
+      model.facultyId !== userFacultyId
+    ) {
+      throw new NotFoundException('Module not found');
+    }
+
     return toModule(model);
   }
 
