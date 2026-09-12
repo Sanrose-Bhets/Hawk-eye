@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { LayoutGrid, GraduationCap, LogOut, User } from 'lucide-react';
+import { LayoutGrid, GraduationCap, Award, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
 import { clearCredentials, selectCurrentUser } from '@/redux/userSlice';
@@ -17,6 +17,12 @@ const links = [
     label: 'Classes',
     description: 'Manage class lists and seat allocations',
     icon: GraduationCap,
+  },
+  {
+    to: '/dashboard/rte/results',
+    label: 'Results',
+    description: 'Exam grades & evaluations',
+    icon: Award,
   },
 ];
 

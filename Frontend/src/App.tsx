@@ -34,6 +34,7 @@ function App() {
         <Route path="classes" element={<ClassesPage />} />
         <Route path="classes/new" element={<CreateClassPage />} />
         <Route path="classes/:id" element={<ClassDetailPage />} />
+        <Route path="results" element={<ResultsPage />} />
       </Route>
 
       {/* Student Service Portal Routes */}
