@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { LayoutGrid, GraduationCap, Award, LogOut, User } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { LayoutGrid, GraduationCap, Award, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from '@/components/ui/tooltip';
-import { clearCredentials, selectCurrentUser } from '@/redux/userSlice';
+import { clearCredentials } from '@/redux/userSlice';
 
 const links = [
   {
@@ -29,7 +29,6 @@ const links = [
 export function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const user = useSelector(selectCurrentUser);
 
   const handleLogout = () => {
     dispatch(clearCredentials());
@@ -78,19 +77,7 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-gray-200 p-3 space-y-1">
-        {user?.email && (
-          <Tooltip
-            content={`Signed in as ${user.email}`}
-            side="right"
-            wrapperClassName="w-full"
-          >
-            <div className="flex w-full items-center gap-3 px-4 py-2.5 rounded-xl bg-gray-50 text-xs text-gray-600">
-              <User size={16} className="text-gray-400 shrink-0" />
-              <span className="truncate font-medium">{user.email}</span>
-            </div>
-          </Tooltip>
-        )}
+      <div className="border-t border-gray-200 p-3">
         <Tooltip
           content="Sign out of your account"
           side="right"
