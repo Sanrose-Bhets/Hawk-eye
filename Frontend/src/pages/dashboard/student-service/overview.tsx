@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
@@ -9,40 +10,100 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { studentApi } from '@/lib/api/students';
+import { classApi } from '@/lib/api/seat-plan';
+import { moduleApi } from '@/lib/api/modules';
+import { mailApi } from '@/lib/api/mail';
 
 export default function StudentServiceOverview() {
   const navigate = useNavigate();
-
-  const stats = [
+  const [stats, setStats] = useState([
     {
       title: 'Total Students',
-      value: '24',
+      value: '...',
       description: 'Enrolled across all classes',
       icon: Users,
       color: 'bg-blue-50 text-blue-600',
     },
     {
       title: 'Class Sections',
-      value: '2',
+      value: '...',
       description: 'Active examination groups',
       icon: GraduationCap,
       color: 'bg-emerald-50 text-emerald-600',
     },
     {
       title: 'Active Modules',
-      value: '6',
+      value: '...',
       description: 'Registered course modules',
       icon: BookOpen,
       color: 'bg-purple-50 text-purple-600',
     },
     {
       title: 'Mail Dispatches',
-      value: '104',
+      value: '...',
       description: 'Total broadcasts sent',
       icon: Mail,
       color: 'bg-primary-light text-primary',
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [studentsRes, classesRes, modulesRes, mailRes] =
+          await Promise.all([
+            studentApi.list({ limit: 1 }).catch(() => ({ data: { total: 0 } })),
+            classApi.list().catch(() => ({ data: [] })),
+            moduleApi.list({ limit: 1 }).catch(() => ({ data: { total: 0 } })),
+            mailApi.getStats().catch(() => ({
+              data: { totalSent: 0, totalQueued: 0, totalFailed: 0 },
+            })),
+          ]);
+
+        const totalStudents = studentsRes.data?.total ?? 0;
+        const totalClasses = classesRes.data?.length ?? 0;
+        const totalModules = modulesRes.data?.total ?? 0;
+        const totalMail =
+          (mailRes.data?.totalSent ?? 0) + (mailRes.data?.totalQueued ?? 0);
+
+        setStats([
+          {
+            title: 'Total Students',
+            value: String(totalStudents),
+            description: 'Enrolled across all classes',
+            icon: Users,
+            color: 'bg-blue-50 text-blue-600',
+          },
+          {
+            title: 'Class Sections',
+            value: String(totalClasses),
+            description: 'Active examination groups',
+            icon: GraduationCap,
+            color: 'bg-emerald-50 text-emerald-600',
+          },
+          {
+            title: 'Active Modules',
+            value: String(totalModules),
+            description: 'Registered course modules',
+            icon: BookOpen,
+            color: 'bg-purple-50 text-purple-600',
+          },
+          {
+            title: 'Mail Dispatches',
+            value: String(totalMail),
+            description: 'Total broadcasts sent',
+            icon: Mail,
+            color: 'bg-primary-light text-primary',
+          },
+        ]);
+      } catch {
+        // Stats remain as '...'
+      }
+    }
+
+    loadStats();
+  }, []);
 
   const quickLinks = [
     {

@@ -59,12 +59,6 @@ export interface ClassData {
   updatedAt: string;
 }
 
-export interface DummyStudent {
-  id: string;
-  name: string;
-  email: string;
-}
-
 export interface Student {
   id: string;
   name: string;

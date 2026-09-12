@@ -4,7 +4,33 @@ import { Clock, MapPin, Armchair, AlertTriangle, User } from 'lucide-react';
 import { selectCurrentUser } from '@/redux/userSlice';
 import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
 import { moduleApi } from '@/lib/api/modules';
-import type { ClassData, FloorPlan, Module } from '@/lib/types';
+import { examRoutineApi } from '@/lib/api/exam-routines';
+import type { ClassData, FloorPlan, Module, ExamRoutine } from '@/lib/types';
+
+function isToday(dateStr: string): boolean {
+  const epochMs =
+    typeof (dateStr as unknown as { epochMilliseconds?: number })
+      .epochMilliseconds === 'number'
+      ? (dateStr as unknown as { epochMilliseconds: number }).epochMilliseconds
+      : new Date(dateStr).getTime();
+  const d = new Date(epochMs);
+  const today = new Date();
+  return (
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate()
+  );
+}
+
+function formatTimeRange(startTime: string, endTime: string): string {
+  const formatTime = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour = h % 12 || 12;
+    return `${hour}:${m.toString().padStart(2, '0')} ${period}`;
+  };
+  return `${formatTime(startTime)} – ${formatTime(endTime)}`;
+}
 
 export default function TodaysExamPage() {
   const user = useSelector(selectCurrentUser);
@@ -25,21 +51,42 @@ export default function TodaysExamPage() {
     async function loadTodayExam() {
       try {
         setLoading(true);
-        const [classesRes, floorPlansRes, modulesRes] = await Promise.all([
-          classApi.list(),
-          floorPlanApi.list(),
-          moduleApi.list({ limit: 10 }),
-        ]);
 
+        // Fetch exam routines, modules, classes, and floor plans
+        const [routinesRes, modulesRes, classesRes, floorPlansRes] =
+          await Promise.all([
+            examRoutineApi.studentList(),
+            moduleApi.list({ limit: 50 }),
+            classApi.list(),
+            floorPlanApi.list(),
+          ]);
+
+        const routines: ExamRoutine[] = routinesRes.data || [];
+        const modules: Module[] = modulesRes.data?.data || [];
         const classes: ClassData[] = classesRes.data || [];
         const floorPlans: FloorPlan[] = floorPlansRes.data || [];
-        const modules: Module[] = modulesRes.data?.data || [];
+
+        const moduleMap = new Map(modules.map((m) => [m.id, m]));
         const floorPlanMap = new Map(floorPlans.map((fp) => [fp.id, fp]));
 
-        const studentEmail = user?.email?.toLowerCase() || '';
+        // Find today's exam routine
+        const todayRoutine = routines.find((r) => isToday(r.date));
 
-        // Find assignment for this student
-        let matched: typeof assignedExam = null;
+        if (!todayRoutine) {
+          setAssignedExam(null);
+          return;
+        }
+
+        // Resolve module info
+        const mod = moduleMap.get(todayRoutine.moduleId);
+
+        // Find student's seat assignment
+        const studentEmail = user?.email?.toLowerCase() || '';
+        let seatLabel = 'Not assigned';
+        let seatIndex = 0;
+        let className = '—';
+        let floorPlanName = '—';
+
         for (const cls of classes) {
           const fp = floorPlanMap.get(cls.floorPlanId);
           const assignment = cls.assignments?.find(
@@ -53,30 +100,27 @@ export default function TodaysExamPage() {
           );
 
           if (assignment) {
-            const mod = modules[0] || {
-              name: 'Advanced Software Engineering',
-              code: 'CS6002',
-              moduleLeader: 'Dr. John Doe',
-            };
-            const seatLabel =
+            seatLabel =
               fp?.seats?.[assignment.seatIndex]?.label ||
               `Seat #${assignment.seatIndex + 1}`;
-            matched = {
-              moduleName: mod.name,
-              moduleCode: mod.code || 'CS6001',
-              moduleLeader: mod.moduleLeader,
-              className: cls.name,
-              floorPlanName: fp?.name || 'Main Exam Hall',
-              seatLabel,
-              seatIndex: assignment.seatIndex,
-              time: '10:00 AM – 01:00 PM',
-              duration: '3 Hours',
-            };
+            seatIndex = assignment.seatIndex;
+            className = cls.name;
+            floorPlanName = fp?.name || 'Examination Hall';
             break;
           }
         }
 
-        setAssignedExam(matched);
+        setAssignedExam({
+          moduleName: mod?.name || 'Unknown Module',
+          moduleCode: mod?.code || '—',
+          moduleLeader: mod?.moduleLeader || '—',
+          className,
+          floorPlanName,
+          seatLabel,
+          seatIndex,
+          time: formatTimeRange(todayRoutine.startTime, todayRoutine.endTime),
+          duration: todayRoutine.duration,
+        });
       } catch (err) {
         console.error('Failed to load today exam:', err);
       } finally {

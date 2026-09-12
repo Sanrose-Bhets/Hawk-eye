@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+import { examRoutineApi } from '@/lib/api/exam-routines';
 import { moduleApi } from '@/lib/api/modules';
-import type { Module } from '@/lib/types';
+import type { ExamRoutine, Module } from '@/lib/types';
 
 interface ScheduledExam {
   id: string;
@@ -9,8 +10,33 @@ interface ScheduledExam {
   moduleName: string;
   date: string;
   time: string;
-  venue: string;
-  format: string;
+  duration: string;
+}
+
+function formatDate(dateStr: string): string {
+  const epochMs =
+    typeof (dateStr as unknown as { epochMilliseconds?: number })
+      .epochMilliseconds === 'number'
+      ? (dateStr as unknown as { epochMilliseconds: number }).epochMilliseconds
+      : new Date(dateStr).getTime();
+  const d = new Date(epochMs);
+  return d.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function isFuture(dateStr: string): boolean {
+  const epochMs =
+    typeof (dateStr as unknown as { epochMilliseconds?: number })
+      .epochMilliseconds === 'number'
+      ? (dateStr as unknown as { epochMilliseconds: number }).epochMilliseconds
+      : new Date(dateStr).getTime();
+  const d = new Date(epochMs);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return d.getTime() >= today.getTime();
 }
 
 export default function UpcomingExamsPage() {
@@ -22,27 +48,28 @@ export default function UpcomingExamsPage() {
     async function loadExams() {
       try {
         setLoading(true);
-        const res = await moduleApi.list({ limit: 20 });
-        const modules: Module[] = res.data?.data || [];
+        const [routinesRes, modulesRes] = await Promise.all([
+          examRoutineApi.studentList(),
+          moduleApi.list({ limit: 50 }),
+        ]);
 
-        const dates = [
-          '18 SEP 2026',
-          '22 SEP 2026',
-          '26 SEP 2026',
-          '30 SEP 2026',
-        ];
-        const times = ['10:00 - 13:00', '14:00 - 17:00'];
-        const venues = ['HALL A (LEVEL 3)', 'HALL B (LEVEL 4)', 'IT LAB 1'];
+        const routines: ExamRoutine[] = routinesRes.data || [];
+        const modules: Module[] = modulesRes.data?.data || [];
+        const moduleMap = new Map(modules.map((m) => [m.id, m]));
 
-        const mapped: ScheduledExam[] = modules.map((m, idx) => ({
-          id: m.id,
-          moduleCode: m.code || `CS${6000 + idx + 1}`,
-          moduleName: m.name,
-          date: dates[idx % dates.length],
-          time: times[idx % times.length],
-          venue: venues[idx % venues.length],
-          format: 'WRITTEN EXAMINATION',
-        }));
+        const mapped: ScheduledExam[] = routines
+          .filter((r) => isFuture(r.date))
+          .map((r) => {
+            const mod = moduleMap.get(r.moduleId);
+            return {
+              id: r.id,
+              moduleCode: mod?.code || '—',
+              moduleName: mod?.name || 'Unknown Module',
+              date: formatDate(r.date),
+              time: `${r.startTime} – ${r.endTime}`,
+              duration: r.duration,
+            };
+          });
 
         setExams(mapped);
       } catch (err) {
@@ -58,8 +85,7 @@ export default function UpcomingExamsPage() {
   const filteredExams = exams.filter(
     (e) =>
       e.moduleName.toLowerCase().includes(search.toLowerCase()) ||
-      e.moduleCode.toLowerCase().includes(search.toLowerCase()) ||
-      e.venue.toLowerCase().includes(search.toLowerCase()),
+      e.moduleCode.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -103,7 +129,9 @@ export default function UpcomingExamsPage() {
             NO RECORDS FOUND
           </p>
           <p className="text-sm text-gray-600 font-sans">
-            No examinations matched your filter query.
+            {search
+              ? 'No examinations matched your filter query.'
+              : 'No upcoming examinations scheduled for this semester.'}
           </p>
         </div>
       ) : (
@@ -112,8 +140,8 @@ export default function UpcomingExamsPage() {
             <div className="col-span-2">INDEX / CODE</div>
             <div className="col-span-5">COURSE MODULE</div>
             <div className="col-span-2">DATE</div>
-            <div className="col-span-1">TIME</div>
-            <div className="col-span-2 text-right">VENUE</div>
+            <div className="col-span-2">TIME</div>
+            <div className="col-span-1 text-right">DURATION</div>
           </div>
 
           {filteredExams.map((exam, i) => (
@@ -122,7 +150,9 @@ export default function UpcomingExamsPage() {
               className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 p-5 md:px-6 md:py-4 items-center hover:bg-gray-50 transition-colors"
             >
               <div className="col-span-2 font-mono text-xs font-bold text-gray-900 flex items-center gap-2">
-                <span className="text-gray-300">0{i + 1}</span>
+                <span className="text-gray-300">
+                  {(i + 1).toString().padStart(2, '0')}
+                </span>
                 <span className="text-primary font-semibold">
                   {exam.moduleCode}
                 </span>
@@ -132,21 +162,18 @@ export default function UpcomingExamsPage() {
                 <h3 className="text-sm font-bold text-gray-900 tracking-tight">
                   {exam.moduleName}
                 </h3>
-                <span className="text-[10px] font-mono text-gray-400 font-sans">
-                  {exam.format}
-                </span>
               </div>
 
               <div className="col-span-2 font-mono text-xs text-gray-700">
                 {exam.date}
               </div>
 
-              <div className="col-span-1 font-mono text-xs text-gray-700">
+              <div className="col-span-2 font-mono text-xs text-gray-700">
                 {exam.time}
               </div>
 
-              <div className="col-span-2 font-mono text-xs font-bold text-gray-900 md:text-right">
-                {exam.venue}
+              <div className="col-span-1 font-mono text-xs font-bold text-gray-900 md:text-right">
+                {exam.duration}
               </div>
             </div>
           ))}
