@@ -17,7 +17,7 @@ export function LoginForm() {
     if (!user) return;
     switch (user.role) {
       case 'RTE':
-        navigate('/dashboard/rte', { replace: true });
+        navigate('/dashboard/rte/floor-plans', { replace: true });
         break;
       case 'STUDENT_SERVICE':
         navigate('/dashboard/student-service', { replace: true });
@@ -55,7 +55,7 @@ export function LoginForm() {
 
       switch (data.user.role) {
         case 'RTE':
-          navigate('/dashboard/rte');
+          navigate('/dashboard/rte/floor-plans');
           break;
         case 'STUDENT_SERVICE':
           navigate('/dashboard/student-service');

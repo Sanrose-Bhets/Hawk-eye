@@ -8,7 +8,7 @@ export default function StudentServiceDashboard() {
 
   if (!user) return <Navigate to="/" replace />;
   if (user.role !== 'STUDENT_SERVICE') {
-    const dest = user.role === 'RTE' ? '/dashboard/rte' : '/';
+    const dest = user.role === 'RTE' ? '/dashboard/rte/floor-plans' : '/';
     return <Navigate to={dest} replace />;
   }
 

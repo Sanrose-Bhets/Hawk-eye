@@ -184,34 +184,41 @@ export default function StudentOverview() {
     },
     {
       index: '02',
+      title: 'Performance Analytics',
+      description:
+        'Multi-semester GPA progression curves, honours benchmark comparisons, and credit tracker.',
+      to: '/dashboard/student/analytics',
+    },
+    {
+      index: '03',
       title: 'My Modules',
       description:
         'Curriculum courses, syllabus outlines, credit weightings, and faculty module leaders.',
       to: '/dashboard/student/modules',
     },
     {
-      index: '03',
+      index: '04',
       title: "Today's Examination",
       description:
         'Live session schedule, examination hall room number, allocated desk, and hall guidelines.',
       to: '/dashboard/student/examination/today',
     },
     {
-      index: '04',
+      index: '05',
       title: 'Upcoming Examinations',
       description:
         'Semester routine schedules, examination timetable, dates, and assessment guidelines.',
       to: '/dashboard/student/examination/upcoming',
     },
     {
-      index: '05',
+      index: '06',
       title: 'Examination Seating Plan',
       description:
         'Classroom floor plan layouts, student seat assignments, and room allocation maps.',
       to: '/dashboard/student/examination/seating',
     },
     {
-      index: '06',
+      index: '07',
       title: 'Student Profile & Identity',
       description:
         'Official academic identity, verified student credentials, and profile photo management.',

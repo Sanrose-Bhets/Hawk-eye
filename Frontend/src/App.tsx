@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { SidebarProvider } from '@/context/sidebar-context';
 import Home from '@/pages/home';
 import RteLogin from '@/pages/login/rte-login';
 import StudentServiceLogin from '@/pages/login/student-service-login';
@@ -67,6 +68,9 @@ const UpcomingExamsPage = lazy(
 const StudentProfilePage = lazy(
   () => import('@/pages/dashboard/student/profile'),
 );
+const StudentAnalyticsPage = lazy(
+  () => import('@/pages/dashboard/student/analytics'),
+);
 
 const CalendarPage = lazy(() => import('@/pages/dashboard/calendar'));
 const ExamRoutinesPage = lazy(() => import('@/pages/dashboard/exam-routines'));
@@ -82,60 +86,72 @@ function Spinner() {
 
 function App() {
   return (
-    <Suspense fallback={<Spinner />}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login/rte" element={<RteLogin />} />
-        <Route
-          path="/login/student-service"
-          element={<StudentServiceLogin />}
-        />
-        <Route path="/login/student" element={<StudentLogin />} />
+    <SidebarProvider>
+      <Suspense fallback={<Spinner />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login/rte" element={<RteLogin />} />
+          <Route
+            path="/login/student-service"
+            element={<StudentServiceLogin />}
+          />
+          <Route path="/login/student" element={<StudentLogin />} />
 
-        {/* RTE Portal Routes */}
-        <Route path="/dashboard/rte" element={<RteDashboard />}>
-          <Route index element={<FloorPlansPage />} />
-          <Route path="floor-plans" element={<FloorPlansPage />} />
-          <Route path="floor-plans/new" element={<CreateFloorPlanPage />} />
-          <Route path="floor-plans/:id/edit" element={<EditFloorPlanPage />} />
-          <Route path="classes" element={<ClassesPage />} />
-          <Route path="classes/new" element={<CreateClassPage />} />
-          <Route path="classes/:id" element={<ClassDetailPage />} />
-          <Route path="results" element={<ResultsPage />} />
-          <Route path="calendar" element={<CalendarPage />} />
-          <Route path="exam-routines" element={<ExamRoutinesPage />} />
-          <Route path="backup" element={<BackupPage />} />
-        </Route>
+          {/* RTE Portal Routes */}
+          <Route path="/dashboard/rte" element={<RteDashboard />}>
+            <Route index element={<FloorPlansPage />} />
+            <Route path="floor-plans" element={<FloorPlansPage />} />
+            <Route path="floor-plans/new" element={<CreateFloorPlanPage />} />
+            <Route
+              path="floor-plans/:id/edit"
+              element={<EditFloorPlanPage />}
+            />
+            <Route path="classes" element={<ClassesPage />} />
+            <Route path="classes/new" element={<CreateClassPage />} />
+            <Route path="classes/:id" element={<ClassDetailPage />} />
+            <Route path="results" element={<ResultsPage />} />
+            <Route path="calendar" element={<CalendarPage />} />
+            <Route path="exam-routines" element={<ExamRoutinesPage />} />
+            <Route path="backup" element={<BackupPage />} />
+          </Route>
 
-        {/* Student Service Portal Routes */}
-        <Route
-          path="/dashboard/student-service"
-          element={<StudentServiceDashboard />}
-        >
-          <Route index element={<StudentServiceOverview />} />
-          <Route path="students" element={<StudentsPage />} />
-          <Route path="modules" element={<ModulesPage />} />
-          <Route path="results" element={<ResultsPage />} />
-          <Route path="mail" element={<MailManagementPage />} />
-          <Route path="classes" element={<ClassesPage />} />
-          <Route path="classes/new" element={<CreateClassPage />} />
-          <Route path="classes/:id" element={<ClassDetailPage />} />
-          <Route path="backup" element={<BackupPage />} />
-        </Route>
+          {/* Student Service Portal Routes */}
+          <Route
+            path="/dashboard/student-service"
+            element={<StudentServiceDashboard />}
+          >
+            <Route index element={<StudentServiceOverview />} />
+            <Route path="students" element={<StudentsPage />} />
+            <Route path="modules" element={<ModulesPage />} />
+            <Route path="results" element={<ResultsPage />} />
+            <Route path="mail" element={<MailManagementPage />} />
+            <Route path="classes" element={<ClassesPage />} />
+            <Route path="classes/new" element={<CreateClassPage />} />
+            <Route path="classes/:id" element={<ClassDetailPage />} />
+            <Route path="backup" element={<BackupPage />} />
+          </Route>
 
-        {/* Student Portal Routes */}
-        <Route path="/dashboard/student" element={<StudentDashboard />}>
-          <Route index element={<StudentOverview />} />
-          <Route path="profile" element={<StudentProfilePage />} />
-          <Route path="results" element={<StudentResultsPage />} />
-          <Route path="modules" element={<StudentModulesPage />} />
-          <Route path="seating" element={<StudentSeatingPage />} />
-          <Route path="examination/today" element={<TodaysExamPage />} />
-          <Route path="examination/seating" element={<StudentSeatingPage />} />
-          <Route path="examination/upcoming" element={<UpcomingExamsPage />} />
-        </Route>
-      </Routes>
-    </Suspense>
+          {/* Student Portal Routes */}
+          <Route path="/dashboard/student" element={<StudentDashboard />}>
+            <Route index element={<StudentOverview />} />
+            <Route path="profile" element={<StudentProfilePage />} />
+            <Route path="results" element={<StudentResultsPage />} />
+            <Route path="analytics" element={<StudentAnalyticsPage />} />
+            <Route path="modules" element={<StudentModulesPage />} />
+            <Route path="seating" element={<StudentSeatingPage />} />
+            <Route path="examination/today" element={<TodaysExamPage />} />
+            <Route
+              path="examination/seating"
+              element={<StudentSeatingPage />}
+            />
+            <Route
+              path="examination/upcoming"
+              element={<UpcomingExamsPage />}
+            />
+          </Route>
+        </Routes>
+      </Suspense>
+    </SidebarProvider>
   );
 }
 
