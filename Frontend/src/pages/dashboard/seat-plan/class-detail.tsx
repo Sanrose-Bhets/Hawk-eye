@@ -108,6 +108,15 @@ export default function ClassDetailPage() {
     ctx.stroke();
     ctx.setLineDash([]);
 
+    // Front / Blackboard & Door markers
+    ctx.font = 'bold 10px system-ui, sans-serif';
+    ctx.fillStyle = '#6b7280';
+    ctx.textAlign = 'center';
+    ctx.fillText('• FRONT / BLACKBOARD', borderX + borderW / 2, borderY + 16);
+    ctx.textAlign = 'right';
+    ctx.fillText('DOOR', borderX + borderW - 24, borderY + 16);
+    ctx.textAlign = 'start';
+
     if (seats.length === 0) {
       ctx.font = '14px system-ui, sans-serif';
       ctx.fillStyle = '#9ca3af';

@@ -9,7 +9,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { SeatPosition } from '@/lib/types';
-import { GripVertical, X, Plus, LayoutGrid } from 'lucide-react';
+import { GripVertical, X, Plus, LayoutGrid, DoorOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DraggableSeatProps {
@@ -261,6 +261,12 @@ export function SeatCanvas({
         <div className="absolute top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-xs px-4 py-1 text-[11px] font-semibold tracking-wider text-gray-500 uppercase shadow-2xs border border-gray-200/80 select-none z-0">
           <span className="h-2 w-2 rounded-full bg-primary" />
           Front / Blackboard
+        </div>
+
+        {/* Door indicator */}
+        <div className="absolute top-3.5 right-4 flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-xs px-3.5 py-1 text-[11px] font-semibold tracking-wider text-gray-500 uppercase shadow-2xs border border-gray-200/80 select-none z-0">
+          <DoorOpen size={13} className="text-amber-600" />
+          <span>Door</span>
         </div>
 
         {seats.length === 0 && (
