@@ -1,26 +1,35 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { moduleApi } from '@/lib/api/modules';
-import type { Module } from '@/lib/types';
+import { facultyApi } from '@/lib/api/faculties';
+import type { Module, Faculty } from '@/lib/types';
 
 export default function StudentModulesPage() {
   const [modules, setModules] = useState<Module[]>([]);
+  const [facultyMap, setFacultyMap] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    async function loadModules() {
+    async function loadData() {
       try {
         setLoading(true);
-        const res = await moduleApi.list({ limit: 50 });
-        setModules(res.data?.data || []);
+        const [modulesRes, facultiesRes] = await Promise.all([
+          moduleApi.list({ limit: 50 }),
+          facultyApi.list({ limit: 50 }),
+        ]);
+
+        setModules(modulesRes.data?.data || []);
+
+        const facs: Faculty[] = facultiesRes.data?.data || [];
+        setFacultyMap(new Map(facs.map((f) => [f.id, f.name])));
       } catch (err) {
         console.error('Failed to load modules:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadModules();
+    loadData();
   }, []);
 
   const filteredModules = modules.filter(
@@ -80,9 +89,9 @@ export default function StudentModulesPage() {
         <div className="border border-gray-200 divide-y divide-gray-200 bg-white">
           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-white border-b border-gray-200 text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400">
             <div className="col-span-2">CODE</div>
-            <div className="col-span-6">MODULE TITLE</div>
+            <div className="col-span-4">MODULE TITLE</div>
+            <div className="col-span-3">FACULTY</div>
             <div className="col-span-3">MODULE LEADER</div>
-            <div className="col-span-1 text-right">CREDITS</div>
           </div>
 
           {filteredModules.map((module, i) => (
@@ -97,18 +106,18 @@ export default function StudentModulesPage() {
                 </span>
               </div>
 
-              <div className="col-span-6">
+              <div className="col-span-4">
                 <h3 className="text-base font-bold text-gray-900 tracking-tight">
                   {module.name}
                 </h3>
               </div>
 
               <div className="col-span-3 font-mono text-xs text-gray-700 font-sans">
-                {module.moduleLeader}
+                {facultyMap.get(module.facultyId) || '—'}
               </div>
 
-              <div className="col-span-1 font-mono text-xs font-bold text-gray-900 md:text-right">
-                20 CR
+              <div className="col-span-3 font-mono text-xs text-gray-700 font-sans">
+                {module.moduleLeader}
               </div>
             </div>
           ))}
