@@ -19,6 +19,8 @@ import {
   GraduationCap,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ListFilter,
   Upload,
   FileSpreadsheet,
   X,
@@ -111,6 +113,7 @@ export default function StudentsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFaculty, setSelectedFaculty] = useState('');
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -142,7 +145,7 @@ export default function StudentsPage() {
   const csvInputRef = useRef<HTMLInputElement>(null);
 
   const fetchStudents = useCallback(
-    async (search?: string, pageNum?: number) => {
+    async (search?: string, pageNum?: number, faculty?: string) => {
       setLoading(true);
       setError('');
       try {
@@ -150,6 +153,7 @@ export default function StudentsPage() {
           page: pageNum ?? page,
           limit: PAGE_LIMIT,
           search: (search ?? searchQuery) || undefined,
+          faculty: (faculty ?? selectedFaculty) || undefined,
         });
         setStudents(res.data.data);
         setTotalPages(res.data.totalPages);
@@ -160,7 +164,7 @@ export default function StudentsPage() {
         setLoading(false);
       }
     },
-    [page, searchQuery],
+    [page, searchQuery, selectedFaculty],
   );
 
   useEffect(() => {
@@ -176,8 +180,14 @@ export default function StudentsPage() {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setPage(1);
-      fetchStudents(value, 1);
+      fetchStudents(value, 1, selectedFaculty);
     }, 400);
+  };
+
+  const handleFacultyChange = (faculty: string) => {
+    setSelectedFaculty(faculty);
+    setPage(1);
+    fetchStudents(searchQuery, 1, faculty);
   };
 
   const resetForm = () => {
@@ -427,17 +437,44 @@ export default function StudentsPage() {
         </div>
       )}
 
-      <div className="relative w-full">
-        <Search
-          size={15}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-        />
-        <Input
-          placeholder="Search by name, email, or contact..."
-          value={searchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="h-10 pl-9 text-sm bg-white rounded-xl border-gray-200 focus:border-primary"
-        />
+      <div className="flex flex-col sm:flex-row items-center gap-2.5">
+        <div className="relative flex-1 w-full">
+          <Search
+            size={15}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+          <Input
+            placeholder="Search by name, email, or contact..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="h-10 pl-9 text-sm bg-white rounded-xl border-gray-200 focus:border-primary"
+          />
+        </div>
+
+        <div className="relative w-full sm:w-auto shrink-0">
+          <div className="relative inline-flex w-full sm:w-48 items-center">
+            <ListFilter
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+            />
+            <select
+              value={selectedFaculty}
+              onChange={(e) => handleFacultyChange(e.target.value)}
+              className="h-10 w-full appearance-none rounded-xl border border-gray-200 bg-white pl-9 pr-8 text-sm font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 focus:border-primary focus:ring-2 focus:ring-primary-ring focus:outline-none cursor-pointer shadow-2xs"
+            >
+              <option value="">All Faculties</option>
+              {faculties.map((f) => (
+                <option key={f.id} value={f.name}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={15}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+            />
+          </div>
+        </div>
       </div>
 
       <Card className="overflow-hidden">
