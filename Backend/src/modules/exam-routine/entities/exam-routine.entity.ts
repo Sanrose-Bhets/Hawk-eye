@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ExamRoutineEntity {
   @ApiProperty()
@@ -24,6 +24,12 @@ export class ExamRoutineEntity {
 
   @ApiProperty()
   moduleId!: string;
+
+  @ApiPropertyOptional()
+  moduleName?: string;
+
+  @ApiPropertyOptional()
+  facultyName?: string;
 
   @ApiProperty()
   createdAt!: unknown;

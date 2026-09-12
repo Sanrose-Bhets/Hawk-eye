@@ -4,12 +4,20 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "admitCard": {
+      "model": "AdmitCard",
+      "namespace": "public"
+    },
     "calendarNote": {
       "model": "CalendarNote",
       "namespace": "public"
     },
     "class": {
       "model": "Class",
+      "namespace": "public"
+    },
+    "classBooking": {
+      "model": "ClassBooking",
       "namespace": "public"
     },
     "emailLog": {
@@ -80,6 +88,138 @@
           }
         },
         "models": {
+          "AdmitCard": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "examRoutineId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "generatedBy": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "pdfKey": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "roomName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "seatNumber": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "studentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "examRoutine": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "examRoutineId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "ExamRoutine",
+                  "namespace": "public"
+                }
+              },
+              "student": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "studentId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Student",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "examRoutineId": {
+                  "column": "examRoutineId"
+                },
+                "generatedBy": {
+                  "column": "generatedBy"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "pdfKey": {
+                  "column": "pdfKey"
+                },
+                "roomName": {
+                  "column": "roomName"
+                },
+                "seatNumber": {
+                  "column": "seatNumber"
+                },
+                "studentId": {
+                  "column": "studentId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "admitCard"
+            }
+          },
           "CalendarNote": {
             "fields": {
               "content": {
@@ -230,6 +370,107 @@
               },
               "namespaceId": "public",
               "table": "class"
+            }
+          },
+          "ClassBooking": {
+            "fields": {
+              "bookedBy": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "classId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "endTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "isActive": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "purpose": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startTime": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "bookedBy": {
+                  "column": "bookedBy"
+                },
+                "classId": {
+                  "column": "classId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "endTime": {
+                  "column": "endTime"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isActive": {
+                  "column": "isActive"
+                },
+                "purpose": {
+                  "column": "purpose"
+                },
+                "startTime": {
+                  "column": "startTime"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "classBooking"
             }
           },
           "EmailLog": {
@@ -396,7 +637,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "admitCards": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "examRoutineId"
+                  ]
+                },
+                "to": {
+                  "model": "AdmitCard",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "createdAt": {
@@ -476,8 +733,12 @@
               "modules": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["facultyId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facultyId"
+                  ]
                 },
                 "to": {
                   "model": "Module",
@@ -487,8 +748,12 @@
               "students": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["facultyId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facultyId"
+                  ]
                 },
                 "to": {
                   "model": "Student",
@@ -645,8 +910,12 @@
               "faculty": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["facultyId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "facultyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Faculty",
@@ -656,8 +925,12 @@
               "resultItems": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["moduleId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "moduleId"
+                  ]
                 },
                 "to": {
                   "model": "ResultItem",
@@ -667,8 +940,12 @@
               "semesters": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["moduleId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "moduleId"
+                  ]
                 },
                 "to": {
                   "model": "ModuleSemester",
@@ -732,8 +1009,12 @@
               "module": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["moduleId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "moduleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Module",
@@ -876,8 +1157,12 @@
               "items": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["resultId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "resultId"
+                  ]
                 },
                 "to": {
                   "model": "ResultItem",
@@ -887,8 +1172,12 @@
               "student": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["studentId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "studentId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Student",
@@ -967,8 +1256,12 @@
               "module": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["moduleId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "moduleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Module",
@@ -978,8 +1271,12 @@
               "result": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["resultId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "resultId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Result",
@@ -1113,11 +1410,30 @@
               }
             },
             "relations": {
+              "admitCards": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "studentId"
+                  ]
+                },
+                "to": {
+                  "model": "AdmitCard",
+                  "namespace": "public"
+                }
+              },
               "faculty": {
                 "cardinality": "N:1",
                 "on": {
-                  "localFields": ["facultyId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "facultyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Faculty",
@@ -1127,8 +1443,12 @@
               "results": {
                 "cardinality": "1:N",
                 "on": {
-                  "localFields": ["id"],
-                  "targetFields": ["studentId"]
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "studentId"
+                  ]
                 },
                 "to": {
                   "model": "Result",
@@ -1268,6 +1588,124 @@
       "public": {
         "entries": {
           "table": {
+            "admitCard": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "examRoutineId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "generatedBy": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "pdfKey": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "roomName": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "seatNumber": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "studentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "studentId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "admitCard"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "student"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "examRoutineId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "admitCard"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "examRoutine"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "examRoutineId"
+                  ],
+                  "name": "admitCard_examRoutineId_idx_050be0c9",
+                  "prefix": "admitCard_examRoutineId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "studentId"
+                  ],
+                  "name": "admitCard_studentId_idx_bf255322",
+                  "prefix": "admitCard_studentId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "studentId",
+                    "examRoutineId"
+                  ]
+                }
+              ]
+            },
             "calendarNote": {
               "columns": {
                 "content": {
@@ -1313,7 +1751,9 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1361,7 +1801,91 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "classBooking": {
+              "columns": {
+                "bookedBy": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "classId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "endTime": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "isActive": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
+                "purpose": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "startTime": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "classId"
+                  ],
+                  "name": "classBooking_classId_idx_0089e5e7",
+                  "prefix": "classBooking_classId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "isActive"
+                  ],
+                  "name": "classBooking_isActive_idx_77fe3ba1",
+                  "prefix": "classBooking_isActive_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1419,7 +1943,9 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1483,7 +2009,9 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1522,11 +2050,15 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["name"]
+                  "columns": [
+                    "name"
+                  ]
                 }
               ]
             },
@@ -1570,11 +2102,15 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["name"]
+                  "columns": [
+                    "name"
+                  ]
                 }
               ]
             },
@@ -1623,12 +2159,16 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["facultyId"],
+                    "columns": [
+                      "facultyId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "module"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "faculty"
                   }
@@ -1636,14 +2176,18 @@
               ],
               "indexes": [
                 {
-                  "columns": ["facultyId"],
+                  "columns": [
+                    "facultyId"
+                  ],
                   "name": "module_facultyId_idx_ff3b8c32",
                   "prefix": "module_facultyId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1668,12 +2212,16 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["moduleId"],
+                    "columns": [
+                      "moduleId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "moduleSemester"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "module"
                   }
@@ -1681,18 +2229,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["moduleId"],
+                  "columns": [
+                    "moduleId"
+                  ],
                   "name": "moduleSemester_moduleId_idx_04fe188b",
                   "prefix": "moduleSemester_moduleId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["moduleId", "semester"]
+                  "columns": [
+                    "moduleId",
+                    "semester"
+                  ]
                 }
               ]
             },
@@ -1753,11 +2308,15 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["email"]
+                  "columns": [
+                    "email"
+                  ]
                 }
               ]
             },
@@ -1800,12 +2359,16 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["studentId"],
+                    "columns": [
+                      "studentId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "result"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "student"
                   }
@@ -1813,14 +2376,18 @@
               ],
               "indexes": [
                 {
-                  "columns": ["studentId"],
+                  "columns": [
+                    "studentId"
+                  ],
                   "name": "result_studentId_idx_bf255322",
                   "prefix": "result_studentId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -1864,24 +2431,32 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["resultId"],
+                    "columns": [
+                      "resultId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "resultItem"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "result"
                   }
                 },
                 {
                   "source": {
-                    "columns": ["moduleId"],
+                    "columns": [
+                      "moduleId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "resultItem"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "module"
                   }
@@ -1889,20 +2464,26 @@
               ],
               "indexes": [
                 {
-                  "columns": ["moduleId"],
+                  "columns": [
+                    "moduleId"
+                  ],
                   "name": "resultItem_moduleId_idx_04fe188b",
                   "prefix": "resultItem_moduleId_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["resultId"],
+                  "columns": [
+                    "resultId"
+                  ],
                   "name": "resultItem_resultId_idx_d2cb6dbf",
                   "prefix": "resultItem_resultId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -2002,12 +2583,16 @@
               "foreignKeys": [
                 {
                   "source": {
-                    "columns": ["facultyId"],
+                    "columns": [
+                      "facultyId"
+                    ],
                     "namespaceId": "public",
                     "tableName": "student"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "faculty"
                   }
@@ -2015,18 +2600,24 @@
               ],
               "indexes": [
                 {
-                  "columns": ["facultyId"],
+                  "columns": [
+                    "facultyId"
+                  ],
                   "name": "student_facultyId_idx_ff3b8c32",
                   "prefix": "student_facultyId_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["email"]
+                  "columns": [
+                    "email"
+                  ]
                 }
               ]
             },
@@ -2087,11 +2678,15 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["email"]
+                  "columns": [
+                    "email"
+                  ]
                 }
               ]
             }
@@ -2099,7 +2694,11 @@
           "valueSet": {
             "Role": {
               "kind": "valueSet",
-              "values": ["STUDENT", "STUDENT_SERVICE", "RTE"]
+              "values": [
+                "STUDENT",
+                "STUDENT_SERVICE",
+                "RTE"
+              ]
             }
           }
         },
@@ -2107,12 +2706,23 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "58bbfcf1d74232bf39a109bd0802ef69cc32cef929eb5254c4a8dd9a8152ead2"
+    "storageHash": "5549ea3a346c60c8523a1b259294f998c1d91136de72b77c67e3be2c7997a0e7"
   },
   "execution": {
-    "executionHash": "676dfd014f5fbc311a7efda99e65fd23ab2f563cd919d01191b621b4140e6781",
+    "executionHash": "98929080923d3b6860c3579b8b45fa8e3eca687468661574f1f85614e3555479",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "admitCard"
+          }
+        },
         {
           "onCreate": {
             "id": "uuidv4",
@@ -2133,6 +2743,17 @@
             "column": "id",
             "namespace": "public",
             "table": "class"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "classBooking"
           }
         },
         {

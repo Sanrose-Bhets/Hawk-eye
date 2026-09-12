@@ -159,6 +159,43 @@ export interface ExamRoutine {
   duration: string;
   facultyId: string;
   moduleId: string;
+  moduleName?: string;
+  facultyName?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdmitCard {
+  id: string;
+  studentId: string;
+  examRoutineId: string;
+  seatNumber?: string;
+  roomName?: string;
+  pdfKey?: string;
+  generatedBy: string;
+  studentName?: string;
+  studentEmail?: string;
+  moduleName?: string;
+  moduleCode?: string;
+  facultyName?: string;
+  examDate?: string;
+  startTime?: string;
+  endTime?: string;
+  duration?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ClassBooking {
+  id: string;
+  classId: string;
+  className?: string;
+  bookedBy: string;
+  bookedByName?: string;
+  purpose: string;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

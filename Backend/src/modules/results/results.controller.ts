@@ -91,6 +91,16 @@ export class ResultsController {
     });
   }
 
+  @Get('analytics')
+  @Roles('STUDENT')
+  @ApiOperation({ summary: 'Get analytics grouped by semester for logged-in student' })
+  @ApiResponse({ status: 200, description: 'Semester analytics' })
+  getAnalytics(
+    @Request() req: { user: { email: string } },
+  ) {
+    return this.resultsService.getStudentAnalytics(req.user.email);
+  }
+
   @Get(':id')
   @Roles('STUDENT_SERVICE', 'RTE', 'STUDENT')
   @ApiOperation({ summary: 'Get a result by ID' })

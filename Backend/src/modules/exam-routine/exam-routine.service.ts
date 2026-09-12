@@ -7,7 +7,11 @@ import {
 } from '@nestjs/common';
 import { Temporal } from 'temporal-polyfill';
 import { EXAM_ROUTINE_REPOSITORY } from './constants/exam-routine.constants.js';
+import { MODULE_REPOSITORY } from '../module/constants/module.constants.js';
+import { FACULTY_REPOSITORY } from '../faculty/constants/faculty.constants.js';
 import type { IExamRoutineRepository } from './interfaces/exam-routine.repository.interface.js';
+import type { IModuleRepository } from '../module/interfaces/module.repository.interface.js';
+import type { IFacultyRepository } from '../faculty/interfaces/faculty.repository.interface.js';
 import { CreateExamRoutineDto } from './dto/create-exam-routine.dto.js';
 import { UpdateExamRoutineDto } from './dto/update-exam-routine.dto.js';
 import { ExamRoutineEntity } from './entities/exam-routine.entity.js';
@@ -15,7 +19,7 @@ import { toExamRoutine } from './factories/exam-routine.factory.js';
 import { CacheService } from '../../common/cache/cache.service.js';
 
 const CACHE_KEY = 'examroutines:all';
-const CACHE_TTL = 300; // 5 minutes
+const CACHE_TTL = 300;
 
 function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
@@ -43,8 +47,38 @@ export class ExamRoutineService {
   constructor(
     @Inject(EXAM_ROUTINE_REPOSITORY)
     private readonly examRoutineRepo: IExamRoutineRepository,
+    @Inject(MODULE_REPOSITORY)
+    private readonly moduleRepo: IModuleRepository,
+    @Inject(FACULTY_REPOSITORY)
+    private readonly facultyRepo: IFacultyRepository,
     private readonly cache: CacheService,
   ) {}
+
+  private async resolveNames(
+    moduleId: string,
+    facultyId: string,
+  ): Promise<{ moduleName?: string; facultyName?: string }> {
+    let modules = await this.cache.get<any[]>('modules:all');
+    if (!modules) {
+      modules = await this.moduleRepo.findAll();
+      await this.cache.set('modules:all', modules, 3600);
+    }
+    const mod = modules.find((m) => m.id === moduleId);
+
+    let faculties = await this.cache.get<any[]>('faculties:all');
+    if (!faculties) {
+      faculties = await this.facultyRepo.findAll();
+      await this.cache.set('faculties:all', faculties, 3600);
+    }
+    const fac = faculties.find((f) => f.id === facultyId);
+
+    return { moduleName: mod?.name, facultyName: fac?.name };
+  }
+
+  private async enrich(routine: any): Promise<ExamRoutineEntity> {
+    const names = await this.resolveNames(routine.moduleId, routine.facultyId);
+    return toExamRoutine(routine, names.moduleName, names.facultyName);
+  }
 
   async create(
     rteId: string,
@@ -67,7 +101,7 @@ export class ExamRoutineService {
     });
 
     await this.cache.invalidatePattern('examroutines:*');
-    return toExamRoutine(model);
+    return this.enrich(model);
   }
 
   async findAll(
@@ -110,7 +144,18 @@ export class ExamRoutineService {
       return aTime - bTime;
     });
 
-    return all.map(toExamRoutine);
+    const modules = await this.cache.get<any[]>('modules:all');
+    const faculties = await this.cache.get<any[]>('faculties:all');
+    const moduleMap = new Map((modules || []).map((m) => [m.id, m]));
+    const facultyMap = new Map((faculties || []).map((f) => [f.id, f]));
+
+    return all.map((r) =>
+      toExamRoutine(
+        r,
+        moduleMap.get(r.moduleId)?.name,
+        facultyMap.get(r.facultyId)?.name,
+      ),
+    );
   }
 
   async findAllByFaculty(
@@ -153,7 +198,18 @@ export class ExamRoutineService {
       return aTime - bTime;
     });
 
-    return all.map(toExamRoutine);
+    const modules = await this.cache.get<any[]>('modules:all');
+    const faculties = await this.cache.get<any[]>('faculties:all');
+    const moduleMap = new Map((modules || []).map((m) => [m.id, m]));
+    const facultyMap = new Map((faculties || []).map((f) => [f.id, f]));
+
+    return all.map((r) =>
+      toExamRoutine(
+        r,
+        moduleMap.get(r.moduleId)?.name,
+        facultyMap.get(r.facultyId)?.name,
+      ),
+    );
   }
 
   async findById(id: string, rteId: string): Promise<ExamRoutineEntity> {
@@ -164,7 +220,7 @@ export class ExamRoutineService {
     if (model.rteId !== rteId) {
       throw new ForbiddenException('Access denied');
     }
-    return toExamRoutine(model);
+    return this.enrich(model);
   }
 
   async update(

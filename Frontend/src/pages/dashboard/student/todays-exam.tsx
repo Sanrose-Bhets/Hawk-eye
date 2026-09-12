@@ -3,9 +3,8 @@ import { useSelector } from 'react-redux';
 import { Clock, MapPin, Armchair, AlertTriangle, User } from 'lucide-react';
 import { selectCurrentUser } from '@/redux/userSlice';
 import { classApi, floorPlanApi } from '@/lib/api/seat-plan';
-import { moduleApi } from '@/lib/api/modules';
 import { examRoutineApi } from '@/lib/api/exam-routines';
-import type { ClassData, FloorPlan, Module, ExamRoutine } from '@/lib/types';
+import type { ClassData, FloorPlan, ExamRoutine } from '@/lib/types';
 
 function isToday(dateStr: string): boolean {
   const epochMs =
@@ -52,21 +51,17 @@ export default function TodaysExamPage() {
       try {
         setLoading(true);
 
-        // Fetch exam routines, modules, classes, and floor plans
-        const [routinesRes, modulesRes, classesRes, floorPlansRes] =
-          await Promise.all([
-            examRoutineApi.studentList(),
-            moduleApi.list({ limit: 50 }),
-            classApi.list(),
-            floorPlanApi.list(),
-          ]);
+        // Fetch exam routines, classes, and floor plans
+        const [routinesRes, classesRes, floorPlansRes] = await Promise.all([
+          examRoutineApi.studentList(),
+          classApi.list(),
+          floorPlanApi.list(),
+        ]);
 
         const routines: ExamRoutine[] = routinesRes.data || [];
-        const modules: Module[] = modulesRes.data?.data || [];
         const classes: ClassData[] = classesRes.data || [];
         const floorPlans: FloorPlan[] = floorPlansRes.data || [];
 
-        const moduleMap = new Map(modules.map((m) => [m.id, m]));
         const floorPlanMap = new Map(floorPlans.map((fp) => [fp.id, fp]));
 
         // Find today's exam routine
@@ -76,9 +71,6 @@ export default function TodaysExamPage() {
           setAssignedExam(null);
           return;
         }
-
-        // Resolve module info
-        const mod = moduleMap.get(todayRoutine.moduleId);
 
         // Find student's seat assignment
         const studentEmail = user?.email?.toLowerCase() || '';
@@ -111,9 +103,9 @@ export default function TodaysExamPage() {
         }
 
         setAssignedExam({
-          moduleName: mod?.name || 'Unknown Module',
-          moduleCode: mod?.code || '—',
-          moduleLeader: mod?.moduleLeader || '—',
+          moduleName: todayRoutine.moduleName || 'Unknown Module',
+          moduleCode: '—',
+          moduleLeader: '—',
           className,
           floorPlanName,
           seatLabel,

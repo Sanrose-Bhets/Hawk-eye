@@ -1,0 +1,1 @@
+export const ADMIT_CARD_REPOSITORY = Symbol('ADMIT_CARD_REPOSITORY');

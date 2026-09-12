@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ExamRoutineResponseDto {
   @ApiProperty()
@@ -24,6 +24,12 @@ export class ExamRoutineResponseDto {
 
   @ApiProperty()
   moduleId!: string;
+
+  @ApiPropertyOptional()
+  moduleName?: string;
+
+  @ApiPropertyOptional()
+  facultyName?: string;
 
   @ApiProperty()
   createdAt!: unknown;

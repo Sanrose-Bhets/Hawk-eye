@@ -6,6 +6,7 @@ import {
   Award,
   Mail,
   Database,
+  CalendarCheck,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -45,6 +46,12 @@ const links = [
     label: 'Mail Management',
     description: 'Broadcasts & notifications',
     icon: Mail,
+  },
+  {
+    to: '/dashboard/student-service/class-bookings',
+    label: 'Class Bookings',
+    description: 'Book and manage class reservations',
+    icon: CalendarCheck,
   },
   {
     to: '/dashboard/student-service/backup',

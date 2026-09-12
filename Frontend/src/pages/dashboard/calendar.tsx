@@ -18,9 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
 import { calendarApi } from '@/lib/api/calendar';
 import { examRoutineApi } from '@/lib/api/exam-routines';
-import { facultyApi } from '@/lib/api/faculties';
-import { moduleApi } from '@/lib/api/modules';
-import type { CalendarNote, ExamRoutine, Faculty, Module } from '@/lib/types';
+import type { CalendarNote, ExamRoutine } from '@/lib/types';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -68,8 +66,6 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [notes, setNotes] = useState<CalendarNote[]>([]);
   const [routines, setRoutines] = useState<ExamRoutine[]>([]);
-  const [faculties, setFaculties] = useState<Faculty[]>([]);
-  const [allModules, setAllModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -108,26 +104,9 @@ export default function CalendarPage() {
     }
   }, [currentMonth, currentYear]);
 
-  const fetchLookups = useCallback(async () => {
-    try {
-      const [facRes, modRes] = await Promise.all([
-        facultyApi.list({ limit: 100 }),
-        moduleApi.list({ limit: 1000 }),
-      ]);
-      setFaculties(facRes.data.data);
-      setAllModules(modRes.data.data);
-    } catch {
-      // silent
-    }
-  }, []);
-
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  useEffect(() => {
-    fetchLookups();
-  }, [fetchLookups]);
 
   const notesByDate = new Map<string, CalendarNote[]>();
   for (const note of notes) {
@@ -492,12 +471,8 @@ export default function CalendarPage() {
                       </p>
                       <div className="space-y-1.5">
                         {selectedRoutines.map((routine) => {
-                          const facName =
-                            faculties.find((f) => f.id === routine.facultyId)
-                              ?.name ?? '';
-                          const modName =
-                            allModules.find((m) => m.id === routine.moduleId)
-                              ?.name ?? '';
+                          const modName = routine.moduleName || '';
+                          const facName = routine.facultyName || '';
                           return (
                             <div
                               key={routine.id}
