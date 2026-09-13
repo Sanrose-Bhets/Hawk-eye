@@ -29,6 +29,243 @@
   }
 }
 
+@layer utilities {
+  .ios26-glass {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
+    backdrop-filter: blur(24px) saturate(200%) contrast(106%) brightness(108%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%) contrast(106%)
+      brightness(108%);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    border-radius: 2rem;
+    box-shadow:
+      0 28px 56px -12px rgba(0, 0, 0, 0.09),
+      0 10px 24px -4px rgba(0, 0, 0, 0.03),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.35),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  }
+
+  .ios26-card {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
+    backdrop-filter: blur(24px) saturate(200%) contrast(106%) brightness(108%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%) contrast(106%)
+      brightness(108%);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    border-radius: 2rem;
+    box-shadow:
+      0 28px 56px -12px rgba(0, 0, 0, 0.09),
+      0 10px 24px -4px rgba(0, 0, 0, 0.03),
+      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1.5px 2px 0 rgba(255, 255, 255, 0.35),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    transition:
+      background 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ios26-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      radial-gradient(
+        circle at 6% 6%,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(215, 250, 215, 0.22) 15%,
+        rgba(235, 255, 220, 0.14) 28%,
+        transparent 65%
+      ),
+      linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(220, 252, 220, 0.12) 20%,
+        transparent 55%
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ios26-card:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.16) 45%,
+      rgba(255, 255, 255, 0.28) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow:
+      0 34px 68px -12px rgba(0, 0, 0, 0.11),
+      0 14px 28px -4px rgba(0, 0, 0, 0.04),
+      inset 0 2px 2.5px 0 rgba(255, 255, 255, 1),
+      inset 0 -2px 2.5px 0 rgba(255, 255, 255, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  }
+
+  @supports not (backdrop-filter: blur(20px)) {
+    .ios26-card {
+      background: rgba(255, 255, 255, 0.95);
+    }
+  }
+
+  .ios26-card-subtle,
+  .ios26-glass-subtle {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%) brightness(104%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(104%);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 6px 20px -2px rgba(0, 0, 0, 0.025),
+      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.7),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .ios26-glass-hover {
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .ios26-glass-hover:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  .ios26-glass-pill {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(255, 255, 255, 0.14) 100%
+    );
+    backdrop-filter: blur(16px) saturate(180%) brightness(104%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(104%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 9999px;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.02),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  .ios26-glass-active {
+    position: relative;
+    background: linear-gradient(
+      180deg,
+      rgba(238, 254, 222, 0.92) 0%,
+      rgba(218, 248, 202, 0.8) 100%
+    );
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: 1.25rem;
+    box-shadow:
+      0 8px 24px -4px rgba(22, 163, 74, 0.2),
+      0 2px 6px 0 rgba(22, 163, 74, 0.08),
+      inset 0 2px 2px 0 rgba(255, 255, 255, 1),
+      inset 0 -1.5px 2px 0 rgba(167, 243, 208, 0.6),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  }
+
+  .ios26-sidebar-glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(36px) saturate(200%) brightness(104%);
+    -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(104%);
+    border: none;
+    box-shadow:
+      4px 0 28px -2px rgba(0, 0, 0, 0.03),
+      inset -1px 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .ios26-icon-pod {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.45) 0%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    border-radius: 1.15rem;
+    box-shadow:
+      0 4px 14px rgba(0, 0, 0, 0.04),
+      inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 1px 0 rgba(255, 255, 255, 0.35);
+  }
+
+  .ios26-input {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.02),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ios26-input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(22, 163, 74, 0.45);
+    box-shadow:
+      0 0 0 2px rgba(22, 163, 74, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .ios26-pressable {
+    transition:
+      transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .ios26-pressable:active {
+    transform: scale(0.985);
+  }
+}
+
+/* iOS 26 Liquid Glass Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(22, 163, 74, 0.35);
+}
+
 @keyframes twinkle {
   0%,
   100% {

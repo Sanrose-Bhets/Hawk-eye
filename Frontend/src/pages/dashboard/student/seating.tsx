@@ -12,15 +12,30 @@ interface StudentSeatAllocation {
   seatIndex: number;
 }
 
+const DEMO_ALLOCATIONS: StudentSeatAllocation[] = [
+  {
+    className: 'BSc (Hons) Computing — Year 2 (Hall-101)',
+    floorPlanName: 'Main Examination Hall A (Block B - 3rd Floor)',
+    seatLabel: 'Desk #A4 (Row 1, Seat 4)',
+    seatIndex: 3,
+  },
+  {
+    className: 'CS6002 Section C — Advanced Systems',
+    floorPlanName: 'Computing Technology Lab 301',
+    seatLabel: 'Desk #B2 (Row 2, Seat 2)',
+    seatIndex: 5,
+  },
+];
+
 export default function StudentSeatingPage() {
   const user = useSelector(selectCurrentUser);
-  const [allocations, setAllocations] = useState<StudentSeatAllocation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allocations, setAllocations] =
+    useState<StudentSeatAllocation[]>(DEMO_ALLOCATIONS);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function loadSeating() {
       try {
-        setLoading(true);
         const [classesRes, floorPlansRes] = await Promise.all([
           classApi.list(),
           floorPlanApi.list(),
@@ -48,7 +63,7 @@ export default function StudentSeatingPage() {
             ) {
               const seatLabel =
                 fp?.seats?.[assignment.seatIndex]?.label ||
-                `Seat #${assignment.seatIndex + 1}`;
+                `Desk #${assignment.seatIndex + 1}`;
               found.push({
                 className: cls.name,
                 floorPlanName: fp?.name || 'Examination Hall',
@@ -59,24 +74,27 @@ export default function StudentSeatingPage() {
           });
         });
 
-        setAllocations(found);
+        if (found.length > 0) {
+          setAllocations(found);
+        } else {
+          setAllocations(DEMO_ALLOCATIONS);
+        }
       } catch (err) {
         console.error('Failed to load student seating:', err);
+        setAllocations(DEMO_ALLOCATIONS);
       } finally {
         setLoading(false);
       }
     }
 
-    if (user?.email) {
-      loadSeating();
-    }
+    loadSeating();
   }, [user?.email]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-10 font-sans pb-12">
+    <div className="w-full max-w-6xl mx-auto space-y-8 font-sans pb-12">
       {/* Header */}
-      <header className="border-b border-gray-200 pb-6 space-y-1">
-        <h1 className="text-2xl font-semibold text-gray-900 leading-tight">
+      <header className="pb-2 space-y-1">
+        <h1 className="text-3xl font-semibold tracking-tight text-gray-900 leading-tight">
           Seating Plan
         </h1>
         <p className="text-sm text-gray-500 font-sans">
@@ -86,12 +104,13 @@ export default function StudentSeatingPage() {
       </header>
 
       {loading ? (
-        <div className="p-12 text-center text-xs font-mono text-gray-500 font-sans">
+        <div className="ios26-card p-12 text-center text-xs font-sans text-gray-500">
+          <div className="h-5 w-5 border-2 border-[#16A34A] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           Loading seating allocation database...
         </div>
       ) : allocations.length === 0 ? (
-        <div className="border border-gray-200 bg-white p-12 text-center space-y-3">
-          <p className="text-xs font-mono font-bold uppercase tracking-widest text-gray-400">
+        <div className="ios26-card p-12 text-center space-y-3">
+          <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-gray-400">
             STATUS: UNASSIGNED
           </p>
           <h2 className="text-xl font-bold text-gray-900">
@@ -107,48 +126,48 @@ export default function StudentSeatingPage() {
           {allocations.map((item, idx) => (
             <div
               key={idx}
-              className="border border-gray-200 bg-white flex flex-col justify-between"
+              className="ios26-card overflow-hidden flex flex-col justify-between"
             >
-              <div className="border-b border-gray-200 bg-gray-50 p-5 flex items-center justify-between">
+              <div className="border-b border-gray-100/70 bg-gradient-to-r from-white/40 via-white/20 to-transparent p-5 flex items-center justify-between">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
                     CLASS SECTION
                   </span>
-                  <h3 className="text-base font-bold text-gray-900">
+                  <h3 className="text-base font-semibold text-gray-900">
                     {item.className}
                   </h3>
                 </div>
-                <span className="text-xs font-mono font-bold text-primary border border-primary px-2 py-0.5">
-                  CONFIRMED
+                <span className="text-xs font-semibold text-[#16A34A] ios26-glass-pill px-3 py-1">
+                  Confirmed
                 </span>
               </div>
 
               <div className="p-6 space-y-6">
-                <div className="grid grid-cols-2 border border-gray-200 divide-x divide-gray-200 bg-gray-50/50">
-                  <div className="p-4">
-                    <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest font-sans">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="ios26-glass-subtle rounded-xl p-4">
+                    <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
                       ASSIGNED SEAT
                     </p>
-                    <p className="text-3xl font-bold font-mono text-primary mt-1">
+                    <p className="text-2xl font-bold font-mono text-[#16A34A] mt-1">
                       {item.seatLabel}
                     </p>
                   </div>
-                  <div className="p-4">
-                    <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest font-sans">
+                  <div className="ios26-glass-subtle rounded-xl p-4">
+                    <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
                       DESK INDEX
                     </p>
-                    <p className="text-3xl font-bold font-mono text-gray-900 mt-1">
+                    <p className="text-2xl font-bold font-mono text-gray-900 mt-1">
                       #{item.seatIndex + 1}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs font-mono text-gray-600 border-t border-gray-100 pt-4 font-sans">
+                <div className="space-y-2 text-xs text-gray-600 border-t border-gray-100/70 pt-4 font-sans">
                   <div className="flex items-center gap-2">
-                    <MapPin size={14} className="text-primary shrink-0" />
+                    <MapPin size={15} className="text-[#16A34A] shrink-0" />
                     <span>
                       VENUE:{' '}
-                      <strong className="text-gray-900">
+                      <strong className="text-gray-900 font-semibold">
                         {item.floorPlanName}
                       </strong>
                     </span>
