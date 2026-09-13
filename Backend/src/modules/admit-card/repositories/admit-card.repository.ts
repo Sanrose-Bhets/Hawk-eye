@@ -19,13 +19,10 @@ export class AdmitCardRepository implements IAdmitCardRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<AdmitCardModel> {
-    return this.prisma.orm.public.AdmitCard.create(
-      data,
-    ) as Promise<AdmitCardModel>;
+    return this.prisma.orm.public.AdmitCard.create(data);
   }
 
   async findAll(): Promise<AdmitCardModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.AdmitCard.where({}) as any
     ).all();
@@ -35,11 +32,10 @@ export class AdmitCardRepository implements IAdmitCardRepository {
   async findById(id: string): Promise<AdmitCardModel | null> {
     return this.prisma.orm.public.AdmitCard.where({
       id,
-    }).first() as Promise<AdmitCardModel | null>;
+    }).first();
   }
 
   async findByStudentId(studentId: string): Promise<AdmitCardModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.AdmitCard.where({ studentId }) as any
     ).all();
@@ -47,18 +43,20 @@ export class AdmitCardRepository implements IAdmitCardRepository {
   }
 
   async findByExamRoutineId(examRoutineId: string): Promise<AdmitCardModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.AdmitCard.where({ examRoutineId }) as any
     ).all();
     return results as AdmitCardModel[];
   }
 
-  async findUnique(studentId: string, examRoutineId: string): Promise<AdmitCardModel | null> {
+  async findUnique(
+    studentId: string,
+    examRoutineId: string,
+  ): Promise<AdmitCardModel | null> {
     return this.prisma.orm.public.AdmitCard.where({
       studentId,
       examRoutineId,
-    }).first() as Promise<AdmitCardModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

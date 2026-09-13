@@ -20,13 +20,10 @@ export class ExamRoutineRepository implements IExamRoutineRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<ExamRoutineModel> {
-    return this.prisma.orm.public.ExamRoutine.create(
-      data,
-    ) as Promise<ExamRoutineModel>;
+    return this.prisma.orm.public.ExamRoutine.create(data);
   }
 
   async findAll(): Promise<ExamRoutineModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.ExamRoutine.where({}) as any
     ).all();
@@ -36,7 +33,7 @@ export class ExamRoutineRepository implements IExamRoutineRepository {
   async findById(id: string): Promise<ExamRoutineModel | null> {
     return this.prisma.orm.public.ExamRoutine.where({
       id,
-    }).first() as Promise<ExamRoutineModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

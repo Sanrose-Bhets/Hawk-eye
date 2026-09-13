@@ -17,13 +17,10 @@ export class MailRepository implements IMailRepository {
     status: string;
     createdAt: unknown;
   }): Promise<EmailLogModel> {
-    return this.prisma.orm.public.EmailLog.create(
-      data,
-    ) as Promise<EmailLogModel>;
+    return this.prisma.orm.public.EmailLog.create(data);
   }
 
   async findAll(): Promise<EmailLogModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.EmailLog.where({}) as any
     ).all();
@@ -33,7 +30,7 @@ export class MailRepository implements IMailRepository {
   async findById(id: string): Promise<EmailLogModel | null> {
     return this.prisma.orm.public.EmailLog.where({
       id,
-    }).first() as Promise<EmailLogModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {
@@ -41,7 +38,6 @@ export class MailRepository implements IMailRepository {
   }
 
   async count(): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.EmailLog.where({}) as any
     ).all();
@@ -49,7 +45,6 @@ export class MailRepository implements IMailRepository {
   }
 
   async countByStatus(status: string): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.EmailLog.where({ status }) as any
     ).all();

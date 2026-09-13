@@ -237,6 +237,168 @@ export class MailService {
     return { queued, errors };
   }
 
+  async sendPerformanceDecreaseAlert(params: {
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    parentEmail: string;
+    prev: {
+      semester: string;
+      year: string;
+      gpa: number;
+      averageScore: number;
+      standing: string;
+    };
+    curr: {
+      semester: string;
+      year: string;
+      gpa: number;
+      averageScore: number;
+      standing: string;
+    };
+    reasons: string[];
+  }): Promise<{ queued: number; errors: string[] }> {
+    const errors: string[] = [];
+    let queued = 0;
+
+    const subject = `Performance Alert — ${params.studentName}: Decrease Detected`;
+    const body = this.buildPerformanceAlertHtml(
+      params.studentName,
+      params.prev,
+      params.curr,
+      params.reasons,
+    );
+
+    const recipients = [params.studentEmail, params.parentEmail].filter(
+      (e): e is string => !!e,
+    );
+
+    // Deduplication: avoid spamming if an identical alert was sent within 7 days
+    const recentLogs = await this.mailRepo.findAll();
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const hasRecentAlert = recentLogs.some((log: any) => {
+      if (log.studentId !== params.studentId) return false;
+      if (!log.subject.includes('Performance Alert')) return false;
+      const createdAtMs =
+        typeof (log.createdAt as { epochMilliseconds?: number })
+          .epochMilliseconds === 'number'
+          ? (log.createdAt as { epochMilliseconds: number }).epochMilliseconds
+          : new Date(log.createdAt as string).getTime();
+      if (createdAtMs < sevenDaysAgo) return false;
+      // If body contains both semester labels, it's a duplicate for same semester pair
+      return (
+        log.body.includes(params.prev.semester) &&
+        log.body.includes(params.curr.semester)
+      );
+    });
+    if (hasRecentAlert) {
+      this.logger.log(
+        `Performance alert skipped (recent duplicate) for ${params.studentName}`,
+      );
+      return { queued: 0, errors: [] };
+    }
+
+    for (const recipient of recipients) {
+      try {
+        const ts = now();
+        const log = await this.mailRepo.create({
+          to: recipient,
+          subject,
+          body,
+          studentId: params.studentId,
+          status: 'queued',
+          createdAt: ts,
+        });
+
+        await this.mailQueue.add(
+          'send-email',
+          { logId: log.id, to: recipient, subject, body },
+          { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+        );
+
+        this.logger.log(
+          `Performance alert queued for ${recipient}, logId: ${log.id}`,
+        );
+        queued++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        this.logger.error(
+          `Failed to queue performance alert for ${recipient}: ${msg}`,
+        );
+        errors.push(msg);
+      }
+    }
+
+    return { queued, errors };
+  }
+
+  private buildPerformanceAlertHtml(
+    studentName: string,
+    prev: {
+      semester: string;
+      year: string;
+      gpa: number;
+      averageScore: number;
+      standing: string;
+    },
+    curr: {
+      semester: string;
+      year: string;
+      gpa: number;
+      averageScore: number;
+      standing: string;
+    },
+    reasons: string[],
+  ): string {
+    const scoreDrop = (prev.averageScore - curr.averageScore).toFixed(1);
+    const gpaDrop = (prev.gpa - curr.gpa).toFixed(2);
+    const reasonsHtml = reasons
+      .map((r) => `<li style="margin:4px 0;color:#7f1d1d;">${r}</li>`)
+      .join('');
+
+    return `
+      <div style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px;margin-bottom:20px;">
+          <h2 style="margin:0 0 6px;font-size:18px;color:#991b1b;">⚠️ Performance Decrease Detected</h2>
+          <p style="margin:0;font-size:14px;color:#7f1d1d;">Dear ${studentName} (and Parent/Guardian),</p>
+          <p style="margin:8px 0 0;font-size:14px;color:#374151;">Our analytics detected a decline in academic performance between <strong>${prev.semester}</strong> and <strong>${curr.semester}</strong>. Please review the details below and consider academic support.</p>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;margin-bottom:16px;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:#475569;">Semester</th>
+              <th style="padding:10px 14px;text-align:center;font-size:13px;font-weight:600;color:#475569;">Avg Score</th>
+              <th style="padding:10px 14px;text-align:center;font-size:13px;font-weight:600;color:#475569;">GPA</th>
+              <th style="padding:10px 14px;text-align:left;font-size:13px;font-weight:600;color:#475569;">Standing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:10px 14px;font-size:14px;color:#111827;">${prev.semester}<br/><span style="font-size:11px;color:#6b7280;">${prev.year}</span></td>
+              <td style="padding:10px 14px;font-size:14px;text-align:center;">${prev.averageScore.toFixed(1)}%</td>
+              <td style="padding:10px 14px;font-size:14px;text-align:center;">${prev.gpa.toFixed(2)}</td>
+              <td style="padding:10px 14px;font-size:13px;color:#374151;">${prev.standing}</td>
+            </tr>
+            <tr style="background:#fef2f2;">
+              <td style="padding:10px 14px;font-size:14px;color:#991b1b;font-weight:600;">${curr.semester}<br/><span style="font-size:11px;color:#991b1b;">${curr.year}</span></td>
+              <td style="padding:10px 14px;font-size:14px;text-align:center;color:#991b1b;font-weight:600;">${curr.averageScore.toFixed(1)}%<br/><span style="font-size:11px;">(−${scoreDrop}%)</span></td>
+              <td style="padding:10px 14px;font-size:14px;text-align:center;color:#991b1b;font-weight:600;">${curr.gpa.toFixed(2)}<br/><span style="font-size:11px;">(−${gpaDrop})</span></td>
+              <td style="padding:10px 14px;font-size:13px;color:#991b1b;font-weight:600;">${curr.standing}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:16px;margin-bottom:16px;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#92400e;">Reasons flagged:</p>
+          <ul style="margin:0;padding-left:18px;font-size:13px;color:#7f1d1d;">${reasonsHtml}</ul>
+        </div>
+
+        <p style="margin:0;font-size:13px;color:#6b7280;">We recommend reaching out to your academic advisor or student support services. Early intervention can help get back on track.</p>
+        <p style="margin-top:20px;font-size:12px;color:#9ca3af;text-align:center;">This is an automated notification based on performance analytics (5% score / 0.30 GPA / standing downgrade threshold). Please do not reply directly.</p>
+      </div>`;
+  }
+
   private buildResultEmailHtml(
     studentName: string,
     items: {

@@ -21,11 +21,10 @@ export class StudentRepository implements IStudentRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<StudentModel> {
-    return this.prisma.orm.public.Student.create(data) as Promise<StudentModel>;
+    return this.prisma.orm.public.Student.create(data);
   }
 
   async findAll(): Promise<StudentModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.Student.where({}) as any
     ).all();
@@ -35,17 +34,16 @@ export class StudentRepository implements IStudentRepository {
   async findById(id: string): Promise<StudentModel | null> {
     return this.prisma.orm.public.Student.where({
       id,
-    }).first() as Promise<StudentModel | null>;
+    }).first();
   }
 
   async findByEmail(email: string): Promise<StudentModel | null> {
     return this.prisma.orm.public.Student.where({
       email,
-    }).first() as Promise<StudentModel | null>;
+    }).first();
   }
 
   async count(): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.Student.where({}) as any
     ).all();

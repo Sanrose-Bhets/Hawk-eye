@@ -17,11 +17,10 @@ export class ClassRepository implements IClassRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<ClassModel> {
-    return this.prisma.orm.public.Class.create(data) as Promise<ClassModel>;
+    return this.prisma.orm.public.Class.create(data);
   }
 
   async findAll(): Promise<ClassModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (this.prisma.orm.public.Class.where({}) as any).all();
     return results as ClassModel[];
   }
@@ -29,7 +28,7 @@ export class ClassRepository implements IClassRepository {
   async findById(id: string): Promise<ClassModel | null> {
     return this.prisma.orm.public.Class.where({
       id,
-    }).first() as Promise<ClassModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

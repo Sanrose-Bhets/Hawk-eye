@@ -169,7 +169,6 @@ export class BackupService {
 
     for (const table of tables) {
       if (table in fullData) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (fullData as any)[table] = data[table] || [];
       }
     }
@@ -203,7 +202,7 @@ export class BackupService {
     const payloadTables = Object.keys(payload.data).filter(
       (key) =>
         Array.isArray(payload.data[key as keyof BackupData]) &&
-        (payload.data[key as keyof BackupData] as unknown[]).length > 0,
+        payload.data[key as keyof BackupData].length > 0,
     );
     const forbidden = payloadTables.filter(
       (t) => !allowedTables.includes(t) && t !== 'emailLogs',
@@ -229,7 +228,7 @@ export class BackupService {
     );
 
     for (const table of tablesToImport) {
-      const items = payload.data[table as keyof BackupData] || [];
+      const items = payload.data[table] || [];
       if (table === 'students') {
         imported.students = await this.importStudentsWithImages(items);
       } else {
@@ -320,17 +319,14 @@ export class BackupService {
   }
 
   private async getAll(model: string): Promise<unknown[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return await (this.prisma.orm.public as any)[model].where({}).all();
   }
 
   private async deleteAll(model: string): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (this.prisma.orm.public as any)[model].where({}).delete();
   }
 
   private async count(model: string): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (this.prisma.orm.public as any)[model]
       .where({})
       .all();
@@ -346,7 +342,7 @@ export class BackupService {
       try {
         // Strip imageBase64 if present (handled separately for students)
         const { imageBase64: _, ...data } = entity as Record<string, unknown>;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         await (this.prisma.orm.public as any)[model].create(data);
         count++;
       } catch (err) {
@@ -382,7 +378,6 @@ export class BackupService {
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await (this.prisma.orm.public as any).Student.create(data);
         count++;
       } catch (err) {

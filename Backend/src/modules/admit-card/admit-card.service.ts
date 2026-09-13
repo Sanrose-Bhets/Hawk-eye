@@ -69,7 +69,11 @@ export class AdmitCardService {
     }
     const fac = faculties.find((f) => f.id === facultyId);
 
-    return { moduleName: mod?.name, moduleCode: mod?.code, facultyName: fac?.name };
+    return {
+      moduleName: mod?.name,
+      moduleCode: mod?.code,
+      facultyName: fac?.name,
+    };
   }
 
   private async enrich(card: any): Promise<AdmitCardEntity> {
@@ -101,7 +105,9 @@ export class AdmitCardService {
     );
 
     if (targetStudents.length === 0) {
-      throw new BadRequestException('No students found for the given faculty and semester');
+      throw new BadRequestException(
+        'No students found for the given faculty and semester',
+      );
     }
 
     // Find exam routines for this faculty
@@ -111,7 +117,9 @@ export class AdmitCardService {
     );
 
     if (facultyRoutines.length === 0) {
-      throw new BadRequestException('No exam routines found for the given faculty');
+      throw new BadRequestException(
+        'No exam routines found for the given faculty',
+      );
     }
 
     let generated = 0;
@@ -187,7 +195,9 @@ export class AdmitCardService {
               moduleCode: routineNames.moduleCode ?? null,
               examDate:
                 typeof (routine.date as any)?.epochMilliseconds === 'number'
-                  ? new Date((routine.date as any).epochMilliseconds).toISOString()
+                  ? new Date(
+                      (routine.date as any).epochMilliseconds,
+                    ).toISOString()
                   : new Date(routine.date as string).toISOString(),
               startTime: routine.startTime,
               endTime: routine.endTime,
@@ -239,7 +249,9 @@ export class AdmitCardService {
     );
 
     if (facultyRoutines.length === 0) {
-      throw new BadRequestException('No exam routines found for student faculty');
+      throw new BadRequestException(
+        'No exam routines found for student faculty',
+      );
     }
 
     // Get seating from class if provided

@@ -11,13 +11,17 @@ export class ClassBookingScheduler {
   @Cron('*/1 * * * *')
   async handleExpiredBookings() {
     try {
-      const bookings = await this.bookingService.listBookings({ isActive: true });
+      const bookings = await this.bookingService.listBookings({
+        isActive: true,
+      });
       const now = new Date();
 
       for (const booking of bookings) {
         if (new Date(booking.endTime) <= now) {
           await this.bookingService.freeClass(booking.id);
-          this.logger.log(`Auto-freed expired booking: ${booking.id} (${booking.purpose})`);
+          this.logger.log(
+            `Auto-freed expired booking: ${booking.id} (${booking.purpose})`,
+          );
         }
       }
     } catch (error) {

@@ -59,8 +59,7 @@ export class SeatPlanService {
 
     const updateData: Record<string, unknown> = { updatedAt: now() };
     if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.seats !== undefined)
-      updateData.seats = dto.seats as unknown as JsonValue;
+    if (dto.seats !== undefined) updateData.seats = dto.seats;
 
     await this.floorPlanRepo.update(id, updateData);
     return this.getFloorPlan(id);
@@ -104,8 +103,7 @@ export class SeatPlanService {
     const updateData: Record<string, unknown> = { updatedAt: now() };
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.floorPlanId !== undefined) updateData.floorPlanId = dto.floorPlanId;
-    if (dto.assignments !== undefined)
-      updateData.assignments = dto.assignments as unknown as JsonValue;
+    if (dto.assignments !== undefined) updateData.assignments = dto.assignments;
 
     await this.classRepo.update(id, updateData);
     return this.getClass(id);

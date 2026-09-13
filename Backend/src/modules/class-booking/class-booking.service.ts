@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { Temporal } from 'temporal-polyfill';
 import { CreateClassBookingDto } from './dto/create-class-booking.dto.js';
 import { ListClassBookingsDto } from './dto/list-class-bookings.dto.js';
@@ -22,7 +27,10 @@ export class ClassBookingService {
     private readonly classRepo: IClassRepository,
   ) {}
 
-  async bookClass(userId: string, dto: CreateClassBookingDto): Promise<ClassBookingEntity> {
+  async bookClass(
+    userId: string,
+    dto: CreateClassBookingDto,
+  ): Promise<ClassBookingEntity> {
     const cls = await this.classRepo.findById(dto.classId);
     if (!cls) throw new NotFoundException('Class not found');
 
@@ -43,7 +51,9 @@ export class ClassBookingService {
     return toClassBooking(booking, { className: cls.name });
   }
 
-  async listBookings(filters?: ListClassBookingsDto): Promise<ClassBookingEntity[]> {
+  async listBookings(
+    filters?: ListClassBookingsDto,
+  ): Promise<ClassBookingEntity[]> {
     const bookings = await this.bookingRepo.findAll(filters);
 
     const enriched = await Promise.all(

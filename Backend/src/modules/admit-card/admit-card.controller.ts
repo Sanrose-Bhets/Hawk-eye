@@ -37,7 +37,9 @@ export class AdmitCardController {
   @Post('generate')
   @Roles('RTE')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Bulk generate admit cards for faculty+semester (RTE only)' })
+  @ApiOperation({
+    summary: 'Bulk generate admit cards for faculty+semester (RTE only)',
+  })
   @ApiResponse({ status: 201, description: 'Admit cards generated' })
   generateBulk(
     @Request() req: { user: { id: string } },
@@ -49,20 +51,34 @@ export class AdmitCardController {
   @Post('generate/:studentId')
   @Roles('RTE')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Generate admit cards for a single student (RTE only)' })
-  @ApiResponse({ status: 201, description: 'Admit cards generated', type: [AdmitCardEntity] })
+  @ApiOperation({
+    summary: 'Generate admit cards for a single student (RTE only)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Admit cards generated',
+    type: [AdmitCardEntity],
+  })
   generateSingle(
     @Request() req: { user: { id: string } },
     @Param('studentId') studentId: string,
     @Query('classId') classId?: string,
   ): Promise<AdmitCardEntity[]> {
-    return this.admitCardService.generateSingle(req.user.id, studentId, classId);
+    return this.admitCardService.generateSingle(
+      req.user.id,
+      studentId,
+      classId,
+    );
   }
 
   @Get()
   @Roles('RTE')
   @ApiOperation({ summary: 'List all admit cards (RTE only)' })
-  @ApiResponse({ status: 200, description: 'List of admit cards', type: [AdmitCardEntity] })
+  @ApiResponse({
+    status: 200,
+    description: 'List of admit cards',
+    type: [AdmitCardEntity],
+  })
   findAll(): Promise<AdmitCardEntity[]> {
     return this.admitCardService.findAll();
   }
@@ -70,7 +86,11 @@ export class AdmitCardController {
   @Get('student/me')
   @Roles('STUDENT')
   @ApiOperation({ summary: 'Get current student admit cards' })
-  @ApiResponse({ status: 200, description: 'Student admit cards', type: [AdmitCardEntity] })
+  @ApiResponse({
+    status: 200,
+    description: 'Student admit cards',
+    type: [AdmitCardEntity],
+  })
   findMyCards(
     @Request() req: { user: { id: string } },
   ): Promise<AdmitCardEntity[]> {
@@ -79,7 +99,11 @@ export class AdmitCardController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get admit card by ID' })
-  @ApiResponse({ status: 200, description: 'Admit card details', type: AdmitCardEntity })
+  @ApiResponse({
+    status: 200,
+    description: 'Admit card details',
+    type: AdmitCardEntity,
+  })
   @ApiResponse({ status: 404, description: 'Admit card not found' })
   findOne(@Param('id') id: string): Promise<AdmitCardEntity> {
     return this.admitCardService.findById(id);

@@ -18,7 +18,10 @@ export interface IClassBookingRepository {
     startTime: Date;
     endTime: Date;
   }): Promise<ClassBookingModel>;
-  findAll(filters?: { classId?: string; isActive?: boolean }): Promise<ClassBookingModel[]>;
+  findAll(filters?: {
+    classId?: string;
+    isActive?: boolean;
+  }): Promise<ClassBookingModel[]>;
   findById(id: string): Promise<ClassBookingModel | null>;
   findActiveByClassId(classId: string): Promise<ClassBookingModel | null>;
   update(id: string, data: Record<string, unknown>): Promise<void>;

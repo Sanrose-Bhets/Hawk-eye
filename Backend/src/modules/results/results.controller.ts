@@ -93,11 +93,11 @@ export class ResultsController {
 
   @Get('analytics')
   @Roles('STUDENT')
-  @ApiOperation({ summary: 'Get analytics grouped by semester for logged-in student' })
+  @ApiOperation({
+    summary: 'Get analytics grouped by semester for logged-in student',
+  })
   @ApiResponse({ status: 200, description: 'Semester analytics' })
-  getAnalytics(
-    @Request() req: { user: { email: string } },
-  ) {
+  getAnalytics(@Request() req: { user: { email: string } }) {
     return this.resultsService.getStudentAnalytics(req.user.email);
   }
 

@@ -35,13 +35,12 @@ export class ModuleRepository implements IModuleRepository {
   }
 
   async findAll(): Promise<ModuleModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = (await (
       this.prisma.orm.public.Module.where({}) as any
     ).all()) as ModuleModel[];
 
     // Fetch semesters for all modules
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const allSemesters = (await (
       this.prisma.orm.public.ModuleSemester.where({}) as any
     ).all()) as { moduleId: string; semester: number }[];
@@ -65,7 +64,6 @@ export class ModuleRepository implements IModuleRepository {
     }).first()) as ModuleModel | null;
     if (!model) return null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const semesters = (await (
       this.prisma.orm.public.ModuleSemester.where({ moduleId: id }) as any
     ).all()) as { semester: number }[];
@@ -77,14 +75,13 @@ export class ModuleRepository implements IModuleRepository {
   }
 
   async findByFacultyId(facultyId: string): Promise<ModuleModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = (await (
       this.prisma.orm.public.Module.where({ facultyId }) as any
     ).all()) as ModuleModel[];
 
     // Fetch semesters for these modules
     const moduleIds = results.map((m) => m.id);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const allSemesters = (await (
       this.prisma.orm.public.ModuleSemester.where({}) as any
     ).all()) as { moduleId: string; semester: number }[];
@@ -105,7 +102,6 @@ export class ModuleRepository implements IModuleRepository {
   }
 
   async count(): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.Module.where({}) as any
     ).all();
@@ -118,7 +114,7 @@ export class ModuleRepository implements IModuleRepository {
 
   async setSemesters(moduleId: string, semesters: number[]): Promise<void> {
     // Delete existing semesters
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     await (
       this.prisma.orm.public.ModuleSemester.where({ moduleId }) as any
     ).delete();
@@ -134,7 +130,7 @@ export class ModuleRepository implements IModuleRepository {
 
   async delete(id: string): Promise<void> {
     // Delete semesters first
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     await (
       this.prisma.orm.public.ModuleSemester.where({ moduleId: id }) as any
     ).delete();

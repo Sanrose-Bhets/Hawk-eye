@@ -28,49 +28,64 @@ export class ClassBookingRepository implements IClassBookingRepository {
       classId: data.classId,
       bookedBy: data.bookedBy,
       purpose: data.purpose,
-      startTime: Temporal.Instant.fromEpochMilliseconds(data.startTime.getTime()),
+      startTime: Temporal.Instant.fromEpochMilliseconds(
+        data.startTime.getTime(),
+      ),
       endTime: Temporal.Instant.fromEpochMilliseconds(data.endTime.getTime()),
       isActive: true,
       createdAt: ts,
       updatedAt: ts,
-    }) as Promise<ClassBookingModel>;
+    });
   }
 
-  async findAll(filters?: { classId?: string; isActive?: boolean }): Promise<ClassBookingModel[]> {
+  async findAll(filters?: {
+    classId?: string;
+    isActive?: boolean;
+  }): Promise<ClassBookingModel[]> {
     const where: Record<string, unknown> = {};
     if (filters?.classId) where.classId = filters.classId;
     if (filters?.isActive !== undefined) where.isActive = filters.isActive;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const results = await (this.prisma.orm.public.ClassBooking.where(where) as any).all();
+    const results = await (
+      this.prisma.orm.public.ClassBooking.where(where) as any
+    ).all();
     return results as ClassBookingModel[];
   }
 
   async findById(id: string): Promise<ClassBookingModel | null> {
-    return this.prisma.orm.public.ClassBooking.where({ id }).first() as Promise<ClassBookingModel | null>;
+    return this.prisma.orm.public.ClassBooking.where({
+      id,
+    }).first();
   }
 
-  async findActiveByClassId(classId: string): Promise<ClassBookingModel | null> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (this.prisma.orm.public.ClassBooking.where({ classId, isActive: true }).first() as any) as Promise<ClassBookingModel | null>;
+  async findActiveByClassId(
+    classId: string,
+  ): Promise<ClassBookingModel | null> {
+    return this.prisma.orm.public.ClassBooking.where({
+      classId,
+      isActive: true,
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {
     if (data.updatedAt instanceof Date) {
-      data.updatedAt = Temporal.Instant.fromEpochMilliseconds(data.updatedAt.getTime());
+      data.updatedAt = Temporal.Instant.fromEpochMilliseconds(
+        data.updatedAt.getTime(),
+      );
     }
     await this.prisma.orm.public.ClassBooking.where({ id }).update(data);
   }
 
   async deactivateExpired(now: Date): Promise<number> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const expired = await (this.prisma.orm.public.ClassBooking.where({
-      isActive: true,
-    }) as any).all();
+    const expired = await (
+      this.prisma.orm.public.ClassBooking.where({
+        isActive: true,
+      }) as any
+    ).all();
 
     let count = 0;
     for (const booking of expired as ClassBookingModel[]) {
-      if (new Date(booking.endTime as unknown as string) <= now) {
+      if (new Date(booking.endTime) <= now) {
         await this.update(booking.id, { isActive: false, updatedAt: now });
         count++;
       }

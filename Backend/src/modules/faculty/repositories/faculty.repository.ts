@@ -15,11 +15,10 @@ export class FacultyRepository implements IFacultyRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<FacultyModel> {
-    return this.prisma.orm.public.Faculty.create(data) as Promise<FacultyModel>;
+    return this.prisma.orm.public.Faculty.create(data);
   }
 
   async findAll(): Promise<FacultyModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.Faculty.where({}) as any
     ).all();
@@ -29,13 +28,13 @@ export class FacultyRepository implements IFacultyRepository {
   async findById(id: string): Promise<FacultyModel | null> {
     return this.prisma.orm.public.Faculty.where({
       id,
-    }).first() as Promise<FacultyModel | null>;
+    }).first();
   }
 
   async findByName(name: string): Promise<FacultyModel | null> {
     return this.prisma.orm.public.Faculty.where({
       name,
-    }).first() as Promise<FacultyModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

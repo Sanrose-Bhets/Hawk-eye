@@ -1,7 +1,10 @@
 import type { ClassBookingModel } from '../interfaces/class-booking.repository.interface.js';
 import type { ClassBookingEntity } from '../entities/class-booking.entity.js';
 
-export function toClassBooking(model: ClassBookingModel, extras?: { className?: string; bookedByName?: string }): ClassBookingEntity {
+export function toClassBooking(
+  model: ClassBookingModel,
+  extras?: { className?: string; bookedByName?: string },
+): ClassBookingEntity {
   return {
     id: model.id,
     classId: model.classId,

@@ -16,11 +16,10 @@ export class ResultRepository implements IResultRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<ResultModel> {
-    return this.prisma.orm.public.Result.create(data) as Promise<ResultModel>;
+    return this.prisma.orm.public.Result.create(data);
   }
 
   async findAll(): Promise<ResultModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.Result.where({}) as any
     ).all();
@@ -30,13 +29,13 @@ export class ResultRepository implements IResultRepository {
   async findById(id: string): Promise<ResultModel | null> {
     return this.prisma.orm.public.Result.where({
       id,
-    }).first() as Promise<ResultModel | null>;
+    }).first();
   }
 
   async findByStudentId(studentId: string): Promise<ResultModel | null> {
     return this.prisma.orm.public.Result.where({
       studentId,
-    }).first() as Promise<ResultModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {
@@ -54,13 +53,10 @@ export class ResultRepository implements IResultRepository {
     grade: string;
     createdAt: unknown;
   }): Promise<ResultItemModel> {
-    return this.prisma.orm.public.ResultItem.create(
-      data,
-    ) as Promise<ResultItemModel>;
+    return this.prisma.orm.public.ResultItem.create(data);
   }
 
   async findItemsByResultId(resultId: string): Promise<ResultItemModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.ResultItem.where({ resultId }) as any
     ).all();

@@ -245,8 +245,8 @@ export class ExamRoutineService {
     if (dto.startTime !== undefined) updateData.startTime = dto.startTime;
     if (dto.endTime !== undefined) updateData.endTime = dto.endTime;
 
-    const newStart = dto.startTime ?? (existing.startTime as string);
-    const newEnd = dto.endTime ?? (existing.endTime as string);
+    const newStart = dto.startTime ?? existing.startTime;
+    const newEnd = dto.endTime ?? existing.endTime;
     updateData.duration = calculateDuration(newStart, newEnd);
 
     if (dto.facultyId !== undefined) updateData.facultyId = dto.facultyId;

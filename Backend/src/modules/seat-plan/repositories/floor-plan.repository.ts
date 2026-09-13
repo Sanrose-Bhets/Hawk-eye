@@ -17,13 +17,10 @@ export class FloorPlanRepository implements IFloorPlanRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<FloorPlanModel> {
-    return this.prisma.orm.public.FloorPlan.create(
-      data,
-    ) as Promise<FloorPlanModel>;
+    return this.prisma.orm.public.FloorPlan.create(data);
   }
 
   async findAll(): Promise<FloorPlanModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.FloorPlan.where({}) as any
     ).all();
@@ -33,7 +30,7 @@ export class FloorPlanRepository implements IFloorPlanRepository {
   async findById(id: string): Promise<FloorPlanModel | null> {
     return this.prisma.orm.public.FloorPlan.where({
       id,
-    }).first() as Promise<FloorPlanModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

@@ -33,7 +33,11 @@ export class ClassBookingController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Book a class' })
-  @ApiResponse({ status: 201, description: 'Class booked', type: ClassBookingEntity })
+  @ApiResponse({
+    status: 201,
+    description: 'Class booked',
+    type: ClassBookingEntity,
+  })
   @ApiResponse({ status: 409, description: 'Class already booked' })
   bookClass(
     @Request() req: { user: { id: string } },
@@ -44,14 +48,24 @@ export class ClassBookingController {
 
   @Get()
   @ApiOperation({ summary: 'List all bookings' })
-  @ApiResponse({ status: 200, description: 'List of bookings', type: [ClassBookingEntity] })
-  listBookings(@Query() filters: ListClassBookingsDto): Promise<ClassBookingEntity[]> {
+  @ApiResponse({
+    status: 200,
+    description: 'List of bookings',
+    type: [ClassBookingEntity],
+  })
+  listBookings(
+    @Query() filters: ListClassBookingsDto,
+  ): Promise<ClassBookingEntity[]> {
     return this.bookingService.listBookings(filters);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a booking by ID' })
-  @ApiResponse({ status: 200, description: 'Booking details', type: ClassBookingEntity })
+  @ApiResponse({
+    status: 200,
+    description: 'Booking details',
+    type: ClassBookingEntity,
+  })
   @ApiResponse({ status: 404, description: 'Booking not found' })
   getBooking(@Param('id') id: string): Promise<ClassBookingEntity> {
     return this.bookingService.getBooking(id);
@@ -59,7 +73,11 @@ export class ClassBookingController {
 
   @Patch(':id/free')
   @ApiOperation({ summary: 'Free a booked class' })
-  @ApiResponse({ status: 200, description: 'Class freed', type: ClassBookingEntity })
+  @ApiResponse({
+    status: 200,
+    description: 'Class freed',
+    type: ClassBookingEntity,
+  })
   @ApiResponse({ status: 404, description: 'Booking not found' })
   freeClass(@Param('id') id: string): Promise<ClassBookingEntity> {
     return this.bookingService.freeClass(id);

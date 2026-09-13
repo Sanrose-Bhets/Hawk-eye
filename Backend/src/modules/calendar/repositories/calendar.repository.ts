@@ -17,13 +17,10 @@ export class CalendarRepository implements ICalendarRepository {
     createdAt: unknown;
     updatedAt: unknown;
   }): Promise<CalendarNoteModel> {
-    return this.prisma.orm.public.CalendarNote.create(
-      data,
-    ) as Promise<CalendarNoteModel>;
+    return this.prisma.orm.public.CalendarNote.create(data);
   }
 
   async findAll(): Promise<CalendarNoteModel[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results = await (
       this.prisma.orm.public.CalendarNote.where({}) as any
     ).all();
@@ -33,7 +30,7 @@ export class CalendarRepository implements ICalendarRepository {
   async findById(id: string): Promise<CalendarNoteModel | null> {
     return this.prisma.orm.public.CalendarNote.where({
       id,
-    }).first() as Promise<CalendarNoteModel | null>;
+    }).first();
   }
 
   async update(id: string, data: Record<string, unknown>): Promise<void> {

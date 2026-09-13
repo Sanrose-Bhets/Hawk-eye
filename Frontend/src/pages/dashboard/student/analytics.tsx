@@ -69,6 +69,30 @@ export default function StudentAnalyticsPage() {
     loadAnalyticsData();
   }, []);
 
+  // Performance decrease detection (5% avgScore / 0.30 GPA / standing downgrade) — mirrors backend
+  const standingRank = (s: string) => {
+    switch (s) {
+      case 'First Class Track': return 4;
+      case 'Upper Second Track': return 3;
+      case 'Lower Second Track': return 2;
+      case 'Third Class Track': return 1;
+      default: return 0;
+    }
+  };
+  const performanceAlert = (() => {
+    if (history.length < 2) return null;
+    const prev = history[history.length - 2];
+    const curr = history[history.length - 1];
+    const reasons: string[] = [];
+    const scoreDrop = prev.averageScore - curr.averageScore;
+    const gpaDrop = prev.gpa - curr.gpa;
+    if (scoreDrop >= 5) reasons.push(`Average score dropped ${scoreDrop.toFixed(1)}% (${prev.averageScore.toFixed(1)}% → ${curr.averageScore.toFixed(1)}%)`);
+    if (gpaDrop >= 0.3) reasons.push(`GPA dropped ${gpaDrop.toFixed(2)} (${prev.gpa.toFixed(2)} → ${curr.gpa.toFixed(2)})`);
+    if (standingRank(curr.standing) < standingRank(prev.standing)) reasons.push(`Standing downgraded: ${prev.standing} → ${curr.standing}`);
+    if (reasons.length === 0) return null;
+    return { prev, curr, reasons };
+  })();
+
   // Calculations across all completed semesters
   const totalCreditsCompleted = history.reduce(
     (acc, sem) => acc + sem.creditsEarned,
@@ -225,6 +249,26 @@ export default function StudentAnalyticsPage() {
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-10 font-sans pb-16">
+      {/* Performance Decrease Alert Banner */}
+      {performanceAlert && (
+        <div className="border border-red-200 bg-red-50 rounded-md p-4 flex gap-3">
+          <span className="text-red-600 text-lg leading-none">⚠️</span>
+          <div className="space-y-1.5">
+            <p className="text-sm font-bold text-red-800">Performance Decrease Detected — Notification Sent</p>
+            <p className="text-xs text-red-700">
+              Your performance dropped between <strong>{performanceAlert.prev.semester}</strong> ({performanceAlert.prev.averageScore.toFixed(1)}%, GPA {performanceAlert.prev.gpa.toFixed(2)}) and{' '}
+              <strong>{performanceAlert.curr.semester}</strong> ({performanceAlert.curr.averageScore.toFixed(1)}%, GPA {performanceAlert.curr.gpa.toFixed(2)}). An alert email has been sent to you and your parent/guardian.
+            </p>
+            <ul className="list-disc list-inside text-xs text-red-700 space-y-0.5">
+              {performanceAlert.reasons.map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+            <p className="text-[11px] text-red-600/80">Threshold: 5% score or 0.30 GPA drop or standing downgrade. Please contact your academic advisor.</p>
+          </div>
+        </div>
+      )}
+
       {/* 1. Header */}
       <header className="border-b border-gray-200 pb-6 space-y-1">
         <h1 className="text-2xl font-semibold text-gray-900 leading-tight">

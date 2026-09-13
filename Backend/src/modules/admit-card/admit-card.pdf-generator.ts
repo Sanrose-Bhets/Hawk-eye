@@ -57,14 +57,22 @@ export function generateAdmitCardPdf(data: AdmitCardPdfData): Promise<Buffer> {
     doc.text('ISLINGTON COLLEGE', 40, 30, { align: 'center', width: 515.28 });
 
     doc.fontSize(11).fillColor('#cbd5e0').font('Helvetica');
-    doc.text('Affiliated to Staffordshire University, UK', 40, 58, { align: 'center', width: 515.28 });
+    doc.text('Affiliated to Staffordshire University, UK', 40, 58, {
+      align: 'center',
+      width: 515.28,
+    });
 
     // Admit Card title
     doc.fontSize(16).fillColor('#ffffff').font('Helvetica-Bold');
     doc.text('ADMIT CARD', 40, 82, { align: 'center', width: 515.28 });
 
     // Divider line
-    doc.moveTo(40, 125).lineTo(555.28, 125).lineWidth(2).strokeColor('#e2e8f0').stroke();
+    doc
+      .moveTo(40, 125)
+      .lineTo(555.28, 125)
+      .lineWidth(2)
+      .strokeColor('#e2e8f0')
+      .stroke();
 
     let y = 145;
 
@@ -101,7 +109,12 @@ export function generateAdmitCardPdf(data: AdmitCardPdfData): Promise<Buffer> {
     y += lineHeight + 10;
 
     // Divider
-    doc.moveTo(40, y).lineTo(555.28, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
+    doc
+      .moveTo(40, y)
+      .lineTo(555.28, y)
+      .lineWidth(1)
+      .strokeColor('#e2e8f0')
+      .stroke();
     y += 15;
 
     // Exam details section
@@ -113,7 +126,13 @@ export function generateAdmitCardPdf(data: AdmitCardPdfData): Promise<Buffer> {
 
     // Row 1
     doc.font('Helvetica-Bold').text('Module:', leftCol, y);
-    doc.font('Helvetica').text(data.moduleName + (data.moduleCode ? ` (${data.moduleCode})` : ''), leftCol + 60, y);
+    doc
+      .font('Helvetica')
+      .text(
+        data.moduleName + (data.moduleCode ? ` (${data.moduleCode})` : ''),
+        leftCol + 60,
+        y,
+      );
     y += lineHeight;
 
     // Row 2
@@ -123,11 +142,22 @@ export function generateAdmitCardPdf(data: AdmitCardPdfData): Promise<Buffer> {
 
     // Row 3
     doc.font('Helvetica-Bold').text('Time:', leftCol, y);
-    doc.font('Helvetica').text(`${formatTime(data.startTime)} - ${formatTime(data.endTime)} (${data.duration})`, leftCol + 60, y);
+    doc
+      .font('Helvetica')
+      .text(
+        `${formatTime(data.startTime)} - ${formatTime(data.endTime)} (${data.duration})`,
+        leftCol + 60,
+        y,
+      );
     y += lineHeight + 10;
 
     // Divider
-    doc.moveTo(40, y).lineTo(555.28, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
+    doc
+      .moveTo(40, y)
+      .lineTo(555.28, y)
+      .lineWidth(1)
+      .strokeColor('#e2e8f0')
+      .stroke();
     y += 15;
 
     // Seat info
@@ -143,19 +173,38 @@ export function generateAdmitCardPdf(data: AdmitCardPdfData): Promise<Buffer> {
     y += lineHeight + 20;
 
     // Footer
-    doc.moveTo(40, y).lineTo(555.28, y).lineWidth(1).strokeColor('#e2e8f0').stroke();
+    doc
+      .moveTo(40, y)
+      .lineTo(555.28, y)
+      .lineWidth(1)
+      .strokeColor('#e2e8f0')
+      .stroke();
     y += 15;
 
     doc.fontSize(8).fillColor('#a0aec0').font('Helvetica');
     doc.text(`Admit Card ID: ${data.admitCardId}`, 40, y, { align: 'left' });
-    doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, 40, y, { align: 'right', width: 515.28 });
+    doc.text(
+      `Generated on: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+      40,
+      y,
+      { align: 'right', width: 515.28 },
+    );
     y += 20;
 
     doc.fontSize(9).fillColor('#718096').font('Helvetica-Oblique');
-    doc.text('This is a system-generated admit card. Please carry a valid photo ID along with this document.', 40, y, { align: 'center', width: 515.28 });
+    doc.text(
+      'This is a system-generated admit card. Please carry a valid photo ID along with this document.',
+      40,
+      y,
+      { align: 'center', width: 515.28 },
+    );
 
     // Border around entire card
-    doc.rect(30, 130, 535.28, y - 120).lineWidth(1).strokeColor('#cbd5e0').stroke();
+    doc
+      .rect(30, 130, 535.28, y - 120)
+      .lineWidth(1)
+      .strokeColor('#cbd5e0')
+      .stroke();
 
     doc.end();
   });

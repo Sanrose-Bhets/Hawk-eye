@@ -87,6 +87,43 @@ function standingFromScore(avg: number): string {
   return 'Fail Track';
 }
 
+const PERFORMANCE_SCORE_DROP_THRESHOLD = 5.0;
+const PERFORMANCE_GPA_DROP_THRESHOLD = 0.3;
+
+function standingRank(standing: string): number {
+  switch (standing) {
+    case 'First Class Track':
+      return 4;
+    case 'Upper Second Track':
+      return 3;
+    case 'Lower Second Track':
+      return 2;
+    case 'Third Class Track':
+      return 1;
+    default:
+      return 0; // Fail Track
+  }
+}
+
+export interface SemesterAnalytics {
+  semester: string;
+  year: string;
+  gpa: number;
+  averageScore: number;
+  creditsEarned: number;
+  totalCredits: number;
+  standing: string;
+  modules: {
+    code: string;
+    name: string;
+    credits: number;
+    score: number;
+    grade: string;
+    gradePoint: number;
+    status: 'PASS' | 'DISTINCTION' | 'RESIT';
+  }[];
+}
+
 @Injectable()
 export class ResultsService {
   private readonly logger = new Logger(ResultsService.name);
@@ -150,6 +187,13 @@ export class ResultsService {
 
     await this.resultRepo.update(result.id, { updatedAt: ts });
     await this.cache.invalidatePattern('results:*');
+
+    // Fire-and-forget performance check (don't block response)
+    this.checkAndNotifyPerformanceDrop(dto.studentId).catch((err) =>
+      this.logger.error(
+        `Post-create performance check failed: ${err instanceof Error ? err.message : 'Unknown'}`,
+      ),
+    );
 
     return this.findById(result.id);
   }
@@ -322,6 +366,12 @@ export class ResultsService {
     await this.resultRepo.update(id, { updatedAt: ts });
     await this.cache.invalidatePattern('results:*');
 
+    this.checkAndNotifyPerformanceDrop(existing.studentId).catch((err) =>
+      this.logger.error(
+        `Post-update performance check failed: ${err instanceof Error ? err.message : 'Unknown'}`,
+      ),
+    );
+
     return this.findById(id);
   }
 
@@ -439,6 +489,31 @@ export class ResultsService {
       await this.cache.invalidatePattern('results:*');
     }
 
+    // Fire-and-forget performance checks for affected students
+    if (created > 0) {
+      const affectedIds = [
+        ...new Set([...studentByEmail.values()].map((s: any) => s.id)),
+      ].filter((id: string) => {
+        // only check students that had at least one successful item
+        return true;
+      });
+      // Determine actually affected studentIds from grouped (those with at least one success)
+      const successEmails = new Set<string>();
+      // Re-derive from created count isn't precise, so check all grouped students that had successes
+      for (const [email] of grouped) {
+        const s = studentByEmail.get(email);
+        if (s) successEmails.add(s.id);
+      }
+      for (const sid of successEmails) {
+        this.checkAndNotifyPerformanceDrop(sid).catch((err) =>
+          this.logger.error(
+            `Post-import performance check failed for ${sid}: ${err instanceof Error ? err.message : 'Unknown'}`,
+          ),
+        );
+      }
+      void affectedIds;
+    }
+
     return { created, errors };
   }
 
@@ -472,6 +547,13 @@ export class ResultsService {
           `Failed to send result emails for ${result.studentName}: ${err instanceof Error ? err.message : 'Unknown error'}`,
         );
       }
+
+      // Performance check after publish
+      this.checkAndNotifyPerformanceDrop(result.studentId).catch((err) =>
+        this.logger.error(
+          `Post-publish performance check failed: ${err instanceof Error ? err.message : 'Unknown'}`,
+        ),
+      );
     }
 
     return result;
@@ -516,32 +598,39 @@ export class ResultsService {
       await this.cache.invalidatePattern('results:*');
     }
 
+    // Performance checks for all newly published students (fire-and-forget batch)
+    if (published > 0) {
+      for (const result of unpublished) {
+        this.checkAndNotifyPerformanceDrop(result.studentId).catch((err) =>
+          this.logger.error(
+            `Post-publishAll performance check failed for ${result.studentId}: ${err instanceof Error ? err.message : 'Unknown'}`,
+          ),
+        );
+      }
+    }
+
     this.logger.log(
       `Publish all: ${published} results published, ${emailed} emails queued`,
     );
     return { published, emailed };
   }
 
-  async getStudentAnalytics(userEmail: string): Promise<
-    {
-      semester: string;
-      year: string;
-      gpa: number;
-      averageScore: number;
-      creditsEarned: number;
-      totalCredits: number;
-      standing: string;
-      modules: {
-        code: string;
-        name: string;
-        credits: number;
-        score: number;
-        grade: string;
-        gradePoint: number;
-        status: 'PASS' | 'DISTINCTION' | 'RESIT';
-      }[];
-    }[]
-  > {
+  async getStudentAnalytics(userEmail: string): Promise<SemesterAnalytics[]> {
+    const analytics = await this.buildSemesterAnalyticsByEmail(userEmail);
+    return analytics;
+  }
+
+  async getStudentAnalyticsById(
+    studentId: string,
+  ): Promise<SemesterAnalytics[]> {
+    const student = await this.studentRepo.findById(studentId);
+    if (!student) return [];
+    return this.buildSemesterAnalyticsByEmail(student.email);
+  }
+
+  private async buildSemesterAnalyticsByEmail(
+    userEmail: string,
+  ): Promise<SemesterAnalytics[]> {
     const student = await this.studentRepo.findByEmail(userEmail);
     if (!student) return [];
 
@@ -561,9 +650,8 @@ export class ResultsService {
     // Group items by semester (from Module.semesters[0], fallback 1)
     const grouped = new Map<number, typeof items>();
     for (const item of items) {
-      const mod = moduleMap.get(item.moduleId) as any;
-      const sem: number =
-        mod?.semesters?.[0] ?? mod?.semesters?.[0] ?? 1;
+      const mod = moduleMap.get(item.moduleId);
+      const sem: number = mod?.semesters?.[0] ?? 1;
       const key = typeof sem === 'number' ? sem : 1;
       if (!grouped.has(key)) grouped.set(key, []);
       grouped.get(key)!.push(item);
@@ -574,7 +662,7 @@ export class ResultsService {
     return sortedSemesters.map((sem) => {
       const semItems = grouped.get(sem)!;
       const modules = semItems.map((item) => {
-        const mod = moduleMap.get(item.moduleId) as any;
+        const mod = moduleMap.get(item.moduleId);
         const grade = item.grade;
         return {
           code: mod?.code ?? `MOD-${item.moduleId.slice(0, 6)}`,
@@ -604,5 +692,111 @@ export class ResultsService {
         modules,
       };
     });
+  }
+
+  isPerformanceDecrease(
+    prev: SemesterAnalytics,
+    curr: SemesterAnalytics,
+  ): { decreased: boolean; reasons: string[] } {
+    const reasons: string[] = [];
+    const scoreDrop = prev.averageScore - curr.averageScore;
+    const gpaDrop = prev.gpa - curr.gpa;
+    const standingDrop =
+      standingRank(curr.standing) < standingRank(prev.standing);
+
+    if (scoreDrop >= PERFORMANCE_SCORE_DROP_THRESHOLD) {
+      reasons.push(
+        `Average score dropped by ${scoreDrop.toFixed(1)}% (from ${prev.averageScore.toFixed(1)}% to ${curr.averageScore.toFixed(1)}%, threshold ${PERFORMANCE_SCORE_DROP_THRESHOLD}%)`,
+      );
+    }
+    if (gpaDrop >= PERFORMANCE_GPA_DROP_THRESHOLD) {
+      reasons.push(
+        `GPA dropped by ${gpaDrop.toFixed(2)} (from ${prev.gpa.toFixed(2)} to ${curr.gpa.toFixed(2)}, threshold ${PERFORMANCE_GPA_DROP_THRESHOLD})`,
+      );
+    }
+    if (standingDrop) {
+      reasons.push(
+        `Standing downgraded from "${prev.standing}" to "${curr.standing}"`,
+      );
+    }
+
+    return { decreased: reasons.length > 0, reasons };
+  }
+
+  async checkAndNotifyPerformanceDrop(
+    studentId: string,
+  ): Promise<{ notified: boolean; queued: number }> {
+    try {
+      const student = await this.studentRepo.findById(studentId);
+      if (!student) return { notified: false, queued: 0 };
+
+      const history = await this.buildSemesterAnalyticsByEmail(student.email);
+      if (history.length < 2) return { notified: false, queued: 0 };
+
+      // Check the latest semester pair; also check any consecutive decrease if latest not decreased but earlier was
+      // For event-driven we care about latest drop. For scheduler we check all consecutive pairs and notify latest drop.
+      const prev = history[history.length - 2];
+      const curr = history[history.length - 1];
+      const { decreased, reasons } = this.isPerformanceDecrease(prev, curr);
+
+      if (!decreased) {
+        // Also check if any earlier consecutive drop hasn't been notified but latest is stable — don't spam
+        return { notified: false, queued: 0 };
+      }
+
+      const result = await this.mailService.sendPerformanceDecreaseAlert({
+        studentId: student.id,
+        studentName: student.name,
+        studentEmail: student.email,
+        parentEmail: student.parentEmail,
+        prev: {
+          semester: prev.semester,
+          year: prev.year,
+          gpa: prev.gpa,
+          averageScore: prev.averageScore,
+          standing: prev.standing,
+        },
+        curr: {
+          semester: curr.semester,
+          year: curr.year,
+          gpa: curr.gpa,
+          averageScore: curr.averageScore,
+          standing: curr.standing,
+        },
+        reasons,
+      });
+
+      if (result.queued > 0) {
+        this.logger.log(
+          `Performance decrease alert queued for ${student.name} (${student.email}): ${reasons.join('; ')}`,
+        );
+        return { notified: true, queued: result.queued };
+      }
+      return { notified: false, queued: 0 };
+    } catch (err) {
+      this.logger.error(
+        `Failed to check performance drop for ${studentId}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
+      return { notified: false, queued: 0 };
+    }
+  }
+
+  async checkAllStudentsForPerformanceDrop(): Promise<{
+    checked: number;
+    notified: number;
+    queued: number;
+  }> {
+    const allStudents = await this.studentRepo.findAll();
+    let notified = 0;
+    let queued = 0;
+    for (const student of allStudents) {
+      const res = await this.checkAndNotifyPerformanceDrop(student.id);
+      if (res.notified) notified++;
+      queued += res.queued;
+    }
+    this.logger.log(
+      `Performance sweep: checked ${allStudents.length}, notified ${notified}, queued ${queued}`,
+    );
+    return { checked: allStudents.length, notified, queued };
   }
 }

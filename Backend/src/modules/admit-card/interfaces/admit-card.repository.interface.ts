@@ -30,7 +30,10 @@ export interface IAdmitCardRepository {
 
   findByExamRoutineId(examRoutineId: string): Promise<AdmitCardModel[]>;
 
-  findUnique(studentId: string, examRoutineId: string): Promise<AdmitCardModel | null>;
+  findUnique(
+    studentId: string,
+    examRoutineId: string,
+  ): Promise<AdmitCardModel | null>;
 
   update(id: string, data: Record<string, unknown>): Promise<void>;
 
