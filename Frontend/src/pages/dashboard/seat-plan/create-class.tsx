@@ -20,18 +20,29 @@ export default function CreateClassPage() {
   const [selectedPlanId, setSelectedPlanId] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [studentsError, setStudentsError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      floorPlanApi.list().catch(() => ({ data: [] })),
-      classApi.list().catch(() => ({ data: [] })),
-      studentApi.list({ limit: 500 }).catch(() => ({ data: { data: [] } })),
-    ]).then(([fpRes, clRes, stRes]) => {
+    (async () => {
+      const [fpRes, clRes] = await Promise.all([
+        floorPlanApi.list().catch(() => ({ data: [] })),
+        classApi.list().catch(() => ({ data: [] })),
+      ]);
       setFloorPlans(fpRes.data || []);
       setExistingClasses(clRes.data || []);
-      const fetched = stRes.data?.data || stRes.data || [];
-      setAllStudents(Array.isArray(fetched) ? fetched : []);
-    });
+
+      try {
+        const stRes = await studentApi.list({ limit: 500 });
+        const fetched = stRes.data?.data || stRes.data || [];
+        setAllStudents(Array.isArray(fetched) ? fetched : []);
+        setStudentsError('');
+      } catch {
+        setAllStudents([]);
+        setStudentsError(
+          'Failed to load the student list. Refresh the page or check your permissions.',
+        );
+      }
+    })();
   }, []);
 
   const takenEmails = useMemo(() => {
@@ -175,7 +186,9 @@ export default function CreateClassPage() {
                   {availableStudents.length} available)
                 </span>
               </div>
-              {autoAssigned.length > 0 ? (
+              {studentsError ? (
+                <p className="text-sm text-red-600">{studentsError}</p>
+              ) : autoAssigned.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
                   {autoAssigned.map((s) => (
                     <span
@@ -203,10 +216,14 @@ export default function CreateClassPage() {
               <h2 className="text-base font-semibold text-gray-900">
                 Student List
               </h2>
-              <span className="text-sm text-gray-500">
-                {availableStudents.length} available / {allStudents.length}{' '}
-                total
-              </span>
+              {studentsError ? (
+                <span className="text-sm text-red-600">Failed to load</span>
+              ) : (
+                <span className="text-sm text-gray-500">
+                  {availableStudents.length} available / {allStudents.length}{' '}
+                  total
+                </span>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -258,6 +275,13 @@ export default function CreateClassPage() {
         </Card>
       )}
 
+      {studentsError && (
+        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          Unable to load students: {studentsError} If you are logged in as an
+          RTE user, you may not have permission to view the student list.
+        </div>
+      )}
+
       {error && (
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
@@ -265,7 +289,10 @@ export default function CreateClassPage() {
       )}
 
       <div className="flex gap-3 mt-6">
-        <Button onClick={handleSave} disabled={saving || !selectedPlanId}>
+        <Button
+          onClick={handleSave}
+          disabled={saving || !selectedPlanId || !!studentsError}
+        >
           {saving ? 'Creating...' : 'Create Class'}
         </Button>
         <Button

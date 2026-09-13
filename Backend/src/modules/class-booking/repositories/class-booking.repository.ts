@@ -11,6 +11,13 @@ function now() {
   return Temporal.Instant.fromEpochMilliseconds(Date.now());
 }
 
+function toEpochMillis(value: Date | { epochMilliseconds?: number }): number {
+  const epoch = (value as { epochMilliseconds?: number }).epochMilliseconds;
+  return typeof epoch === 'number'
+    ? epoch
+    : new Date(value as Date).getTime();
+}
+
 @Injectable()
 export class ClassBookingRepository implements IClassBookingRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -85,7 +92,7 @@ export class ClassBookingRepository implements IClassBookingRepository {
 
     let count = 0;
     for (const booking of expired as ClassBookingModel[]) {
-      if (new Date(booking.endTime) <= now) {
+      if (toEpochMillis(booking.endTime as { epochMilliseconds?: number }) <= now.getTime()) {
         await this.update(booking.id, { isActive: false, updatedAt: now });
         count++;
       }

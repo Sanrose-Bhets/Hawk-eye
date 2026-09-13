@@ -67,7 +67,7 @@ export class StudentController {
   }
 
   @Get()
-  @Roles('STUDENT_SERVICE', 'STUDENT')
+  @Roles('STUDENT_SERVICE', 'STUDENT', 'RTE')
   @ApiOperation({
     summary: 'List all students with pagination, search, and faculty filter',
   })
