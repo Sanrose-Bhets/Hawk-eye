@@ -63,8 +63,7 @@ export const resultApi = {
   list: (params: ListResultsParams = {}) =>
     apiClient.get<PaginatedResponse<Result>>('/results', { params }),
 
-  analytics: () =>
-    apiClient.get<AnalyticsSemester[]>('/results/analytics'),
+  analytics: () => apiClient.get<AnalyticsSemester[]>('/results/analytics'),
 
   get: (id: string) => apiClient.get<Result>(`/results/${id}`),
 

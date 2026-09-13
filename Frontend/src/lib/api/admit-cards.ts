@@ -15,11 +15,9 @@ export const admitCardApi = {
     ),
 
   generateSingle: (studentId: string, classId?: string) =>
-    apiClient.post<AdmitCard[]>(
-      `/admit-cards/generate/${studentId}`,
-      null,
-      { params: classId ? { classId } : undefined },
-    ),
+    apiClient.post<AdmitCard[]>(`/admit-cards/generate/${studentId}`, null, {
+      params: classId ? { classId } : undefined,
+    }),
 
   list: () => apiClient.get<AdmitCard[]>('/admit-cards'),
 

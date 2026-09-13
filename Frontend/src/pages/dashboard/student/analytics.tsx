@@ -147,7 +147,10 @@ export default function StudentAnalyticsPage() {
             const idx = items[0].dataIndex;
             return filteredModulesForChart[idx]?.name || '';
           },
-          label: (context: { parsed: { y: number | null }; dataIndex: number }) =>
+          label: (context: {
+            parsed: { y: number | null };
+            dataIndex: number;
+          }) =>
             ` Score: ${context.parsed.y ?? 0}% • Grade: ${filteredModulesForChart[context.dataIndex]?.grade}`,
         },
       },
@@ -186,7 +189,13 @@ export default function StudentAnalyticsPage() {
     labels: ['A (70-100)', 'B (55-69)', 'C (40-54)', 'D (28-39)', 'F (0-27)'],
     datasets: [
       {
-        data: [gradeCounts.A, gradeCounts.B, gradeCounts.C, gradeCounts.D, gradeCounts.F],
+        data: [
+          gradeCounts.A,
+          gradeCounts.B,
+          gradeCounts.C,
+          gradeCounts.D,
+          gradeCounts.F,
+        ],
         backgroundColor: [
           '#16a34a',
           '#0284c7',
@@ -377,36 +386,33 @@ export default function StudentAnalyticsPage() {
             <div className="space-y-2 border-t border-gray-100 pt-4 text-xs font-mono">
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  A (70–100)
+                  <span className="w-2 h-2 rounded-full bg-primary" />A (70–100)
                 </span>
                 <span className="font-bold">{gradeCounts.A}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-sky-600" />
-                  B (55–69)
+                  <span className="w-2 h-2 rounded-full bg-sky-600" />B (55–69)
                 </span>
                 <span className="font-bold">{gradeCounts.B}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-purple-500" />
-                  C (40–54)
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />C
+                  (40–54)
                 </span>
                 <span className="font-bold">{gradeCounts.C}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  D (28–39)
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />D
+                  (28–39)
                 </span>
                 <span className="font-bold">{gradeCounts.D}</span>
               </div>
               <div className="flex items-center justify-between text-gray-700">
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-red-500" />
-                  F (0–27)
+                  <span className="w-2 h-2 rounded-full bg-red-500" />F (0–27)
                 </span>
                 <span className="font-bold">{gradeCounts.F}</span>
               </div>
