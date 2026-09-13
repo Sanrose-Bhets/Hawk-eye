@@ -14,6 +14,7 @@ import { SeatPlanModule } from './modules/seat-plan/seat-plan.module.js';
 import { StudentModule } from './modules/student/student.module.js';
 import { FacultyModule } from './modules/faculty/faculty.module.js';
 import { ModuleModule } from './modules/module/module.module.js';
+import { TeacherModule } from './modules/teacher/teacher.module.js';
 import { ResultsModule } from './modules/results/results.module.js';
 import { MailModule } from './modules/mail/mail.module.js';
 import { CalendarModule } from './modules/calendar/calendar.module.js';
@@ -43,6 +44,7 @@ import { ClassBookingModule } from './modules/class-booking/class-booking.module
     StudentModule,
     FacultyModule,
     ModuleModule,
+    TeacherModule,
     ResultsModule,
     MailModule,
     CalendarModule,

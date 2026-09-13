@@ -14,10 +14,11 @@ export class MailRepository implements IMailRepository {
     subject: string;
     body: string;
     studentId?: string;
+    teacherId?: string;
     status: string;
     createdAt: unknown;
   }): Promise<EmailLogModel> {
-    return this.prisma.orm.public.EmailLog.create(data);
+    return this.prisma.orm.public.EmailLog.create(data as any);
   }
 
   async findAll(): Promise<EmailLogModel[]> {

@@ -63,6 +63,18 @@
     "studentService": {
       "model": "StudentService",
       "namespace": "public"
+    },
+    "teacher": {
+      "model": "Teacher",
+      "namespace": "public"
+    },
+    "teacherFaculty": {
+      "model": "TeacherFaculty",
+      "namespace": "public"
+    },
+    "teacherModule": {
+      "model": "TeacherModule",
+      "namespace": "public"
     }
   },
   "domain": {
@@ -524,6 +536,13 @@
                   "kind": "scalar"
                 }
               },
+              "teacherId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "to": {
                 "nullable": false,
                 "type": {
@@ -555,6 +574,9 @@
                 },
                 "subject": {
                   "column": "subject"
+                },
+                "teacherId": {
+                  "column": "teacherId"
                 },
                 "to": {
                   "column": "to"
@@ -759,6 +781,21 @@
                   "model": "Student",
                   "namespace": "public"
                 }
+              },
+              "teachers": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "facultyId"
+                  ]
+                },
+                "to": {
+                  "model": "TeacherFaculty",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -949,6 +986,21 @@
                 },
                 "to": {
                   "model": "ModuleSemester",
+                  "namespace": "public"
+                }
+              },
+              "teachers": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "moduleId"
+                  ]
+                },
+                "to": {
+                  "model": "TeacherModule",
                   "namespace": "public"
                 }
               }
@@ -1578,6 +1630,242 @@
               "namespaceId": "public",
               "table": "studentService"
             }
+          },
+          "Teacher": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "faculties": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "teacherId"
+                  ]
+                },
+                "to": {
+                  "model": "TeacherFaculty",
+                  "namespace": "public"
+                }
+              },
+              "modules": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "teacherId"
+                  ]
+                },
+                "to": {
+                  "model": "TeacherModule",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "teacher"
+            }
+          },
+          "TeacherFaculty": {
+            "fields": {
+              "facultyId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "faculty": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "facultyId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Faculty",
+                  "namespace": "public"
+                }
+              },
+              "teacher": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "teacherId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Teacher",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "facultyId": {
+                  "column": "facultyId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "teacherId": {
+                  "column": "teacherId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "teacherFaculty"
+            }
+          },
+          "TeacherModule": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "moduleId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "teacherId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "module": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "moduleId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Module",
+                  "namespace": "public"
+                }
+              },
+              "teacher": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "teacherId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Teacher",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "moduleId": {
+                  "column": "moduleId"
+                },
+                "teacherId": {
+                  "column": "teacherId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "teacherModule"
+            }
           }
         }
       }
@@ -1933,6 +2221,11 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "teacherId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "to": {
                   "codecId": "pg/text@1",
@@ -2689,6 +2982,225 @@
                   ]
                 }
               ]
+            },
+            "teacher": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                }
+              ]
+            },
+            "teacherFaculty": {
+              "columns": {
+                "facultyId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "teacherId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "teacherId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacherFaculty"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacher"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "facultyId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacherFaculty"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "faculty"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "facultyId"
+                  ],
+                  "name": "teacherFaculty_facultyId_idx_ff3b8c32",
+                  "prefix": "teacherFaculty_facultyId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "teacherId"
+                  ],
+                  "name": "teacherFaculty_teacherId_idx_bc266660",
+                  "prefix": "teacherFaculty_teacherId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "teacherId",
+                    "facultyId"
+                  ]
+                }
+              ]
+            },
+            "teacherModule": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "moduleId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "teacherId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "teacherId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacherModule"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacher"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "moduleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "teacherModule"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "module"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "moduleId"
+                  ],
+                  "name": "teacherModule_moduleId_idx_04fe188b",
+                  "prefix": "teacherModule_moduleId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "teacherId"
+                  ],
+                  "name": "teacherModule_teacherId_idx_bc266660",
+                  "prefix": "teacherModule_teacherId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "teacherId",
+                    "moduleId"
+                  ]
+                }
+              ]
             }
           },
           "valueSet": {
@@ -2706,10 +3218,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "5549ea3a346c60c8523a1b259294f998c1d91136de72b77c67e3be2c7997a0e7"
+    "storageHash": "6603f78c8dcfa653facc4d274717089a076831105a2e865d68c4b0208da66e37"
   },
   "execution": {
-    "executionHash": "98929080923d3b6860c3579b8b45fa8e3eca687468661574f1f85614e3555479",
+    "executionHash": "a45c64591afff3602883437aeea4d954a1fb600e187a8ef89aaa730142298dda",
     "mutations": {
       "defaults": [
         {
@@ -2875,6 +3387,39 @@
             "column": "id",
             "namespace": "public",
             "table": "studentService"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "teacher"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "teacherFaculty"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "teacherModule"
           }
         }
       ]

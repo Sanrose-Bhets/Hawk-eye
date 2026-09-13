@@ -4,6 +4,7 @@ export interface EmailLogModel {
   subject: string;
   body: string;
   studentId: string | null;
+  teacherId: string | null;
   status: string;
   error: string | null;
   createdAt: unknown;
@@ -15,6 +16,7 @@ export interface IMailRepository {
     subject: string;
     body: string;
     studentId?: string;
+    teacherId?: string;
     status: string;
     createdAt: unknown;
   }): Promise<EmailLogModel>;

@@ -6,6 +6,8 @@ import { MAIL_REPOSITORY, MAIL_QUEUE } from './constants/mail.constants.js';
 import type { IMailRepository } from './interfaces/mail.repository.interface.js';
 import type { IStudentRepository } from '../student/interfaces/student.repository.interface.js';
 import { STUDENT_REPOSITORY } from '../student/constants/student.constants.js';
+import type { ITeacherRepository } from '../teacher/interfaces/teacher.repository.interface.js';
+import { TEACHER_REPOSITORY } from '../teacher/constants/teacher.constants.js';
 import type { IEmailProvider } from './providers/email-provider.interface.js';
 import { EMAIL_PROVIDER } from './providers/email-provider.interface.js';
 import { EmailLogEntity } from './entities/email-log.entity.js';
@@ -23,6 +25,8 @@ export class MailService {
     private readonly mailRepo: IMailRepository,
     @Inject(STUDENT_REPOSITORY)
     private readonly studentRepo: IStudentRepository,
+    @Inject(TEACHER_REPOSITORY)
+    private readonly teacherRepo: ITeacherRepository,
     @Inject(EMAIL_PROVIDER)
     private readonly emailProvider: IEmailProvider,
     @InjectQueue(MAIL_QUEUE)
@@ -396,6 +400,118 @@ export class MailService {
 
         <p style="margin:0;font-size:13px;color:#6b7280;">We recommend reaching out to your academic advisor or student support services. Early intervention can help get back on track.</p>
         <p style="margin-top:20px;font-size:12px;color:#9ca3af;text-align:center;">This is an automated notification based on performance analytics (5% score / 0.30 GPA / standing downgrade threshold). Please do not reply directly.</p>
+      </div>`;
+  }
+
+  async sendExamRoutinePublishedToTeachers(params: {
+    moduleId: string;
+    moduleName: string;
+    facultyName?: string;
+    examRoutine: {
+      id: string;
+      date: unknown;
+      startTime: string;
+      endTime: string;
+      duration: string;
+      facultyId: string;
+    };
+  }): Promise<{ queued: number; errors: string[] }> {
+    const errors: string[] = [];
+    let queued = 0;
+
+    const teachers = await this.teacherRepo.findByModuleId(params.moduleId);
+    if (teachers.length === 0) {
+      this.logger.log(
+        `No teachers found for module ${params.moduleName} (${params.moduleId}), skipping mail`,
+      );
+      return { queued: 0, errors: [] };
+    }
+
+    const dateStr = (() => {
+      const d: any = params.examRoutine.date;
+      const epochMs =
+        typeof d?.epochMilliseconds === 'number'
+          ? d.epochMilliseconds
+          : new Date(d as string).getTime();
+      return new Date(epochMs).toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    })();
+
+    const subject = `Exam Scheduled — ${params.moduleName} (${dateStr})`;
+    const body = this.buildExamRoutineEmailHtml({
+      moduleName: params.moduleName,
+      facultyName: params.facultyName,
+      dateStr,
+      startTime: params.examRoutine.startTime,
+      endTime: params.examRoutine.endTime,
+      duration: params.examRoutine.duration,
+    });
+
+    for (const teacher of teachers) {
+      try {
+        const ts = now();
+        const log = await this.mailRepo.create({
+          to: teacher.email,
+          subject,
+          body,
+          teacherId: teacher.id,
+          status: 'queued',
+          createdAt: ts,
+        });
+
+        await this.mailQueue.add(
+          'send-email',
+          { logId: log.id, to: teacher.email, subject, body },
+          { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+        );
+
+        this.logger.log(
+          `Exam routine mail queued for teacher ${teacher.email}, logId: ${log.id}`,
+        );
+        queued++;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        this.logger.error(
+          `Failed to queue exam routine mail for ${teacher.email}: ${msg}`,
+        );
+        errors.push(msg);
+      }
+    }
+
+    return { queued, errors };
+  }
+
+  private buildExamRoutineEmailHtml(params: {
+    moduleName: string;
+    facultyName?: string;
+    dateStr: string;
+    startTime: string;
+    endTime: string;
+    duration: string;
+  }): string {
+    return `
+      <div style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:20px;">
+          <h2 style="margin:0 0 6px;font-size:18px;color:#1e40af;">📅 Exam Routine Published</h2>
+          <p style="margin:0;font-size:14px;color:#1e3a8a;">Dear Teacher,</p>
+          <p style="margin:8px 0 0;font-size:14px;color:#374151;">An exam has been scheduled for <strong>${params.moduleName}</strong>${params.facultyName ? ` under <strong>${params.facultyName}</strong>` : ''}. Please find the details below and prepare accordingly.</p>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;margin-bottom:16px;">
+          <tbody>
+            <tr><td style="padding:10px 14px;font-size:13px;font-weight:600;color:#475569;background:#f8fafc;width:140px;">Module</td><td style="padding:10px 14px;font-size:14px;color:#111827;">${params.moduleName}</td></tr>
+            ${params.facultyName ? `<tr><td style="padding:10px 14px;font-size:13px;font-weight:600;color:#475569;background:#f8fafc;">Faculty</td><td style="padding:10px 14px;font-size:14px;color:#111827;">${params.facultyName}</td></tr>` : ''}
+            <tr><td style="padding:10px 14px;font-size:13px;font-weight:600;color:#475569;background:#f8fafc;">Date</td><td style="padding:10px 14px;font-size:14px;color:#111827;">${params.dateStr}</td></tr>
+            <tr><td style="padding:10px 14px;font-size:13px;font-weight:600;color:#475569;background:#f8fafc;">Time</td><td style="padding:10px 14px;font-size:14px;color:#111827;">${params.startTime} – ${params.endTime} (${params.duration})</td></tr>
+          </tbody>
+        </table>
+
+        <p style="margin:0;font-size:13px;color:#6b7280;">If you have any concerns or need to request changes, please contact the RTE office.</p>
+        <p style="margin-top:20px;font-size:12px;color:#9ca3af;text-align:center;">This is an automated notification. Please do not reply directly to this email.</p>
       </div>`;
   }
 

@@ -17,6 +17,8 @@ import { UpdateExamRoutineDto } from './dto/update-exam-routine.dto.js';
 import { ExamRoutineEntity } from './entities/exam-routine.entity.js';
 import { toExamRoutine } from './factories/exam-routine.factory.js';
 import { CacheService } from '../../common/cache/cache.service.js';
+import { MailService } from '../mail/mail.service.js';
+import { Logger } from '@nestjs/common';
 
 const CACHE_KEY = 'examroutines:all';
 const CACHE_TTL = 300;
@@ -44,6 +46,7 @@ function calculateDuration(startTime: string, endTime: string): string {
 
 @Injectable()
 export class ExamRoutineService {
+  private readonly logger = new Logger(ExamRoutineService.name);
   constructor(
     @Inject(EXAM_ROUTINE_REPOSITORY)
     private readonly examRoutineRepo: IExamRoutineRepository,
@@ -52,6 +55,7 @@ export class ExamRoutineService {
     @Inject(FACULTY_REPOSITORY)
     private readonly facultyRepo: IFacultyRepository,
     private readonly cache: CacheService,
+    private readonly mailService: MailService,
   ) {}
 
   private async resolveNames(
@@ -101,7 +105,38 @@ export class ExamRoutineService {
     });
 
     await this.cache.invalidatePattern('examroutines:*');
-    return this.enrich(model);
+    const enriched = await this.enrich(model);
+
+    // Notify teachers of this module (fire-and-forget)
+    const names = await this.resolveNames(dto.moduleId, dto.facultyId);
+    this.mailService
+      .sendExamRoutinePublishedToTeachers({
+        moduleId: dto.moduleId,
+        moduleName: names.moduleName ?? 'Unknown Module',
+        facultyName: names.facultyName,
+        examRoutine: {
+          id: model.id,
+          date: model.date,
+          startTime: model.startTime,
+          endTime: model.endTime,
+          duration: model.duration,
+          facultyId: model.facultyId,
+        },
+      })
+      .then((res) => {
+        if (res.queued > 0) {
+          this.logger.log(
+            `Exam routine ${model.id} mail queued to ${res.queued} teacher(s)`,
+          );
+        }
+      })
+      .catch((err) => {
+        this.logger.error(
+          `Failed to send exam routine mail for ${model.id}: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        );
+      });
+
+    return enriched;
   }
 
   async findAll(

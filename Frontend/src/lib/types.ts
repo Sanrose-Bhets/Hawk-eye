@@ -186,6 +186,16 @@ export interface AdmitCard {
   updatedAt: string;
 }
 
+export interface Teacher {
+  id: string;
+  name: string;
+  email: string;
+  facultyIds: string[];
+  moduleIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ClassBooking {
   id: string;
   classId: string;

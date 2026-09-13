@@ -7,6 +7,7 @@ import {
   Mail,
   Database,
   CalendarCheck,
+  GraduationCap,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -34,6 +35,12 @@ const links = [
     label: 'Module Management',
     description: 'Courses, credits & curriculum',
     icon: BookOpen,
+  },
+  {
+    to: '/dashboard/student-service/teachers',
+    label: 'Teachers',
+    description: 'Faculty teachers & assignments',
+    icon: GraduationCap,
   },
   {
     to: '/dashboard/student-service/results',

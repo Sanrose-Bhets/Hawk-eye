@@ -29,6 +29,9 @@ const ResultsPage = lazy(
 const MailManagementPage = lazy(
   () => import('@/pages/dashboard/student-service/mail'),
 );
+const TeachersPage = lazy(
+  () => import('@/pages/dashboard/student-service/teachers'),
+);
 
 const FloorPlansPage = lazy(
   () => import('@/pages/dashboard/seat-plan/floor-plans'),
@@ -131,6 +134,7 @@ function App() {
             <Route index element={<StudentServiceOverview />} />
             <Route path="students" element={<StudentsPage />} />
             <Route path="modules" element={<ModulesPage />} />
+            <Route path="teachers" element={<TeachersPage />} />
             <Route path="results" element={<ResultsPage />} />
             <Route path="mail" element={<MailManagementPage />} />
             <Route path="classes" element={<ClassesPage />} />

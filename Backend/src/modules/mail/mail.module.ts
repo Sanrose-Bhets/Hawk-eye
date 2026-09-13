@@ -6,6 +6,7 @@ import { MailConsumer } from './mail.consumer.js';
 import { MailRepository } from './repositories/mail.repository.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { StudentModule } from '../student/student.module.js';
+import { TeacherModule } from '../teacher/teacher.module.js';
 import { MAIL_REPOSITORY, MAIL_QUEUE } from './constants/mail.constants.js';
 import { EMAIL_PROVIDER } from './providers/email-provider.interface.js';
 import { ResendEmailProvider } from './providers/resend-email.provider.js';
@@ -26,6 +27,7 @@ const emailProvider: Provider = {
   imports: [
     PrismaModule,
     StudentModule,
+    TeacherModule,
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST || '127.0.0.1',

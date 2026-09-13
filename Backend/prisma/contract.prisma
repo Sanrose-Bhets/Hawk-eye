@@ -41,27 +41,63 @@ model RTE {
   updatedAt DateTime
 }
 
+model Teacher {
+  id        String           @id @default(uuid())
+  name      String
+  email     String           @unique
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+  faculties TeacherFaculty[]
+  modules   TeacherModule[]
+}
+
+model TeacherFaculty {
+  id        String  @id @default(uuid())
+  teacherId String
+  facultyId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  faculty   Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, facultyId])
+  @@index([facultyId])
+  @@index([teacherId])
+}
+
+model TeacherModule {
+  id        String  @id @default(uuid())
+  teacherId String
+  moduleId  String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  module    Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, moduleId])
+  @@index([moduleId])
+  @@index([teacherId])
+}
+
 model Faculty {
-  id          String    @id @default(uuid())
-  name        String    @unique
+  id          String           @id @default(uuid())
+  name        String           @unique
   description String?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime         @default(now())
   updatedAt   DateTime
   students    Student[]
   modules     Module[]
+  teachers    TeacherFaculty[]
 }
 
 model Module {
-  id            String   @id @default(uuid())
+  id            String          @id @default(uuid())
   name          String
   code          String?
   moduleLeader  String
   facultyId     String
-  createdAt     DateTime @default(now())
+  createdAt     DateTime        @default(now())
   updatedAt     DateTime
-  faculty       Faculty  @relation(fields: [facultyId], references: [id])
+  faculty       Faculty         @relation(fields: [facultyId], references: [id])
   resultItems   ResultItem[]
   semesters     ModuleSemester[]
+  teachers      TeacherModule[]
 }
 
 model ModuleSemester {
@@ -133,6 +169,7 @@ model EmailLog {
   subject   String
   body      String
   studentId String?
+  teacherId String?
   status    String   @default("queued")
   error     String?
   createdAt DateTime @default(now())
