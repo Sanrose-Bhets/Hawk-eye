@@ -78,7 +78,9 @@ const StudentAdmitCardPage = lazy(
 const CalendarPage = lazy(() => import('@/pages/dashboard/calendar'));
 const ExamRoutinesPage = lazy(() => import('@/pages/dashboard/exam-routines'));
 const AdmitCardsPage = lazy(() => import('@/pages/dashboard/admit-cards'));
-const ClassBookingsPage = lazy(() => import('@/pages/dashboard/class-bookings'));
+const ClassBookingsPage = lazy(
+  () => import('@/pages/dashboard/class-bookings'),
+);
 const BackupPage = lazy(() => import('@/pages/dashboard/backup'));
 
 function Spinner() {

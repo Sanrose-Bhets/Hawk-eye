@@ -15,8 +15,31 @@ import { Card, CardContent } from '@/components/ui/card';
 import { admitCardApi } from '@/lib/api/admit-cards';
 import type { AdmitCard } from '@/lib/types';
 
+function normalizeDate(raw: unknown): Date | null {
+  if (!raw) return null;
+  if (typeof raw === 'object' && raw !== null && 'epochMilliseconds' in raw) {
+    const ms = (raw as { epochMilliseconds: number }).epochMilliseconds;
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof raw === 'number') {
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof raw === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw.trim())) {
+      const [y, m, day] = raw.trim().split('-').map(Number);
+      return new Date(y, m - 1, day);
+    }
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = normalizeDate(dateStr);
+  if (!d) return 'N/A';
   return d.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -60,8 +83,7 @@ export default function StudentAdmitCardPage() {
   }, [fetchCards]);
 
   const handleDownloadPdf = (card: AdmitCard) => {
-    const baseUrl =
-      import.meta.env.VITE_API_URL || window.location.origin;
+    const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
     window.open(`${baseUrl}/api/v1/admit-cards/${card.id}/pdf`, '_blank');
   };
 
@@ -69,9 +91,7 @@ export default function StudentAdmitCardPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          My Admit Card
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900">My Admit Card</h1>
         <p className="text-sm text-gray-500 mt-1">
           View and download your examination admit cards
         </p>
@@ -133,9 +153,7 @@ export default function StudentAdmitCardPage() {
                       {card.moduleName}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {card.examDate
-                        ? formatDate(card.examDate)
-                        : 'Date TBD'}
+                      {card.examDate ? formatDate(card.examDate) : 'Date TBD'}
                     </div>
                   </div>
                 </div>
@@ -170,7 +188,10 @@ export default function StudentAdmitCardPage() {
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex items-start gap-2">
-                        <User size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <User
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Name</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -179,7 +200,10 @@ export default function StudentAdmitCardPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Mail size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <Mail
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Email</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -188,7 +212,10 @@ export default function StudentAdmitCardPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Building2 size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <Building2
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Faculty</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -208,7 +235,10 @@ export default function StudentAdmitCardPage() {
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex items-start gap-2">
-                        <GraduationCap size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <GraduationCap
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Module</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -220,7 +250,10 @@ export default function StudentAdmitCardPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Calendar size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <Calendar
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Date</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -231,7 +264,10 @@ export default function StudentAdmitCardPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Clock size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <Clock
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Time</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -256,7 +292,10 @@ export default function StudentAdmitCardPage() {
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex items-start gap-2">
-                        <Building2 size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <Building2
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Room</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -265,7 +304,10 @@ export default function StudentAdmitCardPage() {
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
-                        <FileText size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <FileText
+                          size={14}
+                          className="text-gray-400 mt-0.5 shrink-0"
+                        />
                         <div>
                           <p className="text-xs text-gray-500">Seat Number</p>
                           <p className="text-sm font-medium text-gray-900">
@@ -297,10 +339,7 @@ export default function StudentAdmitCardPage() {
             ) : (
               <Card>
                 <CardContent className="py-16 text-center">
-                  <FileText
-                    size={40}
-                    className="mx-auto mb-3 text-gray-300"
-                  />
+                  <FileText size={40} className="mx-auto mb-3 text-gray-300" />
                   <p className="text-sm text-gray-500">
                     Select an exam to view your admit card
                   </p>

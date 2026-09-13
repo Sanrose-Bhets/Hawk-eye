@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { FormEvent } from 'react';
-import {
-  Search,
-  Plus,
-  AlertCircle,
-  Clock,
-  Unlock,
-} from 'lucide-react';
+import { Search, Plus, AlertCircle, Clock, Unlock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -50,7 +44,9 @@ export default function ClassBookingsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'expired'
+  >('all');
 
   const [isBookOpen, setIsBookOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -59,7 +55,9 @@ export default function ClassBookingsPage() {
   const [formClassId, setFormClassId] = useState('');
   const [formPurpose, setFormPurpose] = useState('');
   const [formDurationValue, setFormDurationValue] = useState(60);
-  const [formDurationUnit, setFormDurationUnit] = useState<'minutes' | 'hours'>('minutes');
+  const [formDurationUnit, setFormDurationUnit] = useState<'minutes' | 'hours'>(
+    'minutes',
+  );
   const [formErrors, setFormErrors] = useState<{
     classId?: string | null;
     purpose?: string | null;
@@ -117,7 +115,9 @@ export default function ClassBookingsPage() {
     setFormError('');
     try {
       const durationMinutes =
-        formDurationUnit === 'hours' ? formDurationValue * 60 : formDurationValue;
+        formDurationUnit === 'hours'
+          ? formDurationValue * 60
+          : formDurationValue;
       await classBookingApi.create({
         classId: formClassId,
         purpose: formPurpose.trim(),
@@ -127,8 +127,7 @@ export default function ClassBookingsPage() {
       resetForm();
       fetchBookings();
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Failed to book class.';
+      const msg = err instanceof Error ? err.message : 'Failed to book class.';
       setFormError(msg);
     } finally {
       setSubmitting(false);
@@ -182,7 +181,10 @@ export default function ClassBookingsPage() {
 
       <div className="flex gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
           <Input
             placeholder="Search bookings..."
             value={search}
@@ -192,7 +194,9 @@ export default function ClassBookingsPage() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as typeof statusFilter)
+          }
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="all">All</option>
@@ -220,7 +224,9 @@ export default function ClassBookingsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className={`rounded-lg p-2.5 ${active ? 'bg-green-100' : 'bg-gray-100'}`}>
+                      <div
+                        className={`rounded-lg p-2.5 ${active ? 'bg-green-100' : 'bg-gray-100'}`}
+                      >
                         {active ? (
                           <Clock size={18} className="text-green-600" />
                         ) : (
@@ -247,8 +253,15 @@ export default function ClassBookingsPage() {
                         </p>
                         <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
                           <span>{formatDate(booking.startTime)}</span>
-                          <span>{formatTime(booking.startTime)} – {formatTime(booking.endTime)}</span>
-                          <span>({formatDuration(booking.startTime, booking.endTime)})</span>
+                          <span>
+                            {formatTime(booking.startTime)} –{' '}
+                            {formatTime(booking.endTime)}
+                          </span>
+                          <span>
+                            (
+                            {formatDuration(booking.startTime, booking.endTime)}
+                            )
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -292,7 +305,8 @@ export default function ClassBookingsPage() {
               value={formClassId}
               onChange={(e) => {
                 setFormClassId(e.target.value);
-                if (formErrors.classId) setFormErrors((p) => ({ ...p, classId: null }));
+                if (formErrors.classId)
+                  setFormErrors((p) => ({ ...p, classId: null }));
               }}
               className={`flex w-full rounded-lg border bg-white px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                 formErrors.classId ? 'border-red-300' : 'border-gray-200'
@@ -319,7 +333,8 @@ export default function ClassBookingsPage() {
               value={formPurpose}
               onChange={(e) => {
                 setFormPurpose(e.target.value);
-                if (formErrors.purpose) setFormErrors((p) => ({ ...p, purpose: null }));
+                if (formErrors.purpose)
+                  setFormErrors((p) => ({ ...p, purpose: null }));
               }}
               className={formErrors.purpose ? 'border-red-300' : ''}
             />
@@ -339,13 +354,16 @@ export default function ClassBookingsPage() {
                 value={formDurationValue}
                 onChange={(e) => {
                   setFormDurationValue(Number(e.target.value));
-                  if (formErrors.duration) setFormErrors((p) => ({ ...p, duration: null }));
+                  if (formErrors.duration)
+                    setFormErrors((p) => ({ ...p, duration: null }));
                 }}
                 className={`flex-1 ${formErrors.duration ? 'border-red-300' : ''}`}
               />
               <select
                 value={formDurationUnit}
-                onChange={(e) => setFormDurationUnit(e.target.value as typeof formDurationUnit)}
+                onChange={(e) =>
+                  setFormDurationUnit(e.target.value as typeof formDurationUnit)
+                }
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="minutes">Minutes</option>
