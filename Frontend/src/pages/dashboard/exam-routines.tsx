@@ -36,8 +36,31 @@ function hasErrors(obj: FormErrors): boolean {
   );
 }
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
+function normalizeDate(raw: unknown): Date | null {
+  if (!raw) return null;
+  if (typeof raw === 'object' && raw !== null && 'epochMilliseconds' in raw) {
+    const ms = (raw as { epochMilliseconds: number }).epochMilliseconds;
+    const d = new Date(ms);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof raw === 'number') {
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof raw === 'string') {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw.trim())) {
+      const [y, m, day] = raw.trim().split('-').map(Number);
+      return new Date(y, m - 1, day);
+    }
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+function formatDate(dateInput: unknown): string {
+  const d = normalizeDate(dateInput);
+  if (!d) return 'N/A';
   return d.toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
@@ -46,9 +69,22 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function toISODateString(raw: unknown): string {
+  const d = normalizeDate(raw);
+  if (!d) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function formatTime(time: string): string {
-  const [h, m] = time.split(':');
-  const hour = parseInt(h, 10);
+  if (!time) return '';
+  const parts = time.split(':');
+  if (parts.length < 2) return time;
+  const hour = parseInt(parts[0], 10);
+  if (isNaN(hour)) return time;
+  const m = parts[1];
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const h12 = hour % 12 || 12;
   return `${h12}:${m} ${ampm}`;
@@ -157,7 +193,7 @@ export default function ExamRoutinesPage() {
 
   const handleOpenEdit = (routine: ExamRoutine) => {
     setSelectedRoutine(routine);
-    setFormDate(routine.date.split('T')[0]);
+    setFormDate(toISODateString(routine.date));
     setFormStartTime(routine.startTime);
     setFormEndTime(routine.endTime);
     setFormFacultyId(routine.facultyId);
