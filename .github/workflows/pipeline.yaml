@@ -83,6 +83,7 @@ jobs:
             BUILD_TIME=${{ steps.build-info.outputs.build_time }}
       
   deploy:
+    needs: build
     runs-on:
       ubuntu-latest
     steps:
