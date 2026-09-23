@@ -1,4 +1,42 @@
 services:
+  frontend:
+    # build:
+    #   context: ..
+    #   dockerfile: docker/frontend/Dockerfile
+    image: sanrose27/hawk-eye-frontend:latest
+    container_name: hawk-eye-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    # build:
+    #   context: .
+    #   dockerfile: ../docker/backend/Dockerfile
+    image: sanrose27/hawk-eye-api:latest
+    container_name: hawk-eye-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/v1/health').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   postgres:
     image: postgres:16-alpine
     container_name: postgres
@@ -33,17 +71,17 @@ services:
       timeout: 5s
       retries: 5
 
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: redis-commander
-    restart: unless-stopped
-    environment:
-      REDIS_HOSTS: local:redis:6379
-    ports:
-      - '8081:8081'
-    depends_on:
-      redis:
-        condition: service_healthy
+  # redis-commander:
+  #   image: rediscommander/redis-commander:latest
+  #   container_name: redis-commander
+  #   restart: unless-stopped
+  #   environment:
+  #     REDIS_HOSTS: local:redis:6379
+  #   ports:
+  #     - '8081:8081'
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
 
   minio:
     image: quay.io/minio/minio:latest

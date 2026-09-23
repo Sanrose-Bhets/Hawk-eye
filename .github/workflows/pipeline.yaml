@@ -81,3 +81,34 @@ jobs:
           build-args: |
             VERSION=${{ steps.build-info.outputs.version }}
             BUILD_TIME=${{ steps.build-info.outputs.build_time }}
+      
+  deploy:
+    runs-on:
+      ubuntu-latest
+    steps:
+      - name: setting up the ssh key
+        run: | 
+          mkdir -p ~/.ssh
+          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh-keyscan -H ${{secrets.HOST}} >> ~/.ssh/known_hosts
+
+      - name: Rsyncing Compose file
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key.pem" \ 
+            docker-compose.yml
+            ubuntu@${{secrets.HOST}}:/opt/Hawk-eye/
+      
+      - name: deploying the Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{secrets.HOST}}
+          username: ${{secrets.USERNAME}}
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          script: |
+            cd /opt/Hawk-eye
+            docker compose --env-file .env -f docker-compose.yml pull
+            docker compose --env-file .env -f docker-compose.yml down && docker compose --env-file .env -f docker-compose.yml up -d
+            echo "The Application has been successfully deployed"
+          
+
