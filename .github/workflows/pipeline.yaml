@@ -96,8 +96,8 @@ jobs:
 
       - name: Rsyncing Compose file
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/deploy_key.pem" \ 
-            docker-compose.yml
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key.pem" \
+            docker-compose.yml \
             ubuntu@${{secrets.HOST}}:/opt/Hawk-eye/
       
       - name: deploying the Application
