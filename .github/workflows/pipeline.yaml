@@ -87,10 +87,11 @@ jobs:
     runs-on:
       ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: setting up the ssh key
         run: | 
           mkdir -p ~/.ssh
-          echo "${{secrets.SSH_PRIVATE_KEY}}" > ~/.ssh/deploy_key.pem
+          echo "${{secrets.SSH_PRIVATE_KEY}}" | tr -d '\r' > ~/.ssh/deploy_key.pem
           chmod 600 ~/.ssh/deploy_key.pem
           ssh-keyscan -H ${{secrets.HOST}} >> ~/.ssh/known_hosts
 
